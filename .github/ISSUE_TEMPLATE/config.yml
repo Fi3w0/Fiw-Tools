@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/Fi3w0/Fiw-Tools/blob/main/ITEM_CONFIG_DOCS.md
+    about: Full item configuration reference — every field, every ability, every component
+  - name: Fiw Bosses (sibling mod)
+    url: https://github.com/Fi3w0/Fiw-Bosses
+    about: Custom boss framework — pairs with Fiw Tools when both are installed

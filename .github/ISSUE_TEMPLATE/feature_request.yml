@@ -1,0 +1,44 @@
+name: Feature Request
+description: Suggest a new ability, customization field, or improvement
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New ability
+        - New customization field (component / NBT / attribute / etc.)
+        - New ability trigger
+        - Improvement to existing feature
+        - Bind with Fiw Bosses
+        - Commands
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Which loader does this apply to?
+      options:
+        - Fabric 26.1.2
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: Describe what you'd like to see added or changed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage (optional)
+      description: How would this look in an item JSON or in-game?
+      render: json

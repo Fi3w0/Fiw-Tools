@@ -1,0 +1,69 @@
+name: Bug Report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Mod Loader
+      options:
+        - Fabric 26.1.2
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Mod Version
+      placeholder: "e.g. 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: companion-mods
+    attributes:
+      label: Companion mods (if relevant)
+      placeholder: "e.g. Fiw Bosses 1.0.8, Fabric API 0.148.0+26.1.2"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      placeholder: Describe the bug clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Drop item JSON into config/fiw_tools/items/...
+        2. Run /fiwtools reload
+        3. Run /fiwtools give @s ...
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Crash log / server log
+      description: Paste relevant logs here. Use a pastebin link if too long.
+      render: text
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Item JSON (if relevant)
+      description: Paste the JSON config that triggers the bug.
+      render: json
