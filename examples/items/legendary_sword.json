@@ -1,0 +1,32 @@
+{
+  "id": "legendary_sword",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&6&lDawnbreaker",
+  "lore": [
+    "&7Forged at the edge of dawn.",
+    "&7Cuts through shadow.",
+    "",
+    "&8&oLegendary"
+  ],
+  "rarity": "epic",
+  "unbreakable": true,
+  "enchantmentGlint": true,
+  "enchantments": {
+    "minecraft:sharpness": 6,
+    "minecraft:fire_aspect": 2,
+    "minecraft:looting": 4
+  },
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 11.0, "operation": "add_value" },
+    { "type": "minecraft:attack_speed",  "slot": "mainhand", "amount": -2.4, "operation": "add_value" }
+  ],
+  "hideFlags": ["unbreakable"],
+  "abilities": [
+    {
+      "type": "arc_slash",
+      "trigger": "on_right_click",
+      "cooldownTicks": 60,
+      "params": { "damage": 6.0, "range": 4.0, "arc": 120 }
+    }
+  ]
+}

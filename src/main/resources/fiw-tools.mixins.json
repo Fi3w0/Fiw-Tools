@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.fiw.tools.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"PlayerInventoryDropAllMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

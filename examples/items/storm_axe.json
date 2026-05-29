@@ -1,0 +1,35 @@
+{
+  "id": "storm_axe",
+  "base": "minecraft:diamond_axe",
+  "displayName": "&3&lStorm Splitter",
+  "lore": [
+    "&7Calls down the storm",
+    "&7on every other strike."
+  ],
+  "rarity": "rare",
+  "unbreakable": true,
+  "enchantmentGlint": true,
+  "enchantments": {
+    "minecraft:sharpness": 5,
+    "minecraft:efficiency": 4
+  },
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 9.0, "operation": "add_value" },
+    { "type": "minecraft:attack_speed",  "slot": "mainhand", "amount": -3.0, "operation": "add_value" }
+  ],
+  "abilities": [
+    {
+      "type": "lightning_strike",
+      "trigger": "on_attack",
+      "chance": 0.35,
+      "cooldownTicks": 30,
+      "params": { "damage": 4.0, "cosmetic": true }
+    },
+    {
+      "type": "shockwave",
+      "trigger": "on_right_click",
+      "cooldownTicks": 100,
+      "params": { "radius": 4.5, "damage": 5.0, "knockback": 1.4 }
+    }
+  ]
+}
