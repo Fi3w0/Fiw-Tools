@@ -1,0 +1,27 @@
+{
+  "id": "riptide_trident",
+  "base": "minecraft:trident",
+  "displayName": "&b&lTidecaller",
+  "lore": [
+    "&7Right-click to ride the current.",
+    "&7Works on dry land."
+  ],
+  "rarity": "rare",
+  "unbreakable": true,
+  "enchantments": {
+    "minecraft:loyalty": 3,
+    "minecraft:impaling": 4
+  },
+  "attributes": [
+    { "type": "minecraft:generic.attack_damage", "slot": "mainhand", "amount": 9.0, "operation": "add_value" },
+    { "type": "minecraft:generic.attack_speed",  "slot": "mainhand", "amount": -2.7, "operation": "add_value" }
+  ],
+  "abilities": [
+    {
+      "type": "riptide_dash",
+      "trigger": "on_right_click",
+      "cooldownTicks": 50,
+      "params": { "distance": 7.0, "vertical": 0.5 }
+    }
+  ]
+}
