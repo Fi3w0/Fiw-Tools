@@ -42,3 +42,7 @@ replay_*.log
 # claude
 
 .claude/
+
+# changelog
+
+CHANGELOG.md
