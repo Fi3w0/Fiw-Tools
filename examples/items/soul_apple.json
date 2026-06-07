@@ -1,17 +1,19 @@
 {
   "id": "soul_apple",
-  "base": "minecraft:apple",
+  "base": "minecraft:enchanted_golden_apple",
   "displayName": "&5&lSoul Apple",
   "lore": [
-    "&7A bite returns lost vigor.",
-    "&8&oRare"
+    "&7Showcases the food component.",
+    "&7Any item can be made edible.",
+    "",
+    "&8Filling, and always eatable."
   ],
-  "rarity": "rare",
+  "rarity": "epic",
   "stackSize": 16,
   "enchantmentGlint": true,
   "food": {
-    "nutrition": 6,
-    "saturation": 8.0,
+    "nutrition": 8,
+    "saturation": 12.0,
     "canAlwaysEat": true
   }
 }

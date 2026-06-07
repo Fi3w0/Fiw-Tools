@@ -10,7 +10,7 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.world.phys.Vec3
 
 object RiptideDashAbility : Ability {
-    override fun execute(ctx: AbilityContext) {
+    override fun execute(ctx: AbilityContext): Boolean {
         val distance = ctx.params.optD("distance", 5.0)
         val vertical = ctx.params.optD("vertical", 0.4)
         val particle = ctx.params.optParticle("particle", ParticleTypes.CLOUD)
@@ -33,5 +33,6 @@ object RiptideDashAbility : Ability {
         }
         world.playSound(null, player.x, player.y, player.z,
             SoundEvents.TRIDENT_RIPTIDE_1, SoundSource.PLAYERS, 0.6f, 1.4f)
+        return true
     }
 }

@@ -25,8 +25,26 @@ data class ItemDefinition(
     val tool: ToolDef? = null,
     val repairCost: Int? = null,
     val customData: JsonObject? = null,
-    val abilities: List<AbilityDef> = emptyList()
+    val abilities: List<AbilityDef> = emptyList(),
+    val cursed: Boolean = false,
+    val curseWhitelist: List<String> = emptyList(),
+    val curseSettings: CurseSettings = CurseSettings(),
+    /**
+     * Max number of times this item can be imbued. `null` = the catalyst's own `maxImbuements`
+     * applies (used for vanilla bases or Fiw items that don't care). `0` = item is permanently
+     * locked from imbuing. `-1` = unlimited (debug). When non-null, the catalyst's cap is ignored.
+     */
+    val imbueLimit: Int? = null
 ) {
+    data class CurseSettings(
+        val perTick: Float = 1.0f,
+        val ignoreArmor: Boolean = true,
+        val ignoreResistance: Boolean = true,
+        val checksEnderChest: Boolean = false,
+        val sound: String = "minecraft:entity.wither.ambient",
+        val particles: String = "minecraft:sculk_soul"
+    )
+
     data class AttrDef(
         val type: String,
         val slot: String,
@@ -76,5 +94,7 @@ data class ItemDefinition(
         if (attributes.isNotEmpty()) append(", attrs=").append(attributes.size)
         if (abilities.isNotEmpty()) append(", abilities=").append(abilities.size)
         if (keepOnDeath) append(", keepOnDeath")
+        if (cursed) append(", CURSED(wl=").append(curseWhitelist.size).append(')')
+        imbueLimit?.let { append(", imbueLimit=").append(it) }
     }
 }

@@ -3,6 +3,9 @@
 	"package": "com.fiw.tools.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"AnvilProtectMixin",
+		"BlockItemPlacePreventMixin",
+		"GrindstoneProtectMixin",
 		"PlayerInventoryDropAllMixin"
 	],
 	"injectors": {

@@ -66,7 +66,12 @@ object ArcSlashAbility : Ability {
         ServerTickEvents.END_SERVER_TICK.register { _ -> tickAll() }
     }
 
-    override fun execute(ctx: AbilityContext) {
+    /** Drop all in-flight slashes (e.g. on server stop) so none tick into a freshly loaded world. */
+    fun clear() {
+        synchronized(active) { active.clear() }
+    }
+
+    override fun execute(ctx: AbilityContext): Boolean {
         val radius = ctx.params.optD("range", ctx.params.optD("radius", 3.5))
         val arcDeg = ctx.params.optD("arc", 140.0)
         val damage = ctx.params.optF("damage", 5f)
@@ -93,6 +98,7 @@ object ArcSlashAbility : Ability {
                 arcDeg, radius, damage, knockback, duration, points, yOffset, height,
                 Math.toRadians(rollDeg), hitRadius))
         }
+        return true
     }
 
     private fun tickAll() {
@@ -146,7 +152,7 @@ object ArcSlashAbility : Ability {
             }
             for (victim in victims) {
                 val src = world.damageSources().playerAttack(s.owner)
-                victim.hurt(src, s.damage)
+                victim.hurtServer(world, src, s.damage)
                 s.alreadyHit.add(victim.uuid)
 
                 val knock = victim.position().subtract(s.owner.position()).normalize()

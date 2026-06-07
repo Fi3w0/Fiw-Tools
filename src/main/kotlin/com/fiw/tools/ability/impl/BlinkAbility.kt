@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.world.phys.Vec3
 
 object BlinkAbility : Ability {
-    override fun execute(ctx: AbilityContext) {
+    override fun execute(ctx: AbilityContext): Boolean {
         val maxDistance = ctx.params.optD("distance", 5.0)
         val particle = ctx.params.optParticle("particle", ParticleTypes.PORTAL)
         val player = ctx.player
@@ -40,6 +40,7 @@ object BlinkAbility : Ability {
         emitBurst(world, safe.add(0.0, 1.0, 0.0), particle)
         world.playSound(null, safe.x, safe.y, safe.z,
             SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7f, 1.0f)
+        return true
     }
 
     private fun emitBurst(world: ServerLevel, at: Vec3, particle: ParticleOptions) {

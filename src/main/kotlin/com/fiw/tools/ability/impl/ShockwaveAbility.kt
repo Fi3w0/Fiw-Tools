@@ -15,7 +15,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 object ShockwaveAbility : Ability {
-    override fun execute(ctx: AbilityContext) {
+    override fun execute(ctx: AbilityContext): Boolean {
         val radius = ctx.params.optD("radius", 4.0)
         val damage = ctx.params.optF("damage", 4f)
         val knockback = ctx.params.optD("knockback", 1.2)
@@ -30,7 +30,7 @@ object ShockwaveAbility : Ability {
             val dz = entity.z - player.z
             val d = Math.sqrt(dx * dx + dz * dz)
             if (d > radius) continue
-            entity.hurt(src, damage)
+            entity.hurtServer(world, src, damage)
             val nx = if (d > 0.0001) dx / d else 0.0
             val nz = if (d > 0.0001) dz / d else 0.0
             entity.push(nx * knockback, 0.4, nz * knockback)
@@ -44,5 +44,6 @@ object ShockwaveAbility : Ability {
         }
         world.playSound(null, player.x, player.y, player.z,
             HolderAccess.value(SoundEvents.GENERIC_EXPLODE), SoundSource.PLAYERS, 0.6f, 1.5f)
+        return true
     }
 }

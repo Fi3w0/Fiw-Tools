@@ -8,12 +8,13 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 
 enum class AbilityTrigger {
-    ON_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK;
+    ON_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK, WHILE_HELD, WHILE_WORN;
 
     companion object {
         fun parse(s: String): AbilityTrigger? = when (s.lowercase()) {
@@ -22,6 +23,8 @@ enum class AbilityTrigger {
             "on_kill", "kill" -> ON_KILL
             "on_hurt", "hurt" -> ON_HURT
             "on_block_break", "block_break" -> ON_BLOCK_BREAK
+            "while_held", "passive", "held" -> WHILE_HELD
+            "while_worn", "worn", "armor" -> WHILE_WORN
             else -> null
         }
     }
@@ -33,11 +36,16 @@ data class AbilityContext(
     val world: ServerLevel,
     val target: LivingEntity? = null,
     val targetPos: Vec3? = null,
-    val params: JsonObject
+    val params: JsonObject,
+    /** For on_hurt: the damage the player is taking. Null for other triggers. */
+    val damageSource: DamageSource? = null,
+    /** For on_hurt: the incoming damage amount. 0 for other triggers. */
+    val damageAmount: Float = 0f
 )
 
 interface Ability {
-    fun execute(ctx: AbilityContext)
+    /** Run the effect. Return true if it actually acted (arms the cooldown), false to skip the cooldown. */
+    fun execute(ctx: AbilityContext): Boolean
 }
 
 object ParticleSpec {

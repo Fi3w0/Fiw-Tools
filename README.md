@@ -15,8 +15,8 @@ Designed as the sibling mod to [FIW Bosses](https://github.com/Fi3w0/Fiw-Bosses)
 
 | Loader | Minecraft | Status | Branch |
 |---|---|---|---|
-| **Fabric** | **1.21.11** | **Active** — backport from the 26.x line | [`fabric-1.21.11`](https://github.com/Fi3w0/Fiw-Tools/tree/fabric-1.21.11) |
-| **Fabric** | **26.1.2** | Active — primary development target | [`main`](https://github.com/Fi3w0/Fiw-Tools) |
+| **Fabric** | **1.21.11** | **Active — primary development target** | [`fabric-1.21.11`](https://github.com/Fi3w0/Fiw-Tools/tree/fabric-1.21.11) |
+| **Fabric** | **26.1.2** | Earlier release branch — not the version actively worked on | [`main`](https://github.com/Fi3w0/Fiw-Tools) |
 
 NeoForge and earlier Minecraft versions are not currently supported. The codebase only touches vanilla data components and Fabric API events, so a future port is possible but not planned.
 
@@ -27,10 +27,14 @@ NeoForge and earlier Minecraft versions are not currently supported. The codebas
 - **JSON-driven** — define any item without touching a single line of code
 - **Fully server-side** — vanilla 1.21.11 clients connect with no install required
 - **Vanilla data components** — custom name, lore, rarity, attributes, enchantments (uncapped levels), durability, food, tool, hide-tooltip flags, free-form NBT
-- **8 player-balanced abilities** — right-click cast, on-attack proc, on-hurt counter, on-kill, on-block-break — all configurable
+- **60 player-balanced abilities** — across PvP, PvE, utility, team-support and **passives** (held buffs, allied auras, reactive defense, conditional survival), plus admin tools `uncurse` and `imbue`; all configurable, each gated by per-player cooldown, `chance`, and an `affects` PvP-vs-PvE filter
+- **7 triggers** — right-click, on-attack, on-kill, on-hurt, on-block-break, **`while_held`** (passive sweep with health/combat/underwater/enemy-near gates), and **`while_worn`** (the same passive engine on each of the four armor slots, with a per-slot filter)
+- **Worn armor passives** — every passive ability also runs in armor slots; mix held + worn passives on the same item
+- **Curse system** — mark an item cursed with a player whitelist. Non-whitelisted holders take armor- and resistance-bypassing `fiw_tools:curse` damage until they drop it or die; optionally **scans the ender chest** so stashing it there doesn't save them. Cursed items can't be renamed, repaired, enchanted, grindstoned, or placed. A consumable Blessed Scroll lifts a curse via the `uncurse` ability
+- **Imbuing system** — catalysts upgrade items: enchant levels above the vanilla cap, extra attributes, new abilities, rewritten lore/name. Outcomes can be **deterministic** or **weighted-random** (rare god-rolls and "cracked" downgrades included). Catalysts carry a `maxUses` charge; targets a separate `imbueLimit`. Imbuements replay on top of fresh builds at reload, so player upgrades survive config edits
 - **Animated arc slash** — multi-tick layered particle sweep ported from Fiw Bosses
-- **Keep on death** — flagged items survive respawn even when `keepInventory` is off
-- **Hot reload** — `/fiwtools reload` swaps the registry atomically without a server restart
+- **Keep on death** — flagged items survive respawn even when `keepInventory` is off (cursed items always drop, so the curse can't be cheesed by suicide)
+- **Hot reload** — `/fiwtools reload` swaps the registry atomically without a server restart; player enchants, anvil renames, uncurse flags, and imbuements all survive the swap
 - **Tab completion** — every command tab-completes loaded item ids
 - **Public API** — `FiwToolsAPI.getItemStack(id, server)` for other mods to look up items
 - **Pairs with Fiw Bosses** — bosses can drop or equip Fiw Tools items by id (soft dependency, silently degrades when one mod is missing)
@@ -65,11 +69,23 @@ To get started, copy any JSON from [`examples/items/`](examples/items/) into `co
 ## Commands
 
 ```
-/fiwtools give <players> <itemId>           — give one item to one or more players
-/fiwtools give <players> <itemId> <count>   — give a stack
+/fiwtools give <players> <itemId> [count]   — give an item (optionally a stack)
 /fiwtools list                              — list all loaded item ids
 /fiwtools info <itemId>                     — print a summary of the item's definition
 /fiwtools reload                            — reload all item configs without restart
+
+/fiwtools curse add <itemId>                — mark an item cursed (rewrites its JSON in place)
+/fiwtools curse remove <itemId>             — unmark an item cursed
+/fiwtools curse list                        — list cursed item ids
+/fiwtools curse whitelist add <itemId> <player>    — exempt a player from the curse
+/fiwtools curse whitelist remove <itemId> <player> — remove a player from the whitelist
+/fiwtools uncurse_held                       — flag the held main-hand stack permanently uncursed
+
+/fiwtools imbue best                        — apply the top-weight outcome to the off-hand target
+/fiwtools imbue roll                        — roll an outcome at the catalyst's real odds
+/fiwtools imbue reset                       — clear the held item's imbue count
+/fiwtools imbue clear                       — strip all imbuements and rebuild from config
+/fiwtools imbue log                         — print the held item's imbuement history
 ```
 
 Permission level: 2 (operator). Tab-complete works on item ids.
@@ -89,7 +105,9 @@ Every item JSON is a flat object. All fields except `id` and `base` are optional
 | Power | `enchantments` (uncapped levels), `attributes` (per-slot, every operation) |
 | Persistence | `keepOnDeath`, `customData` |
 | Use | `food`, `tool` |
-| Behavior | `abilities` |
+| Behavior | `abilities` (active + `while_held` + `while_worn`, one array) |
+| Curse | `cursed`, `curseWhitelist`, `curseSettings` (`perTick`, `ignoreArmor`, `ignoreResistance`, `checksEnderChest`, `sound`, `particles`) |
+| Imbuing | `imbueLimit` on targets; an `imbue` ability (`targets` / `rng` / `maxUses` / `maxImbuements` / `outcomes` / `messages`) on catalysts |
 
 Color codes use `&` prefix: `&0`–`&f` for colors, `&l`/`&o`/`&n`/`&m`/`&k`/`&r` for styles — same syntax as Fiw Bosses.
 
@@ -101,20 +119,26 @@ Full schema, every field, every default, every example — see **[ITEM_CONFIG_DO
 
 ## Abilities
 
-| Ability | Description |
+60 abilities (58 combat/utility + 2 admin) across nine roles. Every one is server-side, never hits the caster, and never breaks blocks. Full params, defaults and examples are in **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG_DOCS.md)**.
+
+| Role | Abilities |
 |---|---|
-| `arc_slash` | Animated multi-tick blade sweep — 5 layered particle types, configurable arc / radius / roll / height |
-| `riptide_dash` | Forward dash in look direction with a small upward kick — works on dry land |
-| `lightning_strike` | Cosmetic lightning at the target on attack with bonus damage — no fires, no pig conversion by default |
-| `shockwave` | Ground ring around the player — entities in radius take damage and knockback |
-| `heal_on_hit` | Player heals a small amount when they damage something |
-| `blink` | Short teleport in look direction, clamped to safe blocks |
-| `projectile_burst` | Particle projectile travels forward, deals AoE damage on impact or at max range |
-| `frost_nova` | AoE around the player applies Slowness and small magic damage |
+| **Core** | `arc_slash`, `riptide_dash`, `lightning_strike`, `shockwave`, `heal_on_hit`, `blink`, `projectile_burst`, `frost_nova` |
+| **PvP** | `grappling_pull`, `disarm`, `parry_counter`, `execute`, `leech`, `silence_sigil`, `tether` |
+| **PvE** | `cleave`, `whirlwind`, `slaying_edge`, `soul_harvest`, `chain_lightning`, `gravity_well`, `ground_slam` |
+| **Utility** | `phase_dash`, `feather_fall`, `second_wind`, `ender_recall`, `levitate_self` |
+| **Support / social** | `rally_banner`, `taunt`, `healing_totem`, `beacon_ping`, `firework_burst`, `glow_mark`, `prank_swap` |
+| **Passive — held self-buffs** | `passive_buff`, `featherweight`, `aqua_kit`, `thermal_ward`, `saturation_aura`, `magnet`, `berserker`, `combat_focus`, `lifeline` |
+| **Passive — allied auras** | `rally_aura`, `beacon_aura`, `mending_aura` |
+| **Passive — reactive defense** | `static_field`, `repulse_ward`, `chill_aura`, `blinding_flash`, `spore_cloud`, `thorn_pulse`, `coward_mark`, `hornet_swarm`, `curse_pulse` |
+| **Passive — conditional survival** | `last_stand`, `adrenaline`, `shield_battery` |
+| **Admin / systems** | `uncurse` (consumable curse-lifter), `imbue` (catalyst upgrade engine) |
 
-**Triggers:** `on_right_click`, `on_attack`, `on_kill`, `on_hurt`, `on_block_break`.
+All passive abilities also run from armor slots via the `while_worn` trigger (optional per-slot `slot` filter: `head` / `chest` / `legs` / `feet`).
 
-Every ability supports `cooldownTicks` (per-player), `chance` (0.0–1.0), and a `params` block with ability-specific knobs (range, damage, particles, sound, etc.). Cooldowns are tracked per-player per-ability-slot, so dual-wielding two copies of the same item shares one cooldown for that ability.
+**Triggers:** `on_right_click`, `on_attack`, `on_kill`, `on_hurt`, `on_block_break`, `while_held` (passive sweep every ~0.5 s; supports `whenBelowHealth` / `whenEnemyWithin` / `whenUnderwater` / `whenInCombat` / `whenOutOfCombat` gates), `while_worn` (same engine on each armor slot).
+
+Every ability supports `cooldownTicks` (per-player), `chance` (0.0–1.0), and a `params` block with ability-specific knobs. AoE abilities take an **`affects`** param (`players` / `mobs` / `hostiles` / `allies` / `all`) — the main PvP-vs-PvE dial. Conditional abilities only consume their cooldown on a tick they actually fire. Cooldowns are tracked per-player per-ability-slot, so dual-wielding two copies of the same item shares one cooldown for that ability.
 
 ---
 
@@ -146,15 +170,25 @@ Full configuration reference — every field, every ability parameter, every com
 
 ## Included Examples
 
-Pre-built items live in [`examples/items/`](examples/items/) — copy any into `config/fiw_tools/items/` to use them.
+Pre-built items live in [`examples/items/`](examples/items/) — copy any into `config/fiw_tools/items/` to use them. Each one is built to demonstrate a different part of the mod.
 
-| Item | Style | Highlights |
-|---|---|---|
-| `legendary_sword` | Weapon | Netherite sword, +11 damage, sharpness 6 + fire aspect 2, arc_slash on right-click |
-| `storm_axe` | Weapon | Diamond axe, lightning_strike 35% on attack, shockwave on right-click |
-| `riptide_trident` | Weapon | Trident, riptide 3 + impaling 4, riptide_dash on right-click |
-| `mythic_helmet` | Armor | Golden helmet, +5 armor, +0.2 KB resist, keep on death |
-| `soul_apple` | Food | Apple base, nutrition 6, saturation 8, always-edible |
+| Item | Showcases |
+|---|---|
+| `aegis_sword` | Active abilities + uncapped power — arc slash, lightning, finisher, cleave; glint, keep-on-death |
+| `vampire_fang` | Lifesteal across triggers — heal/leech on attack, soul harvest on kill |
+| `sunforged_trident` | Movement + crowd-control casts — riptide dash, frost nova counter, `hideFlags` |
+| `warlords_horn` | Team-support abilities — rally banner, healing totem, kill firework |
+| `wanderers_charm` | **Held passives** (`while_held`) — haste/night-vision buff, item magnet, out-of-combat regen |
+| `guardian_plate` | **Worn passives** (`while_worn`) — ally aura, thorns retaliation, last-stand panic |
+| `abyssal_crown` | **Conditional worn passives** — aqua kit underwater, combat focus near enemies, enemy glow |
+| `phantom_treads` | Worn buffs + utility — no fall damage, permanent speed, item magnet |
+| `forbidden_blade` | **Curse system** — un-whitelisted holders drained; ender-chest detection on |
+| `blessed_scroll` | **Uncurse** consumable — lifts a curse from one item on right-click |
+| `spark_of_storms` | **RNG imbuing** — weighted catalyst with a god-roll and a downgrade; 5 charges |
+| `essence_of_calm` | **Deterministic imbuing** — guaranteed armor upgrade, single charge |
+| `ancient_blade` | **Imbue target** with `imbueLimit: 2` — a strong weapon capped at 2 upgrades |
+| `prospectors_pick` | Custom **tool** rules — fast ore mining, unbreakable, mining-time saturation |
+| `soul_apple` | **Food** component — any item made edible, always-eatable |
 
 ---
 

@@ -1,0 +1,28 @@
+{
+  "id": "forbidden_blade",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&4&lForbidden Blade",
+  "lore": [
+    "&7Showcases the curse system.",
+    "&8Whoever is not whitelisted and carries",
+    "&8this blade is drained until they drop it.",
+    "",
+    "&c&oEven hiding it in an ender chest won't save you."
+  ],
+  "rarity": "epic",
+  "enchantmentGlint": true,
+  "enchantments": { "minecraft:sharpness": 10 },
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 14.0, "operation": "add_value" }
+  ],
+  "cursed": true,
+  "curseWhitelist": [],
+  "curseSettings": {
+    "perTick": 1.0,
+    "ignoreArmor": true,
+    "ignoreResistance": true,
+    "checksEnderChest": true,
+    "sound": "minecraft:entity.wither.ambient",
+    "particles": "minecraft:sculk_soul"
+  }
+}

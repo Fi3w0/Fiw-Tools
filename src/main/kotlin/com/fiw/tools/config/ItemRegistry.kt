@@ -1,5 +1,6 @@
 package com.fiw.tools.config
 
+import com.fiw.tools.build.ItemBuilder
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
@@ -12,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 object ItemRegistry {
     private val logger = LoggerFactory.getLogger("fiw-tools/registry")
-    private val gson: Gson = GsonBuilder().setLenient().create()
+    private val gson: Gson = GsonBuilder().create()
     private val current = AtomicReference<Map<String, ItemDefinition>>(emptyMap())
 
     val configRoot: Path
@@ -46,6 +47,7 @@ object ItemRegistry {
         }
 
         current.set(map)
+        ItemBuilder.invalidateRevisions()
         logger.info("Loaded ${map.size} item(s); ${failures.size} failed.")
         return ReloadReport(map.size, failures)
     }
@@ -124,6 +126,19 @@ object ItemRegistry {
         val hideFlags = root.getAsJsonArray("hideFlags")?.map { it.asString } ?: emptyList()
         val lore = root.getAsJsonArray("lore")?.map { it.asString } ?: emptyList()
 
+        val curseWhitelist = root.getAsJsonArray("curseWhitelist")?.map { it.asString } ?: emptyList()
+        val curseObj = root.getAsJsonObject("curseSettings")
+        val curseSettings = if (curseObj != null) {
+            ItemDefinition.CurseSettings(
+                perTick = curseObj.optFloat("perTick", 1.0f),
+                ignoreArmor = curseObj.optBool("ignoreArmor", true),
+                ignoreResistance = curseObj.optBool("ignoreResistance", true),
+                checksEnderChest = curseObj.optBool("checksEnderChest", false),
+                sound = curseObj.optString("sound", "minecraft:entity.wither.ambient"),
+                particles = curseObj.optString("particles", "minecraft:sculk_soul")
+            )
+        } else ItemDefinition.CurseSettings()
+
         return ItemDefinition(
             id = id,
             base = base,
@@ -143,7 +158,11 @@ object ItemRegistry {
             tool = tool,
             repairCost = root.optIntOrNull("repairCost"),
             customData = root.getAsJsonObject("customData"),
-            abilities = abilities
+            abilities = abilities,
+            cursed = root.optBool("cursed", false),
+            curseWhitelist = curseWhitelist,
+            curseSettings = curseSettings,
+            imbueLimit = root.optIntOrNull("imbueLimit")
         )
     }
 

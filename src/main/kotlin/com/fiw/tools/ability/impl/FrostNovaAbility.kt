@@ -17,7 +17,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 object FrostNovaAbility : Ability {
-    override fun execute(ctx: AbilityContext) {
+    override fun execute(ctx: AbilityContext): Boolean {
         val radius = ctx.params.optD("radius", 4.0)
         val damage = ctx.params.optF("damage", 2f)
         val slowDur = ctx.params.optI("slowDuration", 40)
@@ -30,7 +30,7 @@ object FrostNovaAbility : Ability {
         val src = world.damageSources().magic()
         for (entity in world.getEntitiesOfClass(LivingEntity::class.java, box) { it !== player && it.isAlive }) {
             if (entity.position().distanceTo(player.position()) > radius) continue
-            entity.hurt(src, damage)
+            entity.hurtServer(world, src, damage)
             entity.addEffect(MobEffectInstance(MobEffects.SLOWNESS, slowDur, slowAmp))
         }
 
@@ -45,5 +45,6 @@ object FrostNovaAbility : Ability {
         }
         world.playSound(null, player.x, player.y, player.z,
             SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.5f, 1.6f)
+        return true
     }
 }

@@ -7,7 +7,7 @@ import com.fiw.tools.ability.optParticle
 import net.minecraft.core.particles.ParticleTypes
 
 object HealOnHitAbility : Ability {
-    override fun execute(ctx: AbilityContext) {
+    override fun execute(ctx: AbilityContext): Boolean {
         val amount = ctx.params.optF("amount", 1.5f)
         val particle = ctx.params.optParticle("particle", ParticleTypes.HEART)
         val player = ctx.player
@@ -21,5 +21,6 @@ object HealOnHitAbility : Ability {
             val oz = (Math.random() - 0.5) * 0.8
             world.sendParticles(particle, player.x + ox, player.y + oy, player.z + oz, 1, 0.0, 0.0, 0.0, 0.0)
         }
+        return true
     }
 }

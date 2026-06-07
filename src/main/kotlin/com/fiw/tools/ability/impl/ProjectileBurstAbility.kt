@@ -34,7 +34,12 @@ object ProjectileBurstAbility : Ability {
         ServerTickEvents.END_SERVER_TICK.register { _ -> tickAll() }
     }
 
-    override fun execute(ctx: AbilityContext) {
+    /** Drop all in-flight projectiles (e.g. on server stop) so none tick into a freshly loaded world. */
+    fun clear() {
+        synchronized(projectiles) { projectiles.clear() }
+    }
+
+    override fun execute(ctx: AbilityContext): Boolean {
         val range = ctx.params.optD("range", 16.0)
         val speed = ctx.params.optD("speed", 1.4)
         val damage = ctx.params.optF("damage", 5f)
@@ -47,6 +52,7 @@ object ProjectileBurstAbility : Ability {
         synchronized(projectiles) {
             projectiles.add(InFlight(ctx.world, ctx.player, origin, dir, speed, range, damage, aoe, particle))
         }
+        return true
     }
 
     private fun tickAll() {
@@ -62,7 +68,7 @@ object ProjectileBurstAbility : Ability {
                 val hit = p.world.getEntitiesOfClass(LivingEntity::class.java, box) { e -> e !== p.owner && e.isAlive }
                 if (hit.isNotEmpty()) {
                     val src = p.world.damageSources().playerAttack(p.owner)
-                    for (e in hit) e.hurt(src, p.damage)
+                    for (e in hit) e.hurtServer(p.world, src, p.damage)
                     it.remove()
                     continue
                 }
