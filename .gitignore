@@ -1,8 +1,14 @@
 # Build output
+# NOTE: these are anchored to the repo root / module roots on purpose. A bare
+# `build/` would also match the `com/fiw/tools/build` SOURCE package and stop it
+# from being committed, which breaks compilation on a clean checkout (e.g. CI).
 .gradle/
-build/
-out/
-bin/
+/build/
+/*/build/
+/out/
+/*/out/
+/bin/
+/*/bin/
 *.class
 
 # Loom / NeoForge dev runs + caches
