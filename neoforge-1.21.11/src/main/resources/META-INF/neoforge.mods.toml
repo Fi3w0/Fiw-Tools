@@ -1,0 +1,29 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "CC-BY-NC-SA-4.0"
+issueTrackerURL = "https://github.com/Fi3w0/Fiw-Tools/issues"
+
+[[mods]]
+modId = "fiw_tools"
+version = "${version}"
+displayName = "FIW Tools"
+authors = "Fiw"
+logoFile = "icon.png"
+description = "JSON-driven custom items, weapons, armor and player abilities. Server-side only — install on the server; clients do not need this mod."
+
+[[mixins]]
+config = "fiw-tools.mixins.json"
+
+[[dependencies.fiw_tools]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.11,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.fiw_tools]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.11,1.22)"
+ordering = "NONE"
+side = "BOTH"

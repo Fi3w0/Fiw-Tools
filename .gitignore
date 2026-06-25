@@ -1,0 +1,82 @@
+# Build output
+.gradle/
+build/
+out/
+bin/
+*.class
+
+# Loom / NeoForge dev runs + caches
+run/
+run-server/
+runs/
+logs/
+.fabric/
+*.log
+
+# Root/module dev runtime folders. Do not use **/client or **/server here:
+# source packages may legitimately be named client/server.
+/run/
+/*/run/
+/client/
+/*/client/
+/server/
+/*/server/
+
+# Packaged release jars
+/jars/
+/Jar/
+
+# Keep the Gradle wrapper jar tracked even if jar rules get added later
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE / editors
+.idea/
+.vscode/
+.eclipse/
+.settings/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# AI agent tooling / instructions
+.claude/
+AGENTS.md
+CLAUDE.md
+.cursor/
+.cursorrules
+.github/copilot-instructions.md
+docs/NEXT_SESSION_PLAN.md
+
+# Runtime config/data generated on a live server
+/config/
+/run*/config/
+**/profiles/
+whitelist.json
+
+# Minecraft client/server runtime data
+world/
+saves/
+crash-reports/
+resourcepacks/
+options.txt
+servers.dat
+usercache.json
+usernamecache.json
+ops.json
+banned-ips.json
+banned-players.json
+eula.txt
+
+# Environment & secrets
+.env
+.env.*
+*.token
+*.secret
+credentials.json
+secrets.json

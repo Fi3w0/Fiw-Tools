@@ -1,0 +1,17 @@
+{
+	"required": true,
+	"package": "com.fiw.tools.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"AnvilProtectMixin",
+		"BlockItemPlacePreventMixin",
+		"GrindstoneProtectMixin",
+		"PlayerInventoryDropAllMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

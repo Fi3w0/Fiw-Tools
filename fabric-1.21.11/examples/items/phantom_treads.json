@@ -1,0 +1,23 @@
+{
+  "id": "phantom_treads",
+  "base": "minecraft:netherite_boots",
+  "displayName": "&d&lPhantom Treads",
+  "lore": [
+    "&7Showcases mixing worn buffs + utility.",
+    "",
+    "&8- No fall damage while worn",
+    "&8- Permanent Speed",
+    "&8- Pulls items & XP within 6 blocks"
+  ],
+  "rarity": "rare",
+  "enchantments": { "minecraft:feather_falling": 4, "minecraft:depth_strider": 3 },
+  "attributes": [
+    { "type": "minecraft:armor",          "slot": "feet", "amount": 3.0,  "operation": "add_value" },
+    { "type": "minecraft:movement_speed", "slot": "feet", "amount": 0.05, "operation": "add_multiplied_total" }
+  ],
+  "abilities": [
+    { "type": "featherweight", "trigger": "while_worn", "params": { "slot": "feet" } },
+    { "type": "passive_buff",  "trigger": "while_worn", "params": { "slot": "feet", "buffs": ["speed"], "amplifier": 0, "buffDuration": 40 } },
+    { "type": "magnet",        "trigger": "while_worn", "params": { "slot": "feet", "radius": 6 } }
+  ]
+}

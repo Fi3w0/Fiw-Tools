@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "fiw-tools",
+	"version": "${version}",
+	"name": "Fiw Tools",
+	"description": "JSON-driven custom items, weapons, armor and player abilities. Fully server-side — vanilla clients can connect with no install.",
+	"authors": [
+		"Fiw"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/fiw-tools",
+		"sources": "https://github.com/Fi3w0/Fiw-Tools",
+		"issues": "https://github.com/Fi3w0/Fiw-Tools/issues"
+	},
+	"license": "CC-BY-NC-SA-4.0",
+	"icon": "assets/fiw-tools/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "com.fiw.tools.FiwTools",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"fiw-tools.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}

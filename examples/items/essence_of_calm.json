@@ -1,0 +1,39 @@
+{
+  "id": "essence_of_calm",
+  "base": "minecraft:amethyst_shard",
+  "displayName": "&a&lEssence of Calm",
+  "lore": [
+    "&7Showcases deterministic imbuing (no RNG).",
+    "&7Wear or hold armor in your OFF hand,",
+    "&7right-click for the exact same upgrade.",
+    "",
+    "&8One charge, one guaranteed result."
+  ],
+  "rarity": "rare",
+  "abilities": [
+    {
+      "type": "imbue",
+      "trigger": "on_right_click",
+      "params": {
+        "targets": { "tags": ["#minecraft:trimmable_armor"] },
+        "rng": false,
+        "maxUses": 1,
+        "maxImbuements": 1,
+        "outcomes": [
+          { "name": "&aWard of Calm",
+            "mods": {
+              "enchantments": { "minecraft:protection": 6 },
+              "attributes": [ { "type": "minecraft:armor_toughness", "slot": "any", "amount": 2, "operation": "add_value" } ],
+              "addAbilities": [ { "type": "last_stand", "trigger": "while_worn", "cooldownTicks": 1200, "params": { "slot": "any", "threshold": 0.3 } } ],
+              "appendLore": [ "&aBlessed with the Ward of Calm." ]
+            } }
+        ],
+        "messages": {
+          "noTarget": "&cHold a piece of armor in your off hand.",
+          "wrongType": "&cThis essence only works on armor.",
+          "capReached": "&6This armor is already at peace."
+        }
+      }
+    }
+  ]
+}

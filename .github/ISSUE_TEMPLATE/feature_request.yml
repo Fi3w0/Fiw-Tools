@@ -1,0 +1,50 @@
+name: Feature request
+description: Suggest a new ability, config option, integration, or improvement.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: Describe the feature - a new ability, config field, command, integration, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What item, progression system, or boss loot setup are you trying to build? Why does this help?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: targets
+    attributes:
+      label: Relevant targets
+      description: Which loaders/versions should this apply to?
+      multiple: true
+      options:
+        - All targets
+        - Fabric 1.21.11
+        - NeoForge 1.21.11
+        - Fabric 26.1.2 (module fabric-26.2.1)
+    validations:
+      required: false
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example usage
+      description: How would this look in item JSON or in-game?
+      render: json
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this isn't already requested.
+          required: true

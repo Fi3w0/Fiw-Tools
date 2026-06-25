@@ -1,0 +1,51 @@
+{
+  "id": "spark_of_storms",
+  "base": "minecraft:nether_star",
+  "displayName": "&b&lSpark of Storms",
+  "lore": [
+    "&7Showcases RNG imbuing (a risky catalyst).",
+    "&7Hold a sword in your OFF hand, right-click.",
+    "",
+    "&8Weighted outcomes — including a god-roll",
+    "&8and a downgrade. 5 charges, 3 per blade."
+  ],
+  "rarity": "epic",
+  "enchantmentGlint": true,
+  "abilities": [
+    {
+      "type": "imbue",
+      "trigger": "on_right_click",
+      "params": {
+        "targets": { "tags": ["#minecraft:swords"] },
+        "rng": true,
+        "maxUses": 5,
+        "maxImbuements": 3,
+        "outcomes": [
+          { "name": "&7Faint Spark", "weight": 55,
+            "mods": { "enchantments": { "minecraft:sharpness": 6 } } },
+          { "name": "&bStorm Spark", "weight": 30,
+            "mods": {
+              "enchantments": { "minecraft:sharpness": 10 },
+              "attributes": [ { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 2, "operation": "add_value" } ]
+            } },
+          { "name": "&5&lThunderstrike", "weight": 5,
+            "chat": "&5✦ &dThunderstrike has been awakened!",
+            "mods": {
+              "enchantments": { "minecraft:sharpness": 15 },
+              "addAbilities": [ { "type": "chain_lightning", "trigger": "on_attack", "chance": 0.5, "cooldownTicks": 30 } ],
+              "appendLore": [ "&5Thunderstrike awakened." ]
+            } },
+          { "name": "&4Cracked", "weight": 10,
+            "mods": { "enchantments": { "minecraft:sharpness": 1 }, "appendLore": [ "&4The spark cracked the blade." ] } }
+        ],
+        "messages": {
+          "noTarget": "&cHold a sword in your off hand.",
+          "wrongType": "&cThis spark only works on swords.",
+          "capReached": "&6&lThis blade can take no more sparks.",
+          "cursed": "&cCursed blades refuse the spark.",
+          "noOutcomes": "&cThis catalyst is misconfigured."
+        }
+      }
+    }
+  ]
+}

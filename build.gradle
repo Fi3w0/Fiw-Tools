@@ -1,0 +1,9 @@
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version '2.3.21' apply false
+}
+
+// Root project: modules configure their own Fabric/Kotlin toolchains.
+
+allprojects {
+	group = 'com.fiw'
+}

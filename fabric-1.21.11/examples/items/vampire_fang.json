@@ -1,0 +1,21 @@
+{
+  "id": "vampire_fang",
+  "base": "minecraft:iron_sword",
+  "displayName": "&4&lVampire's Fang",
+  "lore": [
+    "&7Showcases lifesteal across triggers.",
+    "",
+    "&8On attack: &7heal + lifesteal",
+    "&8On kill:   &7soul harvest (heal + Strength/Speed)"
+  ],
+  "rarity": "rare",
+  "enchantments": { "minecraft:sharpness": 5, "minecraft:looting": 3 },
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 8.0, "operation": "add_value" }
+  ],
+  "abilities": [
+    { "type": "heal_on_hit",  "trigger": "on_attack", "params": { "amount": 1.0 } },
+    { "type": "leech",        "trigger": "on_attack", "params": { "amount": 1.5 } },
+    { "type": "soul_harvest", "trigger": "on_kill",   "params": { "heal": 3, "buffDuration": 120, "strengthAmplifier": 0, "speedAmplifier": 0 } }
+  ]
+}

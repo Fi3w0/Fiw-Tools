@@ -1,0 +1,95 @@
+name: Bug report
+description: Something isn't working as expected (crash, wrong behavior, ability misfire).
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please include the item JSON and relevant server logs when possible.
+
+  - type: dropdown
+    id: target
+    attributes:
+      label: Loader & Minecraft version
+      description: Which jar are you running?
+      options:
+        - Fabric 1.21.11
+        - NeoForge 1.21.11
+        - Fabric 26.1.2 (module fabric-26.2.1)
+    validations:
+      required: true
+
+  - type: input
+    id: mod_version
+    attributes:
+      label: FIW Tools version
+      description: The mod version (e.g. 1.0.2).
+      placeholder: "1.0.2"
+    validations:
+      required: true
+
+  - type: input
+    id: loader_version
+    attributes:
+      label: Loader / API version
+      description: Loader version, plus Fabric API and Fabric Language Kotlin if on Fabric.
+      placeholder: "NeoForge 21.11.42 / Fabric Loader 0.19.2 + Fabric API 0.141.4+1.21.11"
+    validations:
+      required: false
+
+  - type: input
+    id: companion_mods
+    attributes:
+      label: Companion mods
+      description: Include FIW Bosses version if the issue involves toolId equipment or loot.
+      placeholder: "FIW Bosses 1.1.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened
+      description: What went wrong, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Drop item JSON into config/fiw_tools/items/...
+        2. Run /fiwtools reload
+        3. Run /fiwtools give @s ...
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Item JSON / boss toolId config (if relevant)
+      description: Paste the JSON config that triggers the issue.
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Server log / crash report
+      description: Paste relevant log lines or attach the crash report from `crash-reports/`. Look for `fiw_tools` lines.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I'm on the latest FIW Tools release for my Minecraft version.
+          required: true
+        - label: I searched existing issues and this isn't a duplicate.
+          required: true

@@ -1,0 +1,19 @@
+{
+  "id": "ancient_blade",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&6&lAncient Blade",
+  "lore": [
+    "&7Showcases an imbue TARGET with a hard cap.",
+    "&7Already strong — but imbueLimit lets it take",
+    "&7only 2 risky upgrades, no matter the catalyst.",
+    "",
+    "&8Imbue it with the Spark of Storms."
+  ],
+  "rarity": "epic",
+  "unbreakable": true,
+  "enchantments": { "minecraft:sharpness": 5 },
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 9.0, "operation": "add_value" }
+  ],
+  "imbueLimit": 2
+}

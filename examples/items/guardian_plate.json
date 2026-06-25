@@ -1,0 +1,25 @@
+{
+  "id": "guardian_plate",
+  "base": "minecraft:netherite_chestplate",
+  "displayName": "&3&lGuardian Plate",
+  "lore": [
+    "&7Showcases worn passives (while_worn).",
+    "",
+    "&8- Speed + Resistance aura to nearby allies",
+    "&8- Thorns lash when you've been hit",
+    "&8- Last Stand panic at 30% HP"
+  ],
+  "rarity": "epic",
+  "enchantments": { "minecraft:protection": 4, "minecraft:unbreaking": 5 },
+  "attributes": [
+    { "type": "minecraft:armor",           "slot": "chest", "amount": 9.0, "operation": "add_value" },
+    { "type": "minecraft:armor_toughness", "slot": "chest", "amount": 3.0, "operation": "add_value" },
+    { "type": "minecraft:max_health",      "slot": "chest", "amount": 4.0, "operation": "add_value" }
+  ],
+  "keepOnDeath": true,
+  "abilities": [
+    { "type": "rally_aura",  "trigger": "while_worn", "params": { "slot": "chest", "radius": 6, "buffs": ["speed", "resistance"], "amplifier": 0 } },
+    { "type": "thorn_pulse", "trigger": "while_worn", "cooldownTicks": 30, "params": { "slot": "chest", "combatWindow": 40, "radius": 3, "damage": 2, "affects": "all" } },
+    { "type": "last_stand",  "trigger": "while_worn", "cooldownTicks": 1200, "params": { "slot": "chest", "threshold": 0.3, "duration": 120, "resistAmplifier": 1, "absorptionDuration": 200 } }
+  ]
+}
