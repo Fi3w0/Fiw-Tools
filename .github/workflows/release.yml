@@ -37,7 +37,7 @@ jobs:
           mkdir -p release
           find . -path '*/build/libs/*.jar' \
             ! -name '*-sources.jar' ! -name '*-dev.jar' ! -name '*-shadow.jar' \
-            ! -name 'fiw-tools-core-*.jar' -exec cp -v {} release/ \;
+            ! -name 'fiw-tools-core*.jar' -exec cp -v {} release/ \;
           echo "--- release contents ---"
           ls -la release
 
