@@ -34,7 +34,12 @@ data class ItemDefinition(
      * applies (used for vanilla bases or Fiw items that don't care). `0` = item is permanently
      * locked from imbuing. `-1` = unlimited (debug). When non-null, the catalyst's cap is ignored.
      */
-    val imbueLimit: Int? = null
+    val imbueLimit: Int? = null,
+    /**
+     * Max souls this item can hold. `null` = item doesn't participate in the soul system.
+     * Souls are collected on kill via the `soul_collector` passive and spent by `soul_surge`.
+     */
+    val soulCapacity: Int? = null
 ) {
     data class CurseSettings(
         val perTick: Float = 1.0f,

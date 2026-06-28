@@ -108,7 +108,8 @@ object ItemConfigParser {
             cursed = root.optBool("cursed", false),
             curseWhitelist = curseWhitelist,
             curseSettings = curseSettings,
-            imbueLimit = root.optIntOrNull("imbueLimit")
+            imbueLimit = root.optIntOrNull("imbueLimit"),
+            soulCapacity = root.optIntOrNull("soulCapacity")
         )
     }
 
