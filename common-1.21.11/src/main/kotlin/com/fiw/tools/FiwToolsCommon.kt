@@ -36,6 +36,7 @@ object FiwToolsCommon {
         ZoneEffects.tick()
         ProjectileBurstAbility.tick()
         ArcSlashAbility.tick()
+        AbilityState.processBleeds(server)
     }
 
     fun playerJoin(player: ServerPlayer) {
