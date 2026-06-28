@@ -41,13 +41,20 @@ Items are defined as `.json` files — no coding, no client install, no server r
   - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
   - PvP: [grappling_pull](#grappling_pull) · [disarm](#disarm) · [parry_counter](#parry_counter) · [execute](#execute) · [leech](#leech) · [silence_sigil](#silence_sigil) · [tether](#tether)
   - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
+  - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
   - Utility: [phase_dash](#phase_dash) · [feather_fall](#feather_fall) · [second_wind](#second_wind) · [ender_recall](#ender_recall) · [levitate_self](#levitate_self)
   - Support / social: [rally_banner](#rally_banner) · [taunt](#taunt) · [healing_totem](#healing_totem) · [beacon_ping](#beacon_ping) · [firework_burst](#firework_burst) · [glow_mark](#glow_mark) · [prank_swap](#prank_swap)
-  - [Passives (`while_held`)](#passives-while_held)
+  - [Passives (`while_held` / `while_sneaking`)](#passives-while_held)
     - Held self-buffs: [passive_buff](#passive_buff) · [featherweight](#featherweight) · [aqua_kit](#aqua_kit) · [thermal_ward](#thermal_ward) · [saturation_aura](#saturation_aura) · [magnet](#magnet) · [berserker](#berserker) · [combat_focus](#combat_focus) · [lifeline](#lifeline)
+    - Holder debuffs (balance): [holder_debuff](#holder_debuff)
     - Allied auras: [rally_aura](#rally_aura) · [beacon_aura](#beacon_aura) · [mending_aura](#mending_aura)
-    - Reactive defense: [static_field](#static_field) · [repulse_ward](#repulse_ward) · [chill_aura](#chill_aura) · [blinding_flash](#blinding_flash) · [spore_cloud](#spore_cloud) · [thorn_pulse](#thorn_pulse) · [coward_mark](#coward_mark) · [hornet_swarm](#hornet_swarm) · [curse_pulse](#curse_pulse)
+    - Reactive defense: [static_field](#static_field) · [repulse_ward](#repulse_ward) · [chill_aura](#chill_aura) · [blinding_flash](#blinding_flash) · [spore_cloud](#spore_cloud) · [thorn_pulse](#thorn_pulse) · [coward_mark](#coward_mark) · [hornet_swarm](#hornet_swarm) · [curse_pulse](#curse_pulse) · [decay_aura](#decay_aura) · [ember_aura](#ember_aura)
     - Conditional survival: [last_stand](#last_stand) · [adrenaline](#adrenaline) · [shield_battery](#shield_battery)
+- **Ice:** [ice_lance](#ice_lance) · [blizzard](#blizzard) · [glacial_shell](#glacial_shell)
+- **Water:** [tidal_surge](#tidal_surge)
+- **Fire:** [flame_dash](#flame_dash) · [meteor_strike](#meteor_strike)
+- **Blood:** [blood_pact](#blood_pact) · [hemorrhage](#hemorrhage) · [sanguine_strike](#sanguine_strike)
+- **[Soul System](#soul-system):** [soul_collector](#soul_collector) · [soul_surge](#soul_surge)
 - [Bind with Fiw Bosses](#bind-with-fiw-bosses)
 - [Behavior Notes](#behavior-notes)
 
@@ -327,6 +334,7 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `on_block_break` | Player breaks a block while holding the item |
 | `while_held` | Periodic sweep (every 10 ticks ≈ 0.5 s) while the item is in your hand — see [Passives](#passives-while_held) |
 | `while_worn` | Same sweep but for armor slots — see [Worn passives](#worn-passives-while_worn) |
+| `while_sneaking` | Same as `while_held` / `while_worn` but **only fires when the player is crouching** — use for sneak-activated passives |
 
 **Particles** can be a string id or `{ "id": "minecraft:flame", "count": 8, "speed": 0.05 }`.
 
@@ -714,6 +722,57 @@ Best trigger: `on_right_click`. Leap, then a **telegraphed** delayed impact: AoE
 
 ---
 
+## Active Debuffs
+
+Single-target debuffs applied by attacking. These complement the PvP and PvE categories — they apply on-hit effects rather than dealing immediate damage.
+
+### `ignite`
+
+Best trigger: `on_attack`. Sets the target on fire for a configurable number of seconds.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `seconds` | 5 | Fire duration in seconds |
+
+```json
+{ "type": "ignite", "trigger": "on_attack", "chance": 0.4, "cooldownTicks": 30, "params": { "seconds": 6 } }
+```
+
+---
+
+### `wither_touch`
+
+Best trigger: `on_attack`. Applies Wither — a magic DoT that bypasses armor and can kill.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `duration` | 60 | Effect length in ticks |
+| `amplifier` | 0 | Wither level (0 = I) |
+
+```json
+{ "type": "wither_touch", "trigger": "on_attack", "chance": 0.3, "cooldownTicks": 40, "params": { "duration": 80, "amplifier": 1 } }
+```
+
+---
+
+### `bleed`
+
+Best trigger: `on_attack`. Schedules a real server-side DoT — ticking magic damage that **can kill** and bypasses armor. Unlike Wither, the cadence and total pulses are configurable.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `dps` | 1.0 | Damage per pulse (magic — bypasses armor) |
+| `pulses` | 5 | Total number of pulses |
+| `intervalTicks` | 20 | Ticks between pulses (20 = 1 s) |
+
+Defaults deal 1 damage every second for 5 seconds = 5 total magic damage. Bleed on the same target refreshes rather than stacks — the harder bleed wins.
+
+```json
+{ "type": "bleed", "trigger": "on_attack", "cooldownTicks": 60, "params": { "dps": 1.5, "pulses": 6, "intervalTicks": 15 } }
+```
+
+---
+
 ## Utility Abilities
 
 Movement and survival, all self-targeted.
@@ -909,6 +968,12 @@ Best trigger: `on_right_click`. Swaps positions with the nearest other player in
 
 Passives fire on a periodic sweep — every **10 ticks (~0.5 s)** the server walks each player's main and off hand. For every Fiw item, every ability with `"trigger": "while_held"` (aliases: `passive`, `held`) is considered.
 
+**`while_sneaking`** is a sub-variant: same sweep, same passive machinery, but only runs while the player is crouching (shift held). Use it for toggle-style effects or abilities that cost mobility to activate. All passives and conditions work unchanged with this trigger.
+
+```json
+{ "type": "passive_buff", "trigger": "while_sneaking", "params": { "buffs": ["speed", "jump_boost"], "amplifier": 1 } }
+```
+
 Steady self-buffs leave `cooldownTicks` at **0** — they re-apply a short effect each sweep (default `buffDuration: 40` = 2 s) so the buff persists while held and fades ~1 s after you unequip. Reactive passives (zone damage, debuff pulses, panic buttons) use `cooldownTicks` exactly like active abilities — only consumed on a sweep where the passive actually acts.
 
 **Passive-specific keys (in `params`):**
@@ -1062,6 +1127,34 @@ Slow Regeneration **only when out of combat** (no damage taken for `idleTicks`).
 
 ```json
 { "type": "lifeline", "trigger": "while_held" }
+```
+
+---
+
+### `holder_debuff`
+
+The balance tool. Applies negative status effects to whoever holds or wears the item — use it to give powerful items meaningful drawbacks. Works on `while_held`, `while_worn`, and `while_sneaking`.
+
+The `debuffs` list accepts the same effect names as `passive_buff` — any vanilla effect name works. With no `cooldownTicks` the debuff is always-on (refreshed every passive sweep like a steady buff).
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `debuffs` | `["slowness"]` | Negative effects applied to the holder |
+| `amplifier` | 0 | Effect level |
+| `buffDuration` | 40 | Refresh duration in ticks |
+
+```json
+{ "type": "holder_debuff", "trigger": "while_held", "params": { "debuffs": ["slowness", "mining_fatigue"], "amplifier": 1 } }
+```
+
+A cursed god-sword that makes you slow and clumsy while holding it:
+```json
+{
+  "abilities": [
+    { "type": "holder_debuff", "trigger": "while_held", "params": { "debuffs": ["slowness"], "amplifier": 0 } },
+    { "type": "holder_debuff", "trigger": "while_held", "params": { "debuffs": ["weakness"], "amplifier": 0 } }
+  ]
+}
 ```
 
 ---
@@ -1258,6 +1351,225 @@ Nags nearby enemies with Weakness + Mining Fatigue. PvP debuff zone.
 
 ```json
 { "type": "curse_pulse", "trigger": "while_held", "cooldownTicks": 60 }
+```
+
+---
+
+### `decay_aura`
+
+Pulses Wither onto nearby enemies — magic DoT that can kill. Stronger than `chill_aura` or `curse_pulse` for PvE since Wither ignores armor; use `cooldownTicks` to avoid being too oppressive. Default `affects: hostiles`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 4.0 | Aura radius |
+| `duration` | 60 | Wither duration in ticks |
+| `amplifier` | 0 | Wither level (0 = I) |
+| `affects` | `hostiles` | Scope |
+
+```json
+{ "type": "decay_aura", "trigger": "while_held", "cooldownTicks": 80, "params": { "radius": 5, "amplifier": 1 } }
+```
+
+---
+
+### `ember_aura`
+
+Sets nearby enemies on fire while held. Fire damage is reduced by Fire Resistance and armor. Default `affects: hostiles`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 4.0 | Aura radius |
+| `seconds` | 3 | Fire duration applied per sweep |
+| `affects` | `hostiles` | Scope |
+
+```json
+{ "type": "ember_aura", "trigger": "while_held", "cooldownTicks": 60, "params": { "radius": 5, "seconds": 5 } }
+```
+
+---
+
+### `ice_lance`
+
+On hit: bonus magic damage + heavy Slowness IV to the target. Pair with a fast weapon for consistent slow uptime.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `damage` | 4.0 | Bonus magic damage |
+| `slowDuration` | 80 | Slowness ticks |
+| `slowAmplifier` | 3 | Slowness level (0 = I) |
+
+```json
+{ "type": "ice_lance", "trigger": "on_attack", "cooldownTicks": 20, "params": { "damage": 5, "slowDuration": 60 } }
+```
+
+---
+
+### `blizzard`
+
+AoE frost burst around the caster: Slowness + Blindness + light magic damage to all targets in radius. Great on right-click staves.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 6.0 | Blast radius |
+| `damage` | 2.0 | Magic damage per target |
+| `slowDuration` | 60 | Slowness ticks |
+| `slowAmplifier` | 1 | Slowness level (0 = I) |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "blizzard", "trigger": "on_right_click", "cooldownTicks": 200, "params": { "radius": 7, "damage": 3 } }
+```
+
+---
+
+### `glacial_shell`
+
+Passive survival: while the holder is below a health threshold, gain Resistance I + Slowness II. The penalty (Slowness) discourages tanking with it permanently.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `threshold` | 0.4 | HP fraction (0.4 = below 40%) |
+| `buffDuration` | 40 | Effect duration per sweep tick |
+| `resistAmplifier` | 0 | Resistance level (0 = I) |
+
+```json
+{ "type": "glacial_shell", "trigger": "while_held", "cooldownTicks": 0, "params": { "threshold": 0.35 } }
+```
+
+---
+
+### `tidal_surge`
+
+Right-click to knock back all entities in a forward cone. Applies Slowness after the push. Unlike `whirlwind`, this is directional — aim matters.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 7.0 | Cone range |
+| `angle` | 80.0 | Total cone width in degrees |
+| `knockback` | 1.8 | Push force multiplier |
+| `slowDuration` | 60 | Slowness ticks |
+| `slowAmplifier` | 1 | Slowness level (0 = I) |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "tidal_surge", "trigger": "on_right_click", "cooldownTicks": 160, "params": { "radius": 8, "knockback": 2.5, "angle": 60 } }
+```
+
+---
+
+### `flame_dash`
+
+Dash forward in the look direction. Every entity along the path is ignited. Uses the same safe-block pathing as `blink` — stops at walls.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `distance` | 7.0 | Max dash distance in blocks |
+| `igniteSeconds` | 4 | Fire duration on hit entities |
+
+```json
+{ "type": "flame_dash", "trigger": "on_right_click", "cooldownTicks": 120, "params": { "distance": 8, "igniteSeconds": 5 } }
+```
+
+---
+
+### `meteor_strike`
+
+Raycast to a target position and call down a fire strike. AoE magic damage + ignite in radius at impact. Uses line-of-sight raycast; max 24-block range.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 24.0 | Max cast range |
+| `radius` | 4.0 | Blast radius at impact |
+| `damage` | 8.0 | Magic damage per target |
+| `igniteSeconds` | 5 | Fire duration applied |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "meteor_strike", "trigger": "on_right_click", "cooldownTicks": 300, "params": { "damage": 10, "radius": 5 } }
+```
+
+---
+
+### `blood_pact`
+
+On attack: sacrifice a fraction of your current HP to deal amplified damage. Player can never be killed by the self-damage (floor 1 HP). Less effective the more wounded you are.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `hpCost` | 0.25 | Fraction of current HP sacrificed |
+| `multiplier` | 3.0 | Damage = sacrificed HP × multiplier |
+
+```json
+{ "type": "blood_pact", "trigger": "on_attack", "cooldownTicks": 20, "params": { "hpCost": 0.3, "multiplier": 4 } }
+```
+
+---
+
+### `hemorrhage`
+
+Reactive passive: when the holder takes damage, the attacker is immediately inflicted with a bleed DoT. Set trigger to `on_hurt`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `dps` | 1.0 | Bleed damage per pulse |
+| `pulses` | 4 | Number of bleed pulses |
+| `intervalTicks` | 20 | Ticks between pulses |
+
+```json
+{ "type": "hemorrhage", "trigger": "on_hurt", "cooldownTicks": 0, "params": { "dps": 1.5, "pulses": 5 } }
+```
+
+---
+
+### `sanguine_strike`
+
+Lifesteal on attack that scales with missing HP — heal more when you're desperate. Does nothing when at full HP (baseHeal is the flat base).
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `baseHeal` | 0.5 | Base heal per hit |
+| `bonusHeal` | 3.0 | Extra heal multiplied by HP missing fraction |
+
+```json
+{ "type": "sanguine_strike", "trigger": "on_attack", "cooldownTicks": 0, "params": { "baseHeal": 1, "bonusHeal": 4 } }
+```
+
+---
+
+## Soul System
+
+Items with `"soulCapacity": N` in their definition can store souls. Souls are collected via `soul_collector` (on kill) and spent via `soul_surge` (on right-click). The soul count is stored in item custom_data (`fiw_souls`) — persists across disconnects, resets on `/fiwtools reload`.
+
+### `soul_collector`
+
+Passive: collect one soul per kill, stored on the item stack. Shows a chat counter `(N/M)`. Does nothing if `soulCapacity` is not set on the item definition.
+
+No configurable params — soul capacity comes from the item definition's `soulCapacity` field.
+
+```json
+{
+  "soulCapacity": 10,
+  "abilities": [
+    { "type": "soul_collector", "trigger": "on_kill", "cooldownTicks": 0 },
+    { "type": "soul_surge",     "trigger": "on_right_click", "cooldownTicks": 400 }
+  ]
+}
+```
+
+---
+
+### `soul_surge`
+
+Drain all stored souls and unleash an AoE magic damage burst. Damage = souls × `damagePerSoul`. Does nothing (and costs no cooldown) if the item holds zero souls.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `damagePerSoul` | 2.0 | Magic damage per soul spent |
+| `radius` | 6.0 | Blast radius |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "soul_surge", "trigger": "on_right_click", "cooldownTicks": 400, "params": { "damagePerSoul": 3, "radius": 7 } }
 ```
 
 ---
