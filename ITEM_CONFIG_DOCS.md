@@ -54,6 +54,8 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - **Water:** [tidal_surge](#tidal_surge)
 - **Fire:** [flame_dash](#flame_dash) · [meteor_strike](#meteor_strike)
 - **Blood:** [blood_pact](#blood_pact) · [hemorrhage](#hemorrhage) · [sanguine_strike](#sanguine_strike)
+- **[Resonance / Set Bonus](#resonance--set-bonus-system):** `resonanceId` + `resonanceRequires` fields — abilities with `trigger: resonance`
+- **[Elemental Status](#elemental-status-system):** [freeze](#freeze) · [soak](#soak) · [shock](#shock) · [thaw_burst](#thaw_burst) · [storm_chain](#storm_chain)
 - **[Soul System](#soul-system):** [soul_collector](#soul_collector) · [soul_surge](#soul_surge)
 - [Bind with Fiw Bosses](#bind-with-fiw-bosses)
 - [Behavior Notes](#behavior-notes)
@@ -1532,6 +1534,132 @@ Lifesteal on attack that scales with missing HP — heal more when you're desper
 
 ```json
 { "type": "sanguine_strike", "trigger": "on_attack", "cooldownTicks": 0, "params": { "baseHeal": 1, "bonusHeal": 4 } }
+```
+
+---
+
+## Resonance / Set Bonus System
+
+When `resonanceRequires` or more equipped items share the same `resonanceId`, abilities with `trigger: "resonance"` on those items fire every passive sweep. This enables set bonuses — equip the right combination of items to unlock extra passives.
+
+**Item JSON fields:**
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `resonanceId` | `null` | Set name. Any string, case-sensitive. `null` = not in a set. |
+| `resonanceRequires` | `2` | How many pieces must be equipped to activate. |
+
+**Usage:** Put resonance abilities (with `"trigger": "resonance"`) on one item in the set (the "set holder"). Other items just need the same `resonanceId`. The ability fires from the first matching piece found.
+
+```json
+// storm_helmet.json
+{
+  "base": "minecraft:iron_helmet",
+  "resonanceId": "storm",
+  "resonanceRequires": 2,
+  "abilities": [
+    { "type": "resonance", "trigger": "resonance", "cooldownTicks": 0 }
+  ]
+}
+
+// storm_chestplate.json — just needs the resonanceId, no abilities required
+{
+  "base": "minecraft:iron_chestplate",
+  "resonanceId": "storm"
+}
+```
+
+Any ability type works with `trigger: "resonance"` — passive_buff, auras, custom passives. The resonance sweep runs on the same 10-tick cycle as the normal passive sweep.
+
+---
+
+## Elemental Status System
+
+A server-side status tracker with three states: **FROZEN**, **SOAKED**, **SHOCKED**. Statuses are applied by dedicated abilities and consumed by interaction abilities for a setup+payoff loop. Burning is handled by vanilla fire (not tracked separately).
+
+| Status | Tick effect | Consumed by |
+|--------|-------------|-------------|
+| FROZEN | Slowness VI + snowflake particles every 10t | `thaw_burst` |
+| SOAKED | Drip particles every 20t (marker only) | `storm_chain` |
+| SHOCKED | 1.0 magic dmg + spark particles every 20t | — (expires naturally) |
+
+**Built-in applications:** `ice_lance` and `blizzard` apply FROZEN; `tidal_surge` applies SOAKED.
+
+---
+
+### `freeze`
+
+Apply FROZEN to the attack target. Pairs with `thaw_burst` for the ice→fire interaction.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `duration` | 120 | Status duration in ticks |
+
+```json
+{ "type": "freeze", "trigger": "on_attack", "cooldownTicks": 20, "params": { "duration": 100 } }
+```
+
+---
+
+### `soak`
+
+Drench the target (SOAKED). Also extinguishes vanilla fire. Pairs with `storm_chain`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `duration` | 100 | Status duration in ticks |
+
+```json
+{ "type": "soak", "trigger": "on_attack", "cooldownTicks": 20, "params": { "duration": 120 } }
+```
+
+---
+
+### `shock`
+
+Electrify target (SHOCKED): instant damage on application + periodic damage until expired.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `duration` | 100 | Status duration in ticks |
+| `damage` | 2.0 | Instant damage on application |
+
+```json
+{ "type": "shock", "trigger": "on_attack", "cooldownTicks": 30, "params": { "damage": 3, "duration": 80 } }
+```
+
+---
+
+### `thaw_burst`
+
+**Interaction (Ice → Fire):** Consumes FROZEN on the target for an AoE fire damage burst around it. Returns false (no cooldown) if target isn't frozen.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 4.0 | AoE radius |
+| `damage` | 6.0 | Magic damage per target |
+| `igniteSeconds` | 3 | Fire duration after burst |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "thaw_burst", "trigger": "on_attack", "cooldownTicks": 60, "params": { "damage": 8, "radius": 5 } }
+```
+
+---
+
+### `storm_chain`
+
+**Interaction (Water → Lightning):** Consumes SOAKED on the target, deals bonus damage to it, then chains reduced damage to nearby targets. Returns false if target isn't soaked.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `damage` | 5.0 | Damage to primary (soaked) target |
+| `chainDamage` | 3.0 | Damage to chained nearby targets |
+| `chainRadius` | 5.0 | Chain reach |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "storm_chain", "trigger": "on_attack", "cooldownTicks": 60, "params": { "damage": 6, "chainDamage": 4, "chainRadius": 6 } }
 ```
 
 ---
