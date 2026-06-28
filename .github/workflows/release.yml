@@ -94,7 +94,7 @@ jobs:
             'version_type': 'release',
             'loaders': [loader],
             'featured': False,
-            'project_id': 'fiw-tools',
+            'project_id': 'VHLQczbA',
             'file_parts': ['file']
           })
           pathlib.Path('/tmp/modrinth_data.json').write_text(payload)
