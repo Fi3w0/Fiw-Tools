@@ -52,6 +52,7 @@ Thumbs.db
 
 # AI agent tooling / instructions
 .claude/
+AGENT.md
 AGENTS.md
 CLAUDE.md
 .cursor/
