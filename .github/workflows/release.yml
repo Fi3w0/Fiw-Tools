@@ -1,11 +1,13 @@
 name: release
 
-# Tag a version (e.g. `git tag v1.1.0 && git push origin v1.1.0`) to build all
-# targets and publish the jars as a GitHub Release automatically.
+# Manual fallback — run from the Actions tab if the auto-publish in build.yml
+# failed and you need to re-publish a specific tag.
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish (e.g. v1.0.3)'
+        required: true
 
 permissions:
   contents: write
