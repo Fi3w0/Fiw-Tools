@@ -65,6 +65,12 @@ Tweak the file, reload, try again.
 
 **Active abilities** - right-click casts, attack procs, kill effects, hurt reactions, and block-break effects.
 
+**Elemental status** - apply FROZEN, SOAKED, or SHOCKED to enemies. Stack statuses for interactions: freeze then thaw_burst for a fire explosion, soak then storm_chain to arc lightning between targets.
+
+**Set bonuses** - tag items with a `resonanceId`. Equip enough pieces and extra passive abilities unlock automatically.
+
+**Soul system** - items can store souls on kill. Spend them all at once for a burst of scaled AoE damage.
+
 **Passive equipment** - held or worn buffs, ally auras, defensive pulses, emergency survival triggers, and conditional effects.
 
 **Cursed items** - punish non-whitelisted holders, scan ender chests, block grindstone/anvil abuse, and prevent world placement.
@@ -89,6 +95,16 @@ Tweak the file, reload, try again.
 | `last_stand` | Low-health survival passive |
 | `uncurse` | Consumable curse removal |
 | `imbue` | Catalyst upgrade engine |
+| `freeze` / `soak` / `shock` | Apply elemental status; each has passive tick effects |
+| `thaw_burst` | Consume FROZEN for a fire AoE explosion around the target |
+| `storm_chain` | Consume SOAKED to arc lightning damage to nearby enemies |
+| `soul_collector` | Absorb a soul on kill; stored in the item up to `soulCapacity` |
+| `soul_surge` | Spend all stored souls for scaled AoE magic damage |
+| `blood_pact` | Sacrifice HP to multiply next attack damage |
+| `sanguine_strike` | Lifesteal that scales with the target's missing HP |
+| `hemorrhage` | On-hurt: inflict bleed DoT on whoever hit you |
+| `flame_dash` | Teleport forward, igniting enemies along the path |
+| `meteor_strike` | Raycast impact AoE at cursor position |
 
 Full schema and every ability parameter are in the documentation.
 
