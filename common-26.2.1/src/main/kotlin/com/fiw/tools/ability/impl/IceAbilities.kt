@@ -8,6 +8,8 @@ import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optF
 import com.fiw.tools.ability.optI
 import com.fiw.tools.ability.scope
+import com.fiw.tools.elemental.ElementalStatus
+import com.fiw.tools.elemental.ElementalStatusTracker
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
@@ -25,6 +27,7 @@ object IceLanceAbility : Ability {
         target.hurtServer(world, world.damageSources().magic(), damage)
         target.addEffect(MobEffectInstance(MobEffects.SLOWNESS, slowDuration, slowAmplifier))
         target.addEffect(MobEffectInstance(MobEffects.SLOW_FALLING, slowDuration, 0))
+        ElementalStatusTracker.apply(target.uuid, ElementalStatus.FROZEN, slowDuration)
         world.sendParticles(ParticleTypes.SNOWFLAKE, target.x, target.y + 1.0, target.z, 20, 0.4, 0.5, 0.4, 0.05)
         world.playSound(null, target.x, target.y, target.z,
             SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.7f, 1.4f)
@@ -44,10 +47,12 @@ object BlizzardAbility : Ability {
         val targets = collectTargets(world, ctx.player.position(), radius, ctx.player, scope)
         if (targets.isEmpty()) return false
         val src = world.damageSources().magic()
+        val frozenDuration = ctx.params.optI("frozenDuration", 80)
         for (e in targets) {
             e.hurtServer(world, src, damage)
             e.addEffect(MobEffectInstance(MobEffects.SLOWNESS, slowDuration, slowAmplifier))
             e.addEffect(MobEffectInstance(MobEffects.BLINDNESS, 30, 0))
+            ElementalStatusTracker.apply(e.uuid, ElementalStatus.FROZEN, frozenDuration)
             world.sendParticles(ParticleTypes.SNOWFLAKE, e.x, e.y + 1.0, e.z, 8, 0.3, 0.4, 0.3, 0.05)
         }
         world.sendParticles(ParticleTypes.SNOWFLAKE, ctx.player.x, ctx.player.y + 1.0, ctx.player.z, 40, 1.5, 1.0, 1.5, 0.1)

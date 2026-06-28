@@ -17,6 +17,11 @@ import com.fiw.tools.ability.impl.SanguineStrikeAbility
 import com.fiw.tools.ability.impl.SoulCollectorAbility
 import com.fiw.tools.ability.impl.SoulSurgeAbility
 import com.fiw.tools.ability.impl.TidalSurgeAbility
+import com.fiw.tools.ability.impl.FreezeAbility
+import com.fiw.tools.ability.impl.SoakAbility
+import com.fiw.tools.ability.impl.ShockAbility
+import com.fiw.tools.ability.impl.ThawBurstAbility
+import com.fiw.tools.ability.impl.StormChainAbility
 import com.fiw.tools.ability.impl.WitherTouchAbility
 import com.fiw.tools.ability.impl.AquaKitAbility
 import com.fiw.tools.ability.impl.ArcSlashAbility
@@ -190,6 +195,15 @@ object AbilityRegistry {
         // Soul system
         register("soul_collector") { SoulCollectorAbility }
         register("soul_surge") { SoulSurgeAbility }
+
+        // Elemental status appliers
+        register("freeze") { FreezeAbility }
+        register("soak") { SoakAbility }
+        register("shock") { ShockAbility }
+
+        // Elemental interactions (consume status for payoff)
+        register("thaw_burst") { ThawBurstAbility }
+        register("storm_chain") { StormChainAbility }
 
         // Curse system
         register("uncurse") { UncurseAbility }

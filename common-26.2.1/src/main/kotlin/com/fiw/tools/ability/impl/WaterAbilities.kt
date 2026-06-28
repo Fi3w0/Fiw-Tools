@@ -7,6 +7,8 @@ import com.fiw.tools.ability.collectTargets
 import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optI
 import com.fiw.tools.ability.scope
+import com.fiw.tools.elemental.ElementalStatus
+import com.fiw.tools.elemental.ElementalStatusTracker
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
@@ -41,6 +43,7 @@ object TidalSurgeAbility : Ability {
             e.push(dir.x * knockback, 0.4, dir.z * knockback)
             e.hurtMarked = true
             e.addEffect(MobEffectInstance(MobEffects.SLOWNESS, slowDuration, slowAmplifier))
+            ElementalStatusTracker.apply(e.uuid, ElementalStatus.SOAKED, 120)
             world.sendParticles(ParticleTypes.SPLASH, e.x, e.y + 0.5, e.z, 12, 0.3, 0.3, 0.3, 0.1)
             hit = true
         }
