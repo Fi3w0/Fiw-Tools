@@ -1,0 +1,34 @@
+{
+  "id": "test_blood_weapons",
+  "base": "minecraft:iron_sword",
+  "displayName": "&4&lBlood Test Sword",
+  "lore": [
+    "&7Tests: blood_pact (sacrifice HP for dmg), sanguine_strike",
+    "&7(lifesteal scales with missing HP), hemorrhage (on_hurt: attacker bleeds).",
+    "",
+    "&8On attack: &4blood_pact &725% HP cost x3 dmg",
+    "&8On attack: &csanguine_strike &7heals more when low HP",
+    "&8On hurt: &4hemorrhage &7attacker gets bleed 4 pulses"
+  ],
+  "unbreakable": true,
+  "abilities": [
+    {
+      "type": "blood_pact",
+      "trigger": "on_attack",
+      "cooldownTicks": 20,
+      "params": { "hpCost": 0.25, "multiplier": 3 }
+    },
+    {
+      "type": "sanguine_strike",
+      "trigger": "on_attack",
+      "cooldownTicks": 0,
+      "params": { "baseHeal": 0.5, "bonusHeal": 3 }
+    },
+    {
+      "type": "hemorrhage",
+      "trigger": "on_hurt",
+      "cooldownTicks": 40,
+      "params": { "dps": 1.5, "pulses": 4, "intervalTicks": 20 }
+    }
+  ]
+}

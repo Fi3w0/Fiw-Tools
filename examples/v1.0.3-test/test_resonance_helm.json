@@ -1,0 +1,26 @@
+{
+  "id": "test_resonance_helm",
+  "base": "minecraft:iron_helmet",
+  "displayName": "&e&lResonance Helm &8[Storm Set]",
+  "lore": [
+    "&7Tests: resonance system.",
+    "&7Equip BOTH helm + chestplate to activate set bonus.",
+    "",
+    "&8Set bonus (resonance): &eSpeed II while both pieces worn"
+  ],
+  "unbreakable": true,
+  "resonanceId": "test_storm_set",
+  "resonanceRequires": 2,
+  "abilities": [
+    {
+      "type": "passive_buff",
+      "trigger": "resonance",
+      "cooldownTicks": 0,
+      "params": {
+        "buffs": ["minecraft:speed"],
+        "buffDuration": 40,
+        "amplifier": 1
+      }
+    }
+  ]
+}

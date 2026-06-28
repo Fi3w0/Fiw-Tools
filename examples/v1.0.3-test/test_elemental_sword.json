@@ -1,0 +1,34 @@
+{
+  "id": "test_elemental_sword",
+  "base": "minecraft:iron_sword",
+  "displayName": "&b&lElemental Test Sword",
+  "lore": [
+    "&7Tests: freeze (apply FROZEN), thaw_burst (consume FROZEN),",
+    "&7shock (apply SHOCKED + instant dmg), FROZEN/SHOCKED tick effects.",
+    "",
+    "&8On attack: &bfreeze &7then &cthaw_burst &7and &eshock",
+    "&7Step 1: hit enemy (applies FROZEN + SHOCKED)",
+    "&7Step 2: hit again to trigger thaw_burst (consumes FROZEN)"
+  ],
+  "unbreakable": true,
+  "abilities": [
+    {
+      "type": "freeze",
+      "trigger": "on_attack",
+      "cooldownTicks": 60,
+      "params": { "duration": 100 }
+    },
+    {
+      "type": "shock",
+      "trigger": "on_attack",
+      "cooldownTicks": 80,
+      "params": { "duration": 100, "damage": 2 }
+    },
+    {
+      "type": "thaw_burst",
+      "trigger": "on_attack",
+      "cooldownTicks": 40,
+      "params": { "damage": 6, "radius": 4, "igniteSeconds": 3 }
+    }
+  ]
+}

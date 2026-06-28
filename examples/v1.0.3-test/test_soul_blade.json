@@ -1,0 +1,27 @@
+{
+  "id": "test_soul_blade",
+  "base": "minecraft:iron_sword",
+  "displayName": "&5&lSoul Test Blade",
+  "lore": [
+    "&7Tests: soul_collector (on_kill), soul_surge (on_right_click).",
+    "&7soulCapacity: 5. Kill 5 mobs, then right-click to burst.",
+    "",
+    "&8On kill: &5collect soul &8(shows N/5 in chat)",
+    "&8Right-click: &5release all souls &7for AoE magic damage"
+  ],
+  "unbreakable": true,
+  "soulCapacity": 5,
+  "abilities": [
+    {
+      "type": "soul_collector",
+      "trigger": "on_kill",
+      "cooldownTicks": 0
+    },
+    {
+      "type": "soul_surge",
+      "trigger": "on_right_click",
+      "cooldownTicks": 200,
+      "params": { "damagePerSoul": 3, "radius": 6 }
+    }
+  ]
+}

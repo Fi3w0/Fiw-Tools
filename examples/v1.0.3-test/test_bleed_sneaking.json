@@ -1,0 +1,30 @@
+{
+  "id": "test_bleed_sneaking",
+  "base": "minecraft:stone_axe",
+  "displayName": "&c&lBleed + Sneak Test Axe",
+  "lore": [
+    "&7Tests: bleed DoT (on_attack) + while_sneaking trigger.",
+    "",
+    "&8On attack: &capplie bleed &73 pulses, 1s interval, 2 dps",
+    "&8While sneaking: &7Speed I (visible, confirms trigger fires)"
+  ],
+  "unbreakable": true,
+  "abilities": [
+    {
+      "type": "bleed",
+      "trigger": "on_attack",
+      "cooldownTicks": 20,
+      "params": { "dps": 2, "pulses": 3, "intervalTicks": 20 }
+    },
+    {
+      "type": "passive_buff",
+      "trigger": "while_sneaking",
+      "cooldownTicks": 0,
+      "params": {
+        "buffs": ["minecraft:speed"],
+        "buffDuration": 40,
+        "amplifier": 0
+      }
+    }
+  ]
+}

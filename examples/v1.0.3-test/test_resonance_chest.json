@@ -1,0 +1,14 @@
+{
+  "id": "test_resonance_chest",
+  "base": "minecraft:iron_chestplate",
+  "displayName": "&e&lResonance Chestplate &8[Storm Set]",
+  "lore": [
+    "&7Tests: resonance system.",
+    "&7Equip BOTH helm + chestplate to activate set bonus.",
+    "",
+    "&8Set bonus activates on the helm (no resonance ability here)",
+    "&7Just needs the same resonanceId to count toward the set."
+  ],
+  "unbreakable": true,
+  "resonanceId": "test_storm_set"
+}

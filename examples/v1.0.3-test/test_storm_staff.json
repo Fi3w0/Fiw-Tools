@@ -1,0 +1,28 @@
+{
+  "id": "test_storm_staff",
+  "base": "minecraft:blaze_rod",
+  "displayName": "&3&lStorm Test Staff",
+  "lore": [
+    "&7Tests: soak (apply SOAKED + extinguish fire), storm_chain",
+    "&7(consume SOAKED, chain lightning to nearby).",
+    "",
+    "&8On attack: &3soak &7then &estorm_chain",
+    "&7Step 1: hit enemy (applies SOAKED, extinguishes fire)",
+    "&7Step 2: hit again to chain lightning to nearby soaked target"
+  ],
+  "unbreakable": true,
+  "abilities": [
+    {
+      "type": "soak",
+      "trigger": "on_attack",
+      "cooldownTicks": 60,
+      "params": { "duration": 120 }
+    },
+    {
+      "type": "storm_chain",
+      "trigger": "on_attack",
+      "cooldownTicks": 40,
+      "params": { "damage": 5, "chainDamage": 3, "chainRadius": 6 }
+    }
+  ]
+}
