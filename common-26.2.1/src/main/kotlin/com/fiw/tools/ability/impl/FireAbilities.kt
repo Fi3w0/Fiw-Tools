@@ -51,7 +51,7 @@ object FlameDashAbility : Ability {
 
         player.teleportTo(safe.x, safe.y, safe.z)
         for (e in ignited) {
-            e.setSecondsOnFire(igniteSeconds)
+            e.igniteForSeconds(igniteSeconds.toFloat())
             world.sendParticles(ParticleTypes.FLAME, e.x, e.y + 1.0, e.z, 10, 0.3, 0.4, 0.3, 0.05)
         }
         world.playSound(null, safe.x, safe.y, safe.z,
@@ -91,7 +91,7 @@ object MeteorStrikeAbility : Ability {
         val src = world.damageSources().magic()
         for (e in collectTargets(world, targetPos, radius, player, scope)) {
             e.hurtServer(world, src, damage)
-            e.setSecondsOnFire(igniteSeconds)
+            e.igniteForSeconds(igniteSeconds.toFloat())
         }
 
         for (i in 0 until 5) {

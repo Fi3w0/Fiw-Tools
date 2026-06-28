@@ -211,7 +211,7 @@ object EmberAuraAbility : Ability {
         val scope = ctx.params.scope("affects", AffectScope.HOSTILES)
         var hit = false
         for (e in collectTargets(ctx.world, ctx.player.position(), radius, ctx.player, scope)) {
-            e.setSecondsOnFire(seconds)
+            e.igniteForSeconds(seconds.toFloat())
             ctx.world.sendParticles(ParticleTypes.FLAME, e.x, e.y + 1.0, e.z, 6, 0.2, 0.4, 0.2, 0.04)
             hit = true
         }

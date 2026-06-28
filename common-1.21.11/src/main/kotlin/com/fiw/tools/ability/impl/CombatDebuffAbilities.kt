@@ -20,7 +20,7 @@ object IgniteAbility : Ability {
     override fun execute(ctx: AbilityContext): Boolean {
         val target = ctx.target ?: return false
         val seconds = ctx.params.optI("seconds", 5)
-        target.setSecondsOnFire(seconds)
+        target.igniteForSeconds(seconds.toFloat())
         val world = ctx.world
         world.sendParticles(ParticleTypes.FLAME, target.x, target.y + 1.0, target.z, 16, 0.3, 0.5, 0.3, 0.05)
         world.playSound(null, target.x, target.y, target.z,

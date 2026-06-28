@@ -2,12 +2,13 @@ package com.fiw.tools.elemental
 
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.server.MinecraftServer
-import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.LivingEntity
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+
+private data class StatusEntry(var ticksLeft: Int, var effectTimer: Int = 0)
 
 /**
  * Server-side elemental status tracker. Tracks FROZEN, SOAKED, and SHOCKED per entity UUID.
@@ -20,8 +21,6 @@ import java.util.concurrent.ConcurrentHashMap
  * Call [reset] on serverStopped.
  */
 object ElementalStatusTracker {
-
-    private data class StatusEntry(var ticksLeft: Int, var effectTimer: Int = 0)
 
     private val statuses: MutableMap<UUID, MutableMap<ElementalStatus, StatusEntry>> =
         ConcurrentHashMap()
@@ -44,7 +43,7 @@ object ElementalStatusTracker {
         if (statuses[uuid]?.isEmpty() == true) statuses.remove(uuid)
     }
 
-    fun clearAll(uuid: UUID) = statuses.remove(uuid)
+    fun clearAll(uuid: UUID) { statuses.remove(uuid) }
 
     fun reset() = statuses.clear()
 

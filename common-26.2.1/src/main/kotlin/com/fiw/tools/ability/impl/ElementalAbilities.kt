@@ -89,7 +89,7 @@ object ThawBurstAbility : Ability {
         val src = world.damageSources().magic()
         for (e in collectTargets(world, target.position(), radius, ctx.player, scope)) {
             e.hurtServer(world, src, damage)
-            e.setSecondsOnFire(igniteSeconds)
+            e.igniteForSeconds(igniteSeconds.toFloat())
         }
         world.sendParticles(ParticleTypes.FLAME, target.x, target.y + 0.5, target.z, 30, 1.0, 0.8, 1.0, 0.1)
         world.sendParticles(ParticleTypes.SNOWFLAKE, target.x, target.y + 1.0, target.z, 20, 1.0, 0.8, 1.0, 0.05)
