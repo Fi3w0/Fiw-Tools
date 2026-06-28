@@ -85,11 +85,15 @@ jobs:
           import json, sys, pathlib
           ver, game_ver, loader = sys.argv[1], sys.argv[2], sys.argv[3]
           changelog = pathlib.Path('/tmp/changelog.txt').read_text()
+          deps = [] if loader == 'neoforge' else [
+            {'project_id': 'P7dR8mSH', 'dependency_type': 'required'},
+            {'project_id': 'Ha28R6CL', 'dependency_type': 'required'},
+          ]
           payload = json.dumps({
             'name': f'FIW Tools {ver}',
             'version_number': ver,
             'changelog': changelog,
-            'dependencies': [],
+            'dependencies': deps,
             'game_versions': [game_ver],
             'version_type': 'release',
             'loaders': [loader],
