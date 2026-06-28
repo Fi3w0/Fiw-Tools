@@ -147,3 +147,19 @@ jobs:
           publish "release/fiw-tools-fabric-1.21.11-${VERSION}.jar"   "1.21.11" "fabric"
           publish "release/fiw-tools-fabric-26.1.2-${VERSION}.jar"    "26.1.2"  "fabric"
           publish "release/fiw-tools-neoforge-1.21.11-${VERSION}.jar" "1.21.11" "neoforge"
+
+      - name: Sync project description to Modrinth
+        if: steps.ver.outputs.new == 'true'
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          python3 -c "
+          import json, pathlib
+          body = pathlib.Path('MODRINTH.md').read_text()
+          pathlib.Path('/tmp/modrinth_project.json').write_text(json.dumps({'body': body}))
+          "
+          curl -sf -X PATCH "https://api.modrinth.com/v2/project/VHLQczbA" \
+            -H "Authorization: $MODRINTH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d @/tmp/modrinth_project.json
+          echo "Description synced."
