@@ -109,7 +109,9 @@ object ItemConfigParser {
             curseWhitelist = curseWhitelist,
             curseSettings = curseSettings,
             imbueLimit = root.optIntOrNull("imbueLimit"),
-            soulCapacity = root.optIntOrNull("soulCapacity")
+            soulCapacity = root.optIntOrNull("soulCapacity"),
+            resonanceId = root.get("resonanceId")?.takeIf { !it.isJsonNull }?.asString,
+            resonanceRequires = root.optInt("resonanceRequires", 2)
         )
     }
 

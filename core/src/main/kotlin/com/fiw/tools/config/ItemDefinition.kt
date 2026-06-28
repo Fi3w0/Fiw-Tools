@@ -39,7 +39,15 @@ data class ItemDefinition(
      * Max souls this item can hold. `null` = item doesn't participate in the soul system.
      * Souls are collected on kill via the `soul_collector` passive and spent by `soul_surge`.
      */
-    val soulCapacity: Int? = null
+    val soulCapacity: Int? = null,
+    /**
+     * Tag that groups this item into a named resonance set. When [resonanceRequires] or more items
+     * with the same resonanceId are equipped simultaneously, abilities with trigger `"resonance"`
+     * on those items are fired by the passive sweep. Null = no set membership.
+     */
+    val resonanceId: String? = null,
+    /** How many items from the set must be equipped to activate resonance. Default 2. */
+    val resonanceRequires: Int = 2
 ) {
     data class CurseSettings(
         val perTick: Float = 1.0f,

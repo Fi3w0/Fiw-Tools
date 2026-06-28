@@ -67,6 +67,36 @@ object PassiveHandler {
                     runSlot(player, world, worn, AbilityTrigger.WHILE_SNEAKING, "slot", "any", slotName)
                 }
             }
+
+            sweepResonance(player, world)
+        }
+    }
+
+    /**
+     * Groups all equipped Fiw items by their resonanceId. For each set where the equipped count
+     * meets the item's `resonanceRequires` threshold, fires RESONANCE-trigger abilities from the
+     * first matching stack. Only one item in a set needs to define resonance abilities — if
+     * multiple do, each fires independently (so put set bonuses on only one piece).
+     */
+    private fun sweepResonance(player: net.minecraft.server.level.ServerPlayer, world: net.minecraft.server.level.ServerLevel) {
+        val allStacks = buildList {
+            add(player.mainHandItem)
+            add(player.offhandItem)
+            for ((slot, _) in WORN_SLOTS) add(player.getItemBySlot(slot))
+        }
+        // Map resonanceId -> list of (stack, def) pairs
+        val groups = mutableMapOf<String, MutableList<Pair<ItemStack, com.fiw.tools.config.ItemDefinition>>>()
+        for (stack in allStacks) {
+            if (stack.isEmpty) continue
+            val id = FiwItems.fiwId(stack) ?: continue
+            val def = ItemRegistry.byId(id) ?: continue
+            val rId = def.resonanceId ?: continue
+            groups.getOrPut(rId) { mutableListOf() }.add(stack to def)
+        }
+        for ((_, entries) in groups) {
+            val (firstStack, firstDef) = entries.first()
+            if (entries.size < firstDef.resonanceRequires) continue
+            runSlot(player, world, firstStack, AbilityTrigger.RESONANCE, "slot", "any", "any")
         }
     }
 
