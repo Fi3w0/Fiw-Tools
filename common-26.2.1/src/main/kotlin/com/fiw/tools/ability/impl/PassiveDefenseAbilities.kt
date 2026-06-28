@@ -185,3 +185,38 @@ object CursePulseAbility : Ability {
         return hit
     }
 }
+
+/** Pulses Wither to nearby enemies — magic DoT that can kill. */
+object DecayAuraAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val radius = ctx.params.optD("radius", 4.0)
+        val duration = ctx.params.optI("duration", 60)
+        val amplifier = ctx.params.optI("amplifier", 0)
+        val scope = ctx.params.scope("affects", AffectScope.HOSTILES)
+        var hit = false
+        for (e in collectTargets(ctx.world, ctx.player.position(), radius, ctx.player, scope)) {
+            e.addEffect(MobEffectInstance(MobEffects.WITHER, duration, amplifier))
+            ctx.world.sendParticles(ParticleTypes.SCULK_SOUL, e.x, e.y + 1.0, e.z, 4, 0.2, 0.3, 0.2, 0.01)
+            hit = true
+        }
+        return hit
+    }
+}
+
+/** Sets nearby enemies on fire — damage scales with fire resistance and armor as normal. */
+object EmberAuraAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val radius = ctx.params.optD("radius", 4.0)
+        val seconds = ctx.params.optI("seconds", 3)
+        val scope = ctx.params.scope("affects", AffectScope.HOSTILES)
+        var hit = false
+        for (e in collectTargets(ctx.world, ctx.player.position(), radius, ctx.player, scope)) {
+            e.setSecondsOnFire(seconds)
+            ctx.world.sendParticles(ParticleTypes.FLAME, e.x, e.y + 1.0, e.z, 6, 0.2, 0.4, 0.2, 0.04)
+            hit = true
+        }
+        if (hit) ctx.world.playSound(null, ctx.player.x, ctx.player.y, ctx.player.z,
+            SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 0.3f, 1.2f)
+        return hit
+    }
+}

@@ -43,6 +43,10 @@ internal fun effectByName(name: String): Holder<MobEffect>? = when (name.lowerca
 internal fun JsonObject.parseBuffs(default: List<Holder<MobEffect>>): List<Holder<MobEffect>> =
     getAsJsonArray("buffs")?.mapNotNull { effectByName(it.asString) }?.takeIf { it.isNotEmpty() } ?: default
 
+/** Reads a `debuffs` string array param into effect holders, falling back to [default] when absent/empty. */
+internal fun JsonObject.parseDebuffs(default: List<Holder<MobEffect>>): List<Holder<MobEffect>> =
+    getAsJsonArray("debuffs")?.mapNotNull { effectByName(it.asString) }?.takeIf { it.isNotEmpty() } ?: default
+
 /** Applies each effect to [entity] at the given duration/amplifier. */
 internal fun LivingEntity.applyBuffs(buffs: List<Holder<MobEffect>>, duration: Int, amplifier: Int) {
     for (effect in buffs) addEffect(MobEffectInstance(effect, duration, amplifier))

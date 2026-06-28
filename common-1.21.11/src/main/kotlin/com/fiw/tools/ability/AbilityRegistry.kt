@@ -1,6 +1,23 @@
 package com.fiw.tools.ability
 
 import com.fiw.tools.ability.impl.AdrenalineAbility
+import com.fiw.tools.ability.impl.BleedAbility
+import com.fiw.tools.ability.impl.BlizzardAbility
+import com.fiw.tools.ability.impl.BloodPactAbility
+import com.fiw.tools.ability.impl.DecayAuraAbility
+import com.fiw.tools.ability.impl.EmberAuraAbility
+import com.fiw.tools.ability.impl.FlameDashAbility
+import com.fiw.tools.ability.impl.GlacialShellAbility
+import com.fiw.tools.ability.impl.HemorrhageAbility
+import com.fiw.tools.ability.impl.HolderDebuffAbility
+import com.fiw.tools.ability.impl.IceLanceAbility
+import com.fiw.tools.ability.impl.IgniteAbility
+import com.fiw.tools.ability.impl.MeteorStrikeAbility
+import com.fiw.tools.ability.impl.SanguineStrikeAbility
+import com.fiw.tools.ability.impl.SoulCollectorAbility
+import com.fiw.tools.ability.impl.SoulSurgeAbility
+import com.fiw.tools.ability.impl.TidalSurgeAbility
+import com.fiw.tools.ability.impl.WitherTouchAbility
 import com.fiw.tools.ability.impl.AquaKitAbility
 import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.BeaconAuraAbility
@@ -140,6 +157,39 @@ object AbilityRegistry {
         register("last_stand") { LastStandAbility }
         register("adrenaline") { AdrenalineAbility }
         register("shield_battery") { ShieldBatteryAbility }
+
+        // Active debuffs
+        register("ignite") { IgniteAbility }
+        register("wither_touch") { WitherTouchAbility }
+        register("bleed") { BleedAbility }
+
+        // Passive debuffs on holder (balance tools)
+        register("holder_debuff") { HolderDebuffAbility }
+
+        // Passive zone debuffs
+        register("decay_aura") { DecayAuraAbility }
+        register("ember_aura") { EmberAuraAbility }
+
+        // Ice
+        register("ice_lance") { IceLanceAbility }
+        register("blizzard") { BlizzardAbility }
+        register("glacial_shell") { GlacialShellAbility }
+
+        // Water
+        register("tidal_surge") { TidalSurgeAbility }
+
+        // Fire
+        register("flame_dash") { FlameDashAbility }
+        register("meteor_strike") { MeteorStrikeAbility }
+
+        // Blood
+        register("blood_pact") { BloodPactAbility }
+        register("hemorrhage") { HemorrhageAbility }
+        register("sanguine_strike") { SanguineStrikeAbility }
+
+        // Soul system
+        register("soul_collector") { SoulCollectorAbility }
+        register("soul_surge") { SoulSurgeAbility }
 
         // Curse system
         register("uncurse") { UncurseAbility }

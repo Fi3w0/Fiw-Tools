@@ -10,6 +10,7 @@ import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optF
 import com.fiw.tools.ability.optI
 import com.fiw.tools.ability.parseBuffs
+import com.fiw.tools.ability.parseDebuffs
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.ExperienceOrb
@@ -130,6 +131,20 @@ object LifelineAbility : Ability {
         if (AbilityState.ticksSinceDamage(ctx.player.uuid, ctx.world.gameTime) <= idleTicks) return false
         if (ctx.player.health >= ctx.player.maxHealth) return false
         ctx.player.addEffect(MobEffectInstance(MobEffects.REGENERATION, ctx.params.optI("buffDuration", 40), ctx.params.optI("amplifier", 0)))
+        return true
+    }
+}
+
+/**
+ * Applies a configurable list of negative status effects to the holder. The intended balance tool:
+ * powerful items can impose drawbacks on whoever carries them. Works on `while_held` and `while_worn`.
+ * Effect names are the same strings as `passive_buff` — any vanilla effect name works here.
+ */
+object HolderDebuffAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val duration = ctx.params.optI("buffDuration", 40)
+        val amplifier = ctx.params.optI("amplifier", 0)
+        ctx.player.applyBuffs(ctx.params.parseDebuffs(listOf(MobEffects.SLOWNESS)), duration, amplifier)
         return true
     }
 }
