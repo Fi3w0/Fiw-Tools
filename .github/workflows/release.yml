@@ -44,6 +44,7 @@ jobs:
       - name: Extract changelog section for this tag
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           awk -v ver="$VERSION" '
             /^## \[/ { if (p) exit; if ($0 ~ ("^## \\[" ver "\\]")) p=1 }
             p { print }
@@ -53,9 +54,54 @@ jobs:
           fi
           echo "--- release notes ---"; cat RELEASE_NOTES.md
 
+      - name: Read release notes for Modrinth
+        id: relnotes
+        run: |
+          {
+            echo 'content<<CHANGELOG_EOF'
+            cat RELEASE_NOTES.md
+            echo CHANGELOG_EOF
+          } >> $GITHUB_OUTPUT
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: release/*.jar
           body_path: RELEASE_NOTES.md
           fail_on_unmatched_files: true
+
+      - name: Publish to Modrinth — Fabric 1.21.11
+        uses: modrinth/minotaur@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project_id: fiw-tools
+          version_number: ${{ env.VERSION }}
+          version_type: release
+          upload_file: release/fiw-tools-fabric-1.21.11-${{ env.VERSION }}.jar
+          game_versions: 1.21.11
+          loaders: fabric
+          changelog: ${{ steps.relnotes.outputs.content }}
+
+      - name: Publish to Modrinth — Fabric 26.1.2
+        uses: modrinth/minotaur@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project_id: fiw-tools
+          version_number: ${{ env.VERSION }}
+          version_type: release
+          upload_file: release/fiw-tools-fabric-26.1.2-${{ env.VERSION }}.jar
+          game_versions: 26.1.2
+          loaders: fabric
+          changelog: ${{ steps.relnotes.outputs.content }}
+
+      - name: Publish to Modrinth — NeoForge 1.21.11
+        uses: modrinth/minotaur@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project_id: fiw-tools
+          version_number: ${{ env.VERSION }}
+          version_type: release
+          upload_file: release/fiw-tools-neoforge-1.21.11-${{ env.VERSION }}.jar
+          game_versions: 1.21.11
+          loaders: neoforge
+          changelog: ${{ steps.relnotes.outputs.content }}
