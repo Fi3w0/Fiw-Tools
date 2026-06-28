@@ -103,41 +103,37 @@ jobs:
           body_path: RELEASE_NOTES.md
           fail_on_unmatched_files: true
 
-      - name: Publish to Modrinth — Fabric 1.21.11
+      - name: Publish to Modrinth
         if: steps.ver.outputs.new == 'true'
-        uses: modrinth/minotaur@v2.9.0
-        with:
-          token: ${{ secrets.MODRINTH_TOKEN }}
-          project_id: fiw-tools
-          version_number: ${{ steps.ver.outputs.version }}
-          version_type: release
-          upload_file: release/fiw-tools-fabric-1.21.11-${{ steps.ver.outputs.version }}.jar
-          game_versions: 1.21.11
-          loaders: fabric
-          changelog: ${{ steps.relnotes.outputs.content }}
-
-      - name: Publish to Modrinth — Fabric 26.1.2
-        if: steps.ver.outputs.new == 'true'
-        uses: modrinth/minotaur@v2.9.0
-        with:
-          token: ${{ secrets.MODRINTH_TOKEN }}
-          project_id: fiw-tools
-          version_number: ${{ steps.ver.outputs.version }}
-          version_type: release
-          upload_file: release/fiw-tools-fabric-26.1.2-${{ steps.ver.outputs.version }}.jar
-          game_versions: 26.1.2
-          loaders: fabric
-          changelog: ${{ steps.relnotes.outputs.content }}
-
-      - name: Publish to Modrinth — NeoForge 1.21.11
-        if: steps.ver.outputs.new == 'true'
-        uses: modrinth/minotaur@v2.9.0
-        with:
-          token: ${{ secrets.MODRINTH_TOKEN }}
-          project_id: fiw-tools
-          version_number: ${{ steps.ver.outputs.version }}
-          version_type: release
-          upload_file: release/fiw-tools-neoforge-1.21.11-${{ steps.ver.outputs.version }}.jar
-          game_versions: 1.21.11
-          loaders: neoforge
-          changelog: ${{ steps.relnotes.outputs.content }}
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          VERSION: ${{ steps.ver.outputs.version }}
+          CHANGELOG: ${{ steps.relnotes.outputs.content }}
+        run: |
+          publish() {
+            local file="$1" game_ver="$2" loader="$3"
+            local data
+            data=$(python3 -c "
+          import json, sys
+          print(json.dumps({
+            'name': 'FIW Tools ' + sys.argv[1],
+            'version_number': sys.argv[1],
+            'changelog': sys.argv[2],
+            'dependencies': [],
+            'game_versions': [sys.argv[3]],
+            'version_type': 'release',
+            'loaders': [sys.argv[4]],
+            'featured': False,
+            'project_id': 'fiw-tools',
+            'file_parts': ['file']
+          }))" "$VERSION" "$CHANGELOG" "$game_ver" "$loader")
+            curl -sf \
+              -H "Authorization: $MODRINTH_TOKEN" \
+              -F "data=$data" \
+              -F "file=@$file" \
+              "https://api.modrinth.com/v2/version"
+            echo " -> published $file ($loader $game_ver)"
+          }
+          publish "release/fiw-tools-fabric-1.21.11-${VERSION}.jar"  "1.21.11" "fabric"
+          publish "release/fiw-tools-fabric-26.1.2-${VERSION}.jar"   "26.1.2"  "fabric"
+          publish "release/fiw-tools-neoforge-1.21.11-${VERSION}.jar" "1.21.11" "neoforge"
