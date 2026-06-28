@@ -105,7 +105,7 @@ jobs:
 
       - name: Publish to Modrinth — Fabric 1.21.11
         if: steps.ver.outputs.new == 'true'
-        uses: modrinth/minotaur@v2
+        uses: modrinth/minotaur@v2.9.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project_id: fiw-tools
@@ -118,7 +118,7 @@ jobs:
 
       - name: Publish to Modrinth — Fabric 26.1.2
         if: steps.ver.outputs.new == 'true'
-        uses: modrinth/minotaur@v2
+        uses: modrinth/minotaur@v2.9.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project_id: fiw-tools
@@ -131,7 +131,7 @@ jobs:
 
       - name: Publish to Modrinth — NeoForge 1.21.11
         if: steps.ver.outputs.new == 'true'
-        uses: modrinth/minotaur@v2
+        uses: modrinth/minotaur@v2.9.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project_id: fiw-tools
