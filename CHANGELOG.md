@@ -4,6 +4,102 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.0.3] - Elemental system, resonance, and new abilities
+
+> **Major ability expansion.** This release adds two new cross-cutting systems (elemental statuses
+> and set-bonus resonance), plus seventeen new abilities covering ice, water, fire, blood, and soul
+> themes. All changes are purely additive and backward-compatible — existing item configs continue
+> to work without modification.
+
+### Added
+
+- **Elemental status system** (`com.fiw.tools.elemental`):
+  - `ElementalStatus` enum: `FROZEN`, `SOAKED`, `SHOCKED`
+  - `ElementalStatusTracker` — server-side per-entity status tracker, hooked into the server tick
+  - `FROZEN`: applies Slowness VI + snowflake particles every 10 ticks until expired
+  - `SOAKED`: water-drip particles every 20 ticks; consumed by `storm_chain` for bonus chain damage
+  - `SHOCKED`: deals 1.0 magic damage + electric spark particles every 20 ticks
+  - Statuses extend (pick longer duration) when reapplied before expiry
+  - Tracker resets cleanly on server stop
+
+- **Resonance / set-bonus system**:
+  - `resonanceId: String?` field on item definitions — assigns an item to a named set
+  - `resonanceRequires: Int` field (default 2) — how many pieces must be equipped to activate
+  - New `AbilityTrigger.RESONANCE` (`"resonance"` / `"set_bonus"` in JSON)
+  - `PassiveHandler.sweepResonance()` — groups all equipped Fiw items by resonanceId each 10-tick sweep; fires resonance-trigger abilities when the count meets the threshold
+  - Works across any combination of hand + armor slots
+
+- **Ice abilities** (`IceAbilities.kt`):
+  - `ice_lance` — on_attack: bonus magic damage + Slowness IV + applies FROZEN
+  - `blizzard` — on_right_click: AoE Slowness + Blindness + damage + applies FROZEN to all hit
+  - `glacial_shell` — while_held passive: Resistance I below HP threshold (costs Slowness II)
+
+- **Water abilities** (`WaterAbilities.kt`):
+  - `tidal_surge` — on_right_click: directional cone knockback + Slowness + applies SOAKED
+
+- **Fire abilities** (`FireAbilities.kt`):
+  - `flame_dash` — on_right_click: dash forward along look direction, ignites every entity in path; uses the same safe-block stepping logic as `blink`
+  - `meteor_strike` — on_right_click: line-of-sight raycast up to 24 blocks; AoE fire damage + ignite at impact point
+
+- **Blood abilities** (`BloodAbilities.kt`):
+  - `blood_pact` — on_attack: sacrifice a fraction of current HP for amplified damage; player is floored at 1 HP
+  - `hemorrhage` — on_hurt passive: attacker is immediately inflicted with a bleed DoT
+  - `sanguine_strike` — on_attack: lifesteal that scales with the holder's missing HP fraction
+
+- **Elemental interaction abilities** (`ElementalAbilities.kt`):
+  - `freeze` — on_attack: apply FROZEN for configurable duration
+  - `soak` — on_attack: apply SOAKED + extinguish vanilla fire on target
+  - `shock` — on_attack: apply SHOCKED + instant magic damage
+  - `thaw_burst` — on_attack: consume FROZEN → AoE fire damage burst around target; free (no cooldown) if target is not frozen
+  - `storm_chain` — on_attack: consume SOAKED → bonus damage to primary + chain damage to nearby targets; free if target is not soaked
+
+- **Soul system** (`soul/SoulHandler.kt`, `SoulAbilities.kt`):
+  - `SoulHandler` — reads/writes `fiw_souls` in item `custom_data` using the standard NBT pattern
+  - `soul_collector` — on_kill passive: adds one soul up to the item's `soulCapacity`; shows a `(N/M)` chat counter
+  - `soul_surge` — on_right_click: drains all stored souls for AoE magic damage; damage = souls × `damagePerSoul`; free if no souls stored
+
+- **New item definition fields**:
+  - `soulCapacity: Int?` — max souls this item can hold; `null` = not in the soul system
+  - `resonanceId: String?` — set membership tag
+  - `resonanceRequires: Int` — activation threshold (default 2)
+
+- **New passive trigger** — `while_sneaking` (`WHILE_SNEAKING`): fires held + worn abilities while the player is crouching
+
+- **Active debuff abilities** (`CombatDebuffAbilities.kt`):
+  - `ignite` — sets target on fire for configurable seconds
+  - `wither_touch` — applies Wither effect to target
+  - `bleed` — applies a bleed DoT via the bleed system
+
+- **Passive debuff abilities**:
+  - `holder_debuff` — applies configurable debuffs to the holder (balance tool)
+  - `decay_aura` — passive aura: Wither to nearby hostiles
+  - `ember_aura` — passive aura: ignites nearby hostiles
+
+- **Server-tick bleed DoT system** (`AbilityState`):
+  - `BleedEntry` tracks damage-per-pulse, pulse count, and interval
+  - `addBleed()` merges entries (max dps, min interval, max pulses)
+  - `processBleeds()` runs each server tick; bypasses armor; can kill
+
+- **`AGENT.md`** — universal AI agent context file (gitignored); auto-describes repo layout, architecture, working rules, and full ability catalogue
+
+### Changed
+
+- `ice_lance` and `blizzard` now also apply `FROZEN` status in addition to their vanilla Slowness effect
+- `tidal_surge` now also applies `SOAKED` status to every target it pushes
+- `FiwToolsCommon.serverTick()` now calls `ElementalStatusTracker.processTick(server)` and `AbilityState.processBleeds(server)` alongside existing handlers
+- `FiwToolsCommon.serverStopped()` now calls `ElementalStatusTracker.reset()`
+- `AbilityTrigger` extended with `RESONANCE` entry
+
+### Requirements
+
+Same as 1.0.2 — no loader or Java version changes.
+
+- Fabric 1.21.11: Minecraft 1.21.11, Fabric Loader 0.19.2, Fabric API 0.141.4+1.21.11, Fabric Language Kotlin 1.13.11+kotlin.2.3.21, Java 21
+- NeoForge 1.21.11: Minecraft 1.21.11, NeoForge 21.11.42, Kotlin runtime bundled, Java 21
+- Fabric 26.x: Minecraft 26.1.2, Fabric Loader 0.19.2, Fabric API 0.148.0+26.1.2, Fabric Language Kotlin 1.13.11+kotlin.2.3.21, Java 25
+
+---
+
 ## [1.0.2] - FIW Bosses-style monorepo
 
 > **Repository restructure.** This release reorganizes Fiw Tools into one root project
