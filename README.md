@@ -110,6 +110,18 @@ Passive abilities run while an item is held or worn. Armor can provide auras, re
 
 Cursed items can damage non-whitelisted holders, bypass armor and resistance, scan ender chests, block anvil and grindstone abuse, and resist placement as world blocks.
 
+### Elemental status system
+
+Abilities can apply FROZEN, SOAKED, or SHOCKED to entities. Each status has passive tick effects (slowness, water drip, periodic magic damage). Two interaction abilities — `thaw_burst` and `storm_chain` — consume a status for a payoff, rewarding setup-and-execute combos.
+
+### Set bonuses (resonance)
+
+Tag items with a `resonanceId`. When a player has enough matching pieces equipped (held or worn), the first item in the set fires its `resonance` trigger automatically each passive sweep — unlocking bonus effects without any player input.
+
+### Soul system
+
+Items with `soulCapacity` can store souls. `soul_collector` adds one on kill; `soul_surge` spends them all at once for AoE magic damage that scales with the count stored.
+
 ### Imbuing system
 
 Catalyst items can upgrade targets with deterministic or weighted-random outcomes: new abilities, extra attributes, enchantment upgrades, lore rewrites, charge limits, and per-target imbuement caps.
@@ -144,6 +156,16 @@ Abilities are small, tunable modules. Add them to an item, set a trigger, tune t
 | `last_stand` | Conditional survival trigger at low health |
 | `uncurse` | Consumable ability that marks a cursed stack as safe |
 | `imbue` | Catalyst upgrade engine for custom item progression |
+| `freeze` / `soak` / `shock` | Apply elemental status with passive tick effects |
+| `thaw_burst` | Consume FROZEN for a fire AoE explosion around the target |
+| `storm_chain` | Consume SOAKED to arc lightning to nearby enemies |
+| `soul_collector` | Absorb a soul on kill (stored up to `soulCapacity`) |
+| `soul_surge` | Spend all stored souls for scaled AoE magic damage |
+| `blood_pact` | Sacrifice HP to multiply next attack damage |
+| `sanguine_strike` | Lifesteal scaled by the target's missing HP |
+| `hemorrhage` | On-hurt: bleed DoT applied to whoever damaged you |
+| `flame_dash` | Dash forward, igniting enemies along the path |
+| `meteor_strike` | Raycast AoE impact at cursor position |
 
 <details>
 <summary><strong>Core ability groups</strong></summary>
