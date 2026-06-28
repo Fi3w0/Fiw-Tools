@@ -73,7 +73,7 @@ jobs:
           fail_on_unmatched_files: true
 
       - name: Publish to Modrinth — Fabric 1.21.11
-        uses: modrinth/minotaur@v2
+        uses: modrinth/minotaur@v2.9.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project_id: fiw-tools
@@ -85,7 +85,7 @@ jobs:
           changelog: ${{ steps.relnotes.outputs.content }}
 
       - name: Publish to Modrinth — Fabric 26.1.2
-        uses: modrinth/minotaur@v2
+        uses: modrinth/minotaur@v2.9.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project_id: fiw-tools
@@ -97,7 +97,7 @@ jobs:
           changelog: ${{ steps.relnotes.outputs.content }}
 
       - name: Publish to Modrinth — NeoForge 1.21.11
-        uses: modrinth/minotaur@v2
+        uses: modrinth/minotaur@v2.9.0
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
           project_id: fiw-tools
