@@ -56,6 +56,17 @@ object PassiveHandler {
                 val worn = player.getItemBySlot(slot)
                 runSlot(player, world, worn, AbilityTrigger.WHILE_WORN, "slot", "any", slotName)
             }
+
+            if (player.isCrouching) {
+                runSlot(player, world, main, AbilityTrigger.WHILE_SNEAKING, "hand", "either", "main")
+                if (!off.isEmpty && off !== main) {
+                    runSlot(player, world, off, AbilityTrigger.WHILE_SNEAKING, "hand", "either", "off")
+                }
+                for ((slot, slotName) in WORN_SLOTS) {
+                    val worn = player.getItemBySlot(slot)
+                    runSlot(player, world, worn, AbilityTrigger.WHILE_SNEAKING, "slot", "any", slotName)
+                }
+            }
         }
     }
 

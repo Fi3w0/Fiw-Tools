@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 
 enum class AbilityTrigger {
-    ON_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK, WHILE_HELD, WHILE_WORN;
+    ON_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK, WHILE_HELD, WHILE_WORN, WHILE_SNEAKING;
 
     companion object {
         fun parse(s: String): AbilityTrigger? = when (s.lowercase()) {
@@ -25,6 +25,7 @@ enum class AbilityTrigger {
             "on_block_break", "block_break" -> ON_BLOCK_BREAK
             "while_held", "passive", "held" -> WHILE_HELD
             "while_worn", "worn", "armor" -> WHILE_WORN
+            "while_sneaking", "sneaking", "sneak" -> WHILE_SNEAKING
             else -> null
         }
     }
