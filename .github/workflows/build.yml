@@ -110,30 +110,36 @@ jobs:
           VERSION: ${{ steps.ver.outputs.version }}
           CHANGELOG: ${{ steps.relnotes.outputs.content }}
         run: |
+          # Write changelog to file to avoid shell escaping issues
+          printf '%s' "$CHANGELOG" > /tmp/changelog.txt
+
           publish() {
             local file="$1" game_ver="$2" loader="$3"
-            local data
-            data=$(python3 -c "
-          import json, sys
-          print(json.dumps({
-            'name': 'FIW Tools ' + sys.argv[1],
-            'version_number': sys.argv[1],
-            'changelog': sys.argv[2],
+            python3 - "$VERSION" "$game_ver" "$loader" <<'PYEOF'
+          import json, sys, pathlib
+          ver, game_ver, loader = sys.argv[1], sys.argv[2], sys.argv[3]
+          changelog = pathlib.Path('/tmp/changelog.txt').read_text()
+          payload = json.dumps({
+            'name': f'FIW Tools {ver}',
+            'version_number': ver,
+            'changelog': changelog,
             'dependencies': [],
-            'game_versions': [sys.argv[3]],
+            'game_versions': [game_ver],
             'version_type': 'release',
-            'loaders': [sys.argv[4]],
+            'loaders': [loader],
             'featured': False,
             'project_id': 'fiw-tools',
             'file_parts': ['file']
-          }))" "$VERSION" "$CHANGELOG" "$game_ver" "$loader")
+          })
+          pathlib.Path('/tmp/modrinth_data.json').write_text(payload)
+          PYEOF
             curl -sf \
               -H "Authorization: $MODRINTH_TOKEN" \
-              -F "data=$data" \
+              -F "data=</tmp/modrinth_data.json;type=application/json" \
               -F "file=@$file" \
               "https://api.modrinth.com/v2/version"
             echo " -> published $file ($loader $game_ver)"
           }
-          publish "release/fiw-tools-fabric-1.21.11-${VERSION}.jar"  "1.21.11" "fabric"
-          publish "release/fiw-tools-fabric-26.1.2-${VERSION}.jar"   "26.1.2"  "fabric"
+          publish "release/fiw-tools-fabric-1.21.11-${VERSION}.jar"   "1.21.11" "fabric"
+          publish "release/fiw-tools-fabric-26.1.2-${VERSION}.jar"    "26.1.2"  "fabric"
           publish "release/fiw-tools-neoforge-1.21.11-${VERSION}.jar" "1.21.11" "neoforge"
