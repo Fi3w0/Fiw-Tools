@@ -4,6 +4,7 @@ import com.fiw.tools.ability.AbilityCooldownTracker
 import com.fiw.tools.ability.AbilityRegistry
 import com.fiw.tools.ability.AbilityState
 import com.fiw.tools.ability.PassiveHandler
+import com.fiw.tools.elemental.ElementalStatusTracker
 import com.fiw.tools.ability.ZoneEffects
 import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.ProjectileBurstAbility
@@ -37,6 +38,7 @@ object FiwToolsCommon {
         ProjectileBurstAbility.tick()
         ArcSlashAbility.tick()
         AbilityState.processBleeds(server)
+        ElementalStatusTracker.processTick(server)
     }
 
     fun playerJoin(player: ServerPlayer) {
@@ -53,5 +55,6 @@ object FiwToolsCommon {
         ArcSlashAbility.clear()
         ZoneEffects.clear()
         AbilityState.clear()
+        ElementalStatusTracker.reset()
     }
 }
