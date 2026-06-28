@@ -6,11 +6,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21 + 25
         uses: actions/setup-java@v4
@@ -35,3 +40,104 @@ jobs:
           name: fiw-tools-jars
           path: '**/build/libs/*.jar'
           if-no-files-found: warn
+
+      # Only auto-publish on direct pushes to main (not PRs)
+      - name: Check if version is new
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: ver
+        run: |
+          VERSION=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          if git tag --list "$TAG" | grep -q "^$TAG$"; then
+            echo "new=false" >> $GITHUB_OUTPUT
+            echo "Tag $TAG already exists — skipping publish."
+          else
+            echo "new=true" >> $GITHUB_OUTPUT
+            echo "New version $TAG — will publish."
+          fi
+
+      - name: Collect loader jars
+        if: steps.ver.outputs.new == 'true'
+        run: |
+          mkdir -p release
+          find . -path '*/build/libs/*.jar' \
+            ! -name '*-sources.jar' ! -name '*-dev.jar' ! -name '*-shadow.jar' \
+            ! -name 'fiw-tools-core*.jar' -exec cp -v {} release/ \;
+          ls -la release
+
+      - name: Extract changelog section
+        if: steps.ver.outputs.new == 'true'
+        id: relnotes
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          awk -v ver="$VERSION" '
+            /^## \[/ { if (p) exit; if ($0 ~ ("^## \\[" ver "\\]")) p=1 }
+            p { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "Fiw Tools $VERSION" > RELEASE_NOTES.md
+          fi
+          cat RELEASE_NOTES.md
+          {
+            echo 'content<<CHANGELOG_EOF'
+            cat RELEASE_NOTES.md
+            echo CHANGELOG_EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        if: steps.ver.outputs.new == 'true'
+        run: |
+          git config user.name "Fi3w0"
+          git config user.email "fi3w0@users.noreply.github.com"
+          git tag "${{ steps.ver.outputs.tag }}"
+          git push origin "${{ steps.ver.outputs.tag }}"
+
+      - name: Publish GitHub Release
+        if: steps.ver.outputs.new == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          files: release/*.jar
+          body_path: RELEASE_NOTES.md
+          fail_on_unmatched_files: true
+
+      - name: Publish to Modrinth — Fabric 1.21.11
+        if: steps.ver.outputs.new == 'true'
+        uses: modrinth/minotaur@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project_id: fiw-tools
+          version_number: ${{ steps.ver.outputs.version }}
+          version_type: release
+          upload_file: release/fiw-tools-fabric-1.21.11-${{ steps.ver.outputs.version }}.jar
+          game_versions: 1.21.11
+          loaders: fabric
+          changelog: ${{ steps.relnotes.outputs.content }}
+
+      - name: Publish to Modrinth — Fabric 26.1.2
+        if: steps.ver.outputs.new == 'true'
+        uses: modrinth/minotaur@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project_id: fiw-tools
+          version_number: ${{ steps.ver.outputs.version }}
+          version_type: release
+          upload_file: release/fiw-tools-fabric-26.1.2-${{ steps.ver.outputs.version }}.jar
+          game_versions: 26.1.2
+          loaders: fabric
+          changelog: ${{ steps.relnotes.outputs.content }}
+
+      - name: Publish to Modrinth — NeoForge 1.21.11
+        if: steps.ver.outputs.new == 'true'
+        uses: modrinth/minotaur@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project_id: fiw-tools
+          version_number: ${{ steps.ver.outputs.version }}
+          version_type: release
+          upload_file: release/fiw-tools-neoforge-1.21.11-${{ steps.ver.outputs.version }}.jar
+          game_versions: 1.21.11
+          loaders: neoforge
+          changelog: ${{ steps.relnotes.outputs.content }}
