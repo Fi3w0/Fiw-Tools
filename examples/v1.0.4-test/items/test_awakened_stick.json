@@ -1,0 +1,14 @@
+{
+  "id": "test_awakened_stick",
+  "base": "minecraft:stone_sword",
+  "displayName": "&aTest Awakened Stick",
+  "lore": ["&7Deal &c10 total damage&7 to reach the final form.", "&8Stage 2/3"],
+  "awakening": {
+    "trigger": "deal_damage",
+    "count": 10,
+    "upgradeTo": "test_final_stick",
+    "message": "&b&lFinal form reached!",
+    "broadcast": true,
+    "showProgress": true
+  }
+}

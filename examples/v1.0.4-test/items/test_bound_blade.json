@@ -1,0 +1,15 @@
+{
+  "id": "test_bound_blade",
+  "base": "minecraft:iron_sword",
+  "displayName": "&dTest Bound Blade",
+  "lore": ["&7Binds to the first player who uses it.", "&8Thieves take 1 damage/s."],
+  "binding": {
+    "mode": "first_use",
+    "curse": true,
+    "cursePerTick": 1.0,
+    "message": "&d&lThe blade is now bound to you."
+  },
+  "abilities": [
+    { "type": "heal_on_hit", "trigger": "on_attack", "params": { "amount": 1.0 } }
+  ]
+}

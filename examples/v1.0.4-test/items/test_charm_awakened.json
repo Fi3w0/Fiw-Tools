@@ -1,0 +1,7 @@
+{
+  "id": "test_charm_awakened",
+  "base": "minecraft:blaze_powder",
+  "displayName": "&c&lTest Charm (Awakened)",
+  "lore": ["&7It survived the Nether."],
+  "enchantmentGlint": true
+}

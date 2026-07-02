@@ -1,0 +1,18 @@
+{
+  "id": "test_bound_pickup",
+  "base": "minecraft:gold_ingot",
+  "displayName": "&6Test Pickup-Bound Ingot",
+  "lore": ["&7Binds to whoever picks it up first.", "&8No curse — abilities just lock."],
+  "binding": {
+    "mode": "first_pickup",
+    "message": "&6The ingot chose you."
+  },
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 40,
+      "params": { "command": "effect give {player} minecraft:glowing 3 0" }
+    }
+  ]
+}

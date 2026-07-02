@@ -1,0 +1,15 @@
+{
+  "id": "test_dormant_stick",
+  "base": "minecraft:wooden_sword",
+  "displayName": "&7Test Dormant Stick",
+  "lore": ["&7Kill &c2 zombies&7 to awaken it.", "&8Stage 1/3"],
+  "awakening": {
+    "trigger": "kill_entity",
+    "entity": "minecraft:zombie",
+    "count": 2,
+    "upgradeTo": "test_awakened_stick",
+    "message": "&a&lThe stick stirs... stage 2!",
+    "sound": "minecraft:entity.zombie.death",
+    "showProgress": true
+  }
+}

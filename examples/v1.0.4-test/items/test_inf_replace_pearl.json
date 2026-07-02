@@ -1,0 +1,7 @@
+{
+  "id": "test_inf_replace_pearl",
+  "base": "minecraft:ender_pearl",
+  "displayName": "&dTest Replace Pearl",
+  "lore": ["&7Throw it — it turns into a slime ball.", "&8infinite: replace"],
+  "infinite": { "mode": "replace", "replaceWith": "minecraft:slime_ball", "replaceCount": 1 }
+}

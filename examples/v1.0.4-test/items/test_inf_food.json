@@ -1,0 +1,8 @@
+{
+  "id": "test_inf_food",
+  "base": "minecraft:cooked_beef",
+  "displayName": "&6Test Infinite Steak",
+  "lore": ["&7Eat forever — never consumed.", "&8infinite: keep"],
+  "infinite": "keep",
+  "food": { "nutrition": 4, "saturation": 0.6, "canAlwaysEat": true }
+}

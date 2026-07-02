@@ -1,0 +1,9 @@
+{
+  "id": "test_inf_damage_bread",
+  "base": "minecraft:bread",
+  "displayName": "&eTest Durability Bread",
+  "lore": ["&7Eating costs 1 durability (max 3).", "&8infinite: damage — breaks after 3 bites"],
+  "maxDamage": 3,
+  "infinite": { "mode": "damage", "damagePerUse": 1 },
+  "food": { "nutrition": 3, "saturation": 0.4, "canAlwaysEat": true }
+}

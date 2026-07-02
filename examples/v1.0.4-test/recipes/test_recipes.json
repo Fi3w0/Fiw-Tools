@@ -1,0 +1,52 @@
+{
+  "recipes": [
+    {
+      "id": "test_craft_food",
+      "type": "shaped",
+      "pattern": ["D"],
+      "key": { "D": "minecraft:dirt" },
+      "result": { "item": "fiw:test_inf_food", "count": 1 }
+    },
+    {
+      "id": "test_craft_arrow",
+      "type": "shaped",
+      "pattern": ["G"],
+      "key": { "G": "minecraft:gravel" },
+      "result": { "item": "fiw:test_inf_arrow", "count": 1 }
+    },
+    {
+      "id": "test_custom_to_vanilla",
+      "type": "shapeless",
+      "ingredients": ["fiw:test_inf_food", "minecraft:stick"],
+      "result": { "item": "minecraft:diamond", "count": 2 }
+    },
+    {
+      "id": "test_tag_wand",
+      "type": "shapeless",
+      "ingredients": ["#minecraft:planks", "minecraft:stick"],
+      "result": { "item": "fiw:test_cmd_wand", "count": 1 }
+    },
+    {
+      "id": "test_craft_dormant",
+      "type": "shaped",
+      "pattern": [
+        "C",
+        "S"
+      ],
+      "key": { "C": "minecraft:cobblestone", "S": "minecraft:stick" },
+      "result": { "item": "fiw:test_dormant_stick", "count": 1 }
+    },
+    {
+      "id": "test_craft_awakening",
+      "type": "shapeless",
+      "ingredients": ["fiw:test_dormant_stick", "minecraft:diamond"],
+      "result": { "item": "fiw:test_awakened_stick", "count": 1 }
+    },
+    {
+      "id": "test_craft_bound",
+      "type": "shapeless",
+      "ingredients": ["minecraft:iron_ingot", "minecraft:stick"],
+      "result": { "item": "fiw:test_bound_blade", "count": 1 }
+    }
+  ]
+}

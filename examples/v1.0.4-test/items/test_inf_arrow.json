@@ -1,0 +1,7 @@
+{
+  "id": "test_inf_arrow",
+  "base": "minecraft:arrow",
+  "displayName": "&bTest Infinite Arrow",
+  "lore": ["&7Returns the instant it is fired.", "&8infinite: keep"],
+  "infinite": "keep"
+}

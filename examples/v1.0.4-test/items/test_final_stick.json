@@ -1,0 +1,9 @@
+{
+  "id": "test_final_stick",
+  "base": "minecraft:diamond_sword",
+  "displayName": "&b&lTest Final Stick",
+  "lore": ["&7Fully awakened.", "&8Stage 3/3"],
+  "rarity": "epic",
+  "enchantmentGlint": true,
+  "enchantments": { "minecraft:sharpness": 3 }
+}

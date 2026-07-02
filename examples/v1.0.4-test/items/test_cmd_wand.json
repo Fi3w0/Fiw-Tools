@@ -1,0 +1,30 @@
+{
+  "id": "test_cmd_wand",
+  "base": "minecraft:stick",
+  "displayName": "&5Test Command Wand",
+  "lore": [
+    "&7Right-click: &fSpeed 5s + particles",
+    "&7Shift-right-click: &fJump Boost 5s",
+    "&8Silent run_command test"
+  ],
+  "enchantmentGlint": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 20,
+      "params": {
+        "commands": [
+          "effect give {player} minecraft:speed 5 1",
+          "particle minecraft:end_rod {x} {y} {z} 0.3 1 0.3 0.02 20"
+        ]
+      }
+    },
+    {
+      "type": "run_command",
+      "trigger": "on_shift_right_click",
+      "cooldownTicks": 20,
+      "params": { "command": "effect give {player} minecraft:jump_boost 5 1" }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "test_nether_charm",
+  "base": "minecraft:clay_ball",
+  "displayName": "&cTest Nether Charm",
+  "lore": ["&7Carry it into the &cNether&7 to awaken it.", "&8visit_dimension test"],
+  "awakening": {
+    "trigger": "visit_dimension",
+    "dimension": "minecraft:the_nether",
+    "upgradeTo": "test_charm_awakened",
+    "message": "&c&lThe charm ignites in the heat of the Nether!",
+    "sound": "minecraft:entity.blaze.ambient"
+  }
+}
