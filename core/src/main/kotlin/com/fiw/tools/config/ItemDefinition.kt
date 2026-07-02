@@ -54,6 +54,11 @@ data class ItemDefinition(
      */
     val infinite: InfiniteDef? = null,
     /**
+     * Kill reward that recharges ability cooldowns and/or repairs the killing stack.
+     * Target filters support any living entity, non-player mobs, players, or specific entity ids.
+     */
+    val rechargeOnKill: RechargeOnKillDef? = null,
+    /**
      * Awakening — the artifact upgrades itself into [AwakeningDef.upgradeTo] when its condition is
      * met. Chain awakenings by giving the upgraded item its own `awakening` block. `null` = never.
      */
@@ -65,6 +70,41 @@ data class ItemDefinition(
      */
     val binding: BindingDef? = null
 ) {
+    data class RechargeOnKillDef(
+        /** `main`, `off`, `both`, or `any`. Controls which carried copy can trigger from a player kill. */
+        val hand: String = "main",
+        /** `any`, `mobs`, `players`, or `entities`. */
+        val target: String = "any",
+        /** Specific entity type ids to match when target is `entities` or as an extra filter. */
+        val entities: List<String> = emptyList(),
+        /** Reduce active cooldowns on this item by this many ticks. */
+        val cooldownTicks: Int = 0,
+        /** Reduce active cooldowns by this fraction of their remaining time, e.g. 0.25 = 25%. */
+        val cooldownPercent: Float = 0f,
+        /** Optional ability type filter for cooldown recharge. Empty = every ability on this item. */
+        val cooldownAbilityTypes: List<String> = emptyList(),
+        /** Optional trigger filter for cooldown recharge. Empty = every trigger on this item. */
+        val cooldownTriggers: List<String> = emptyList(),
+        /** Clear all active cooldowns on this item. Applied before [cooldownTicks]. */
+        val resetCooldowns: Boolean = false,
+        /** Reduce the stack's current damage by this flat amount. */
+        val repairDamage: Int = 0,
+        /** Reduce current damage by this fraction of max durability, e.g. 0.10 = 10%. */
+        val repairPercent: Float = 0f,
+        /** Fully repair the stack on a matching kill. */
+        val fullRepair: Boolean = false,
+        /** Increase the stack's max durability by this flat amount on each matching kill. */
+        val addMaxDamage: Int = 0,
+        /** Optional cap for [addMaxDamage]. Null = no cap. */
+        val maxDamageCap: Int? = null,
+        /** Stamp the stack as unbreakable on a matching kill. */
+        val unbreakable: Boolean = false,
+        /** Random chance to apply after the target filter passes. */
+        val chance: Float = 1f,
+        /** Specific player names or UUIDs to match. Empty = any player when target allows players. */
+        val players: List<String> = emptyList()
+    )
+
     data class BindingDef(
         /** `first_use` (right-click or attack) or `first_pickup` (first inventory it lands in). */
         val mode: String,

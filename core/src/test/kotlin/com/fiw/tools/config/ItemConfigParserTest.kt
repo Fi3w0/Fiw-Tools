@@ -36,7 +36,20 @@ class ItemConfigParserTest {
               "cursed": true,
               "curseWhitelist": ["Fiw"],
               "curseSettings": { "perTick": 2.5, "checksEnderChest": true },
-              "imbueLimit": 2
+              "imbueLimit": 2,
+              "rechargeOnKill": {
+                "hand": "off",
+                "entity": "minecraft:zombie",
+                "cooldownTicks": 80,
+                "cooldownPercent": 0.5,
+                "cooldownAbilities": ["blink"],
+                "cooldownTriggers": ["on_right_click"],
+                "repairDamage": 12,
+                "repairPercent": 0.1,
+                "addMaxDamage": 5,
+                "maxDamageCap": 400,
+                "unbreakable": true
+              }
             }
             """.trimIndent()
         )
@@ -54,6 +67,41 @@ class ItemConfigParserTest {
         assertEquals(2.5f, def.curseSettings.perTick)
         assertTrue(def.curseSettings.checksEnderChest)
         assertEquals(2, def.imbueLimit)
+        assertNotNull(def.rechargeOnKill)
+        assertEquals("entities", def.rechargeOnKill.target)
+        assertEquals("off", def.rechargeOnKill.hand)
+        assertEquals(listOf("minecraft:zombie"), def.rechargeOnKill.entities)
+        assertEquals(80, def.rechargeOnKill.cooldownTicks)
+        assertEquals(0.5f, def.rechargeOnKill.cooldownPercent)
+        assertEquals(listOf("blink"), def.rechargeOnKill.cooldownAbilityTypes)
+        assertEquals(listOf("on_right_click"), def.rechargeOnKill.cooldownTriggers)
+        assertEquals(12, def.rechargeOnKill.repairDamage)
+        assertEquals(5, def.rechargeOnKill.addMaxDamage)
+        assertEquals(400, def.rechargeOnKill.maxDamageCap)
+        assertTrue(def.rechargeOnKill.unbreakable)
+    }
+
+    @Test
+    fun parsesRechargeOnKillAnyEntityShortcut() {
+        val def = ItemConfigParser.parse(
+            """
+            {
+              "id": "offhand_repairer",
+              "base": "minecraft:shield",
+              "rechargeOnKill": {
+                "slot": "any",
+                "entity": "any",
+                "repairDamage": 1
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertNotNull(def.rechargeOnKill)
+        assertEquals("any", def.rechargeOnKill.hand)
+        assertEquals("any", def.rechargeOnKill.target)
+        assertTrue(def.rechargeOnKill.entities.isEmpty())
+        assertEquals(1, def.rechargeOnKill.repairDamage)
     }
 
     @Test

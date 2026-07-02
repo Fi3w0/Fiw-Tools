@@ -43,6 +43,7 @@ object AbilityDispatcher {
         if (attacker is ServerPlayer) {
             fire(AbilityTrigger.ON_KILL, attacker, attacker.mainHandItem, attacker.level(), entity, entity.position())
             com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, attacker.mainHandItem, entity)
+            com.fiw.tools.recharge.RechargeOnKillHandler.onKill(attacker, entity)
         }
     }
 

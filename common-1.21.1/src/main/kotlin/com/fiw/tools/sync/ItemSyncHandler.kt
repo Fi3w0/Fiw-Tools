@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.component.Unbreakable
 import net.minecraft.world.item.enchantment.ItemEnchantments
 import org.slf4j.LoggerFactory
 
@@ -78,6 +79,7 @@ object ItemSyncHandler {
         val rebuilt = ItemBuilder.build(def, stack.count, registries) ?: return null
 
         // Preserve the player's accumulated wear rather than resetting durability on every edit.
+        preserveDurabilityRewards(stack, rebuilt)
         if (rebuilt.isDamageableItem) {
             val maxDamage = rebuilt.maxDamage
             rebuilt.damageValue = stack.damageValue.coerceIn(0, (maxDamage - 1).coerceAtLeast(0))
@@ -88,6 +90,11 @@ object ItemSyncHandler {
         preserveImbueState(tag, rebuilt, registries)
         preserveStackState(tag, rebuilt)
         return rebuilt
+    }
+
+    private fun preserveDurabilityRewards(old: ItemStack, rebuilt: ItemStack) {
+        if (old.maxDamage > rebuilt.maxDamage) rebuilt.set(DataComponents.MAX_DAMAGE, old.maxDamage)
+        if (old.has(DataComponents.UNBREAKABLE)) rebuilt.set(DataComponents.UNBREAKABLE, Unbreakable(true))
     }
 
     /**

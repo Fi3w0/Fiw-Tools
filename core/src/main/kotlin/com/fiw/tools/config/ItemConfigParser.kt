@@ -103,6 +103,52 @@ object ItemConfigParser {
         if (infinite != null && infinite.mode == "replace" && infinite.replaceWith == null)
             throw IllegalArgumentException("infinite mode 'replace' needs 'replaceWith'")
 
+        val rechargeObj = root.getAsJsonObject("rechargeOnKill")
+        val rechargeOnKill = if (rechargeObj != null) {
+            val rawEntity = rechargeObj.optStringOrNull("entity")
+            val entityList = buildList {
+                rawEntity?.takeUnless { isRechargeTargetAlias(it) }?.let { add(it) }
+                rechargeObj.getAsJsonArray("entities")?.forEach { add(it.asString) }
+            }
+            val target = rechargeObj.optStringOrNull("target")
+                ?: rawEntity?.takeIf { isRechargeTargetAlias(it) }
+                ?: if (entityList.isEmpty()) "any" else "entities"
+            val targetKey = target.lowercase()
+            val hand = normalizeRechargeHand(rechargeObj.optStringOrNull("slot") ?: rechargeObj.optString("hand", "main"))
+            if (hand !in setOf("main", "off", "both", "any"))
+                throw IllegalArgumentException("unknown rechargeOnKill hand/slot '$hand'")
+            if (targetKey !in setOf("any", "all", "mobs", "mob", "players", "player", "entities", "entity", "specific"))
+                throw IllegalArgumentException("unknown rechargeOnKill target '$target'")
+            if (targetKey in setOf("entities", "entity", "specific") && entityList.isEmpty())
+                throw IllegalArgumentException("rechargeOnKill target '$target' needs 'entity' or 'entities'")
+            val def = ItemDefinition.RechargeOnKillDef(
+                hand = hand,
+                target = normalizeRechargeTarget(targetKey),
+                entities = entityList,
+                cooldownTicks = rechargeObj.optInt("cooldownTicks", rechargeObj.optInt("cooldownReductionTicks", 0)),
+                cooldownPercent = rechargeObj.optFloat("cooldownPercent", 0f),
+                cooldownAbilityTypes = rechargeObj.stringList("cooldownAbilities") + rechargeObj.stringList("abilityTypes"),
+                cooldownTriggers = rechargeObj.stringList("cooldownTriggers") + rechargeObj.stringList("triggers"),
+                resetCooldowns = rechargeObj.optBool("resetCooldowns", false),
+                repairDamage = rechargeObj.optInt("repairDamage", rechargeObj.optInt("repairAmount", rechargeObj.optInt("repair", 0))),
+                repairPercent = rechargeObj.optFloat("repairPercent", 0f),
+                fullRepair = rechargeObj.optBool("fullRepair", rechargeObj.optBool("repairToFull", false)),
+                addMaxDamage = rechargeObj.optInt("addMaxDamage", rechargeObj.optInt("addDurability", 0)),
+                maxDamageCap = rechargeObj.optIntOrNull("maxDamageCap"),
+                unbreakable = rechargeObj.optBool("unbreakable", rechargeObj.optBool("makeUnbreakable", false)),
+                chance = rechargeObj.optFloat("chance", 1f),
+                players = rechargeObj.stringList("players") + rechargeObj.stringList("playerNames") + rechargeObj.optStringOrNull("player").let { if (it == null) emptyList() else listOf(it) }
+            )
+            if (def.cooldownTicks < 0) throw IllegalArgumentException("rechargeOnKill cooldownTicks must be >= 0")
+            if (def.cooldownPercent !in 0f..1f) throw IllegalArgumentException("rechargeOnKill cooldownPercent must be between 0 and 1")
+            if (def.repairDamage < 0) throw IllegalArgumentException("rechargeOnKill repairDamage must be >= 0")
+            if (def.repairPercent < 0f) throw IllegalArgumentException("rechargeOnKill repairPercent must be >= 0")
+            if (def.addMaxDamage < 0) throw IllegalArgumentException("rechargeOnKill addMaxDamage must be >= 0")
+            if (def.maxDamageCap != null && def.maxDamageCap < 1) throw IllegalArgumentException("rechargeOnKill maxDamageCap must be >= 1")
+            if (def.chance !in 0f..1f) throw IllegalArgumentException("rechargeOnKill chance must be between 0 and 1")
+            def
+        } else null
+
         val awakeningObj = root.getAsJsonObject("awakening")
         val awakening = if (awakeningObj != null) {
             val trigger = awakeningObj.requireString("trigger").lowercase()
@@ -170,6 +216,7 @@ object ItemConfigParser {
             resonanceId = root.get("resonanceId")?.takeIf { !it.isJsonNull }?.asString,
             resonanceRequires = root.optInt("resonanceRequires", 2),
             infinite = infinite,
+            rechargeOnKill = rechargeOnKill,
             awakening = awakening,
             binding = binding
         )
@@ -181,6 +228,25 @@ object ItemConfigParser {
         "damage" -> "damage"
         "replace" -> "replace"
         else -> throw IllegalArgumentException("unknown infinite mode '$raw' (keep/normal, damage, replace)")
+    }
+
+    private fun normalizeRechargeTarget(raw: String): String = when (raw.lowercase()) {
+        "all", "any" -> "any"
+        "mob", "mobs" -> "mobs"
+        "player", "players" -> "players"
+        "entity", "entities", "specific" -> "entities"
+        else -> raw.lowercase()
+    }
+
+    private fun isRechargeTargetAlias(raw: String): Boolean =
+        raw.lowercase() in setOf("all", "any", "mob", "mobs", "player", "players")
+
+    private fun normalizeRechargeHand(raw: String): String = when (raw.lowercase()) {
+        "main", "mainhand", "main_hand" -> "main"
+        "off", "offhand", "off_hand" -> "off"
+        "both", "hands", "either" -> "both"
+        "any", "all", "inventory", "inv", "carried" -> "any"
+        else -> raw.lowercase()
     }
 
     private fun JsonObject.requireString(key: String): String =
@@ -212,4 +278,13 @@ object ItemConfigParser {
 
     private fun JsonObject.optBoolOrNull(key: String): Boolean? =
         if (has(key) && !get(key).isJsonNull) get(key).asBoolean else null
+
+    private fun JsonObject.stringList(key: String): List<String> {
+        val el = get(key)?.takeIf { !it.isJsonNull } ?: return emptyList()
+        return when {
+            el.isJsonArray -> el.asJsonArray.map { it.asString }
+            el.isJsonPrimitive -> listOf(el.asString)
+            else -> emptyList()
+        }
+    }
 }
