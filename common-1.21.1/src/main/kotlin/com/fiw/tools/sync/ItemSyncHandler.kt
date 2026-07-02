@@ -79,7 +79,7 @@ object ItemSyncHandler {
         val rebuilt = ItemBuilder.build(def, stack.count, registries) ?: return null
 
         // Preserve the player's accumulated wear rather than resetting durability on every edit.
-        preserveDurabilityRewards(stack, rebuilt)
+        preserveDurabilityRewards(tag, rebuilt, def)
         if (rebuilt.isDamageableItem) {
             val maxDamage = rebuilt.maxDamage
             rebuilt.damageValue = stack.damageValue.coerceIn(0, (maxDamage - 1).coerceAtLeast(0))
@@ -92,9 +92,29 @@ object ItemSyncHandler {
         return rebuilt
     }
 
-    private fun preserveDurabilityRewards(old: ItemStack, rebuilt: ItemStack) {
-        if (old.maxDamage > rebuilt.maxDamage) rebuilt.set(DataComponents.MAX_DAMAGE, old.maxDamage)
-        if (old.has(DataComponents.UNBREAKABLE)) rebuilt.set(DataComponents.UNBREAKABLE, Unbreakable(true))
+    /**
+     * Replay durability rewards this specific stack earned from `rechargeOnKill` kills (recorded by
+     * [com.fiw.tools.recharge.RechargeOnKillHandler]) on top of the fresh build. Unlike copying the
+     * old components wholesale, this keeps the config authoritative: an admin who lowers `maxDamage`
+     * or removes `unbreakable` from the JSON wins for the def-granted part, while earned bonuses stick.
+     */
+    private fun preserveDurabilityRewards(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack, def: ItemDefinition) {
+        val bonus = oldTag.getInt(com.fiw.tools.recharge.RechargeOnKillHandler.BONUS_MAX_DAMAGE_KEY)
+        val earnedUnbreakable = oldTag.getBoolean(com.fiw.tools.recharge.RechargeOnKillHandler.UNBREAKABLE_KEY)
+        if (bonus <= 0 && !earnedUnbreakable) return
+        val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
+        val tag = data.copyTag()
+        if (bonus > 0) {
+            val cap = def.rechargeOnKill?.maxDamageCap ?: Int.MAX_VALUE
+            val next = (rebuilt.maxDamage.coerceAtLeast(0) + bonus).coerceAtMost(cap)
+            if (next > rebuilt.maxDamage) rebuilt.set(DataComponents.MAX_DAMAGE, next)
+            tag.putInt(com.fiw.tools.recharge.RechargeOnKillHandler.BONUS_MAX_DAMAGE_KEY, bonus)
+        }
+        if (earnedUnbreakable) {
+            rebuilt.set(DataComponents.UNBREAKABLE, Unbreakable(true))
+            tag.putBoolean(com.fiw.tools.recharge.RechargeOnKillHandler.UNBREAKABLE_KEY, true)
+        }
+        rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
     }
 
     /**

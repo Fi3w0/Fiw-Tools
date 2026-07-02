@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.item.component.Unbreakable
 import java.util.Collections
 import java.util.IdentityHashMap
@@ -19,6 +20,12 @@ import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.ceil
 
 object RechargeOnKillHandler {
+    /** Per-stack custom-data key: total max-durability bonus earned from kills. */
+    const val BONUS_MAX_DAMAGE_KEY = "fiw_recharge_bonus_max_damage"
+
+    /** Per-stack custom-data key: this stack earned unbreakable from a kill. */
+    const val UNBREAKABLE_KEY = "fiw_recharge_unbreakable"
+
     fun onKill(player: ServerPlayer, victim: LivingEntity) {
         val seen = Collections.newSetFromMap(IdentityHashMap<ItemStack, Boolean>())
         visit(player, player.mainHandItem, victim, "main", seen)
@@ -106,15 +113,35 @@ object RechargeOnKillHandler {
             val next = (current + cfg.addMaxDamage).coerceAtMost(cap)
             if (next > current && next > 0) {
                 stack.set(DataComponents.MAX_DAMAGE, next)
+                recordMaxDamageBonus(stack, next - current)
                 changed = true
             }
         }
-        if (cfg.unbreakable) {
+        if (cfg.unbreakable && !stack.has(DataComponents.UNBREAKABLE)) {
             stack.set(DataComponents.UNBREAKABLE, Unbreakable(true))
+            recordUnbreakable(stack)
             changed = true
         }
         if (repair(stack, cfg) > 0) changed = true
         return changed
+    }
+
+    /**
+     * Earned rewards are recorded in custom data so [com.fiw.tools.sync.ItemSyncHandler] can
+     * replay them on top of a fresh build — the config stays authoritative, kills stay earned.
+     */
+    private fun recordMaxDamageBonus(stack: ItemStack, delta: Int) {
+        val data = stack.get(DataComponents.CUSTOM_DATA) ?: return
+        val tag = data.copyTag()
+        tag.putInt(BONUS_MAX_DAMAGE_KEY, tag.getInt(BONUS_MAX_DAMAGE_KEY) + delta)
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
+    }
+
+    private fun recordUnbreakable(stack: ItemStack) {
+        val data = stack.get(DataComponents.CUSTOM_DATA) ?: return
+        val tag = data.copyTag()
+        tag.putBoolean(UNBREAKABLE_KEY, true)
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
     }
 
     private fun repair(stack: ItemStack, cfg: ItemDefinition.RechargeOnKillDef): Int {
