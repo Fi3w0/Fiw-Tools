@@ -2114,6 +2114,7 @@ or the full form:
 
 **Notes:**
 - Built on vanilla's `use_remainder` component plus a re-stamp sweep — survives reloads, restarts, and stacking.
+- On Minecraft 1.21.1, vanilla has no generic `use_remainder` component yet. That port supports infinite food through the older food conversion field and infinite arrows through the projectile hook; generic non-food consumed items require 1.21.11 or 26.1.2.
 - Fired arrows are restored instantly and the flying arrow can't be picked up (no duping). Multishot crossbows and the Infinity enchant are handled.
 - `damage` mode needs a `maxDamage` value to count against; without one the item never breaks.
 

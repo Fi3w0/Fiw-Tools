@@ -26,6 +26,8 @@ body:
       multiple: true
       options:
         - All targets
+        - Fabric 1.21.1
+        - NeoForge 1.21.1
         - Fabric 1.21.11
         - NeoForge 1.21.11
         - Fabric 26.1.2 (module fabric-26.2.1)

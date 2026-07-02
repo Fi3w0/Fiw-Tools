@@ -4,6 +4,23 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.0.5] - Minecraft 1.21.1 ports and release publishing
+
+### Added
+
+- Added Fabric 1.21.1 and NeoForge 1.21.1 loader targets.
+- Added the new 1.21.1 jars to automated GitHub release and Modrinth publishing.
+
+### Fixed
+
+- Added a 1.21.1-compatible infinite food fallback using the old food conversion field, since Minecraft 1.21.1 does not have the generic `use_remainder` data component.
+- Hardened Modrinth publishing with target-specific version names, missing-jar checks, clearer curl failures, and manual release checkout by the selected tag.
+
+### Changed
+
+- Bumped the mod version to 1.0.5.
+- Updated public docs and issue templates for the expanded target matrix.
+
 ## [1.0.4] - Custom crafting, infinite items, awakening, binding, and command abilities
 
 > **Major systems expansion.** Five new server-side systems: a JSON custom crafting system,
@@ -58,4 +75,3 @@ version header.
   - Fires instead of `on_right_click` when the player is sneaking
   - Backward compatible: items without a shift ability keep firing `on_right_click` while sneaking
   - Lets one item carry two separate right-click ability sets
-

@@ -8,7 +8,7 @@
 No Java. No restarts. Fabric and NeoForge builds are both supported.
 
 [![Modrinth](https://img.shields.io/modrinth/v/fiw-tools?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-tools)
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
 [![Fabric](https://img.shields.io/badge/Fabric-✓-DBB591)](https://fabricmc.net)
 [![NeoForge](https://img.shields.io/badge/NeoForge-✓-F16436)](https://neoforged.net)
 
@@ -79,7 +79,7 @@ Tweak the file, reload, try again.
 
 **Custom crafting** - JSON recipes in `config/fiw_tools/recipes/`, many per file, shaped or shapeless. Craft custom items from vanilla, vanilla from custom, or custom from custom — in any crafting grid, fully server-side.
 
-**Infinite items** - food that never runs out, arrows that return the instant they're fired, items that spend durability instead of being consumed, or transform into something else on use (`keep` / `damage` / `replace` modes).
+**Infinite items** - food that never runs out, arrows that return the instant they're fired, items that spend durability instead of being consumed, or transform into something else on use (`keep` / `damage` / `replace` modes). On Minecraft 1.21.1, infinite support is limited to food and arrows because that version predates the generic vanilla `use_remainder` component.
 
 **Awakening artifacts** - items that auto-upgrade when their holder proves worthy: kill a boss N times, slay a specific player, deal enough total damage, or set foot in a dimension. Chain stages for multi-awakening artifacts, or awaken via a custom recipe.
 
@@ -125,6 +125,8 @@ Full schema and every ability parameter are in the documentation.
 
 | Loader | Minecraft | Java |
 |---|---|---|
+| Fabric | 1.21.1 | 21 |
+| NeoForge | 1.21.1 | 21 |
 | Fabric | 1.21.11 | 21 |
 | NeoForge | 1.21.11 | 21 |
 | Fabric | 26.1.2 | 25 |

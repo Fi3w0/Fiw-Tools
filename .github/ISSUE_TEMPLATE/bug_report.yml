@@ -13,6 +13,8 @@ body:
       label: Loader & Minecraft version
       description: Which jar are you running?
       options:
+        - Fabric 1.21.1
+        - NeoForge 1.21.1
         - Fabric 1.21.11
         - NeoForge 1.21.11
         - Fabric 26.1.2 (module fabric-26.2.1)
@@ -23,8 +25,8 @@ body:
     id: mod_version
     attributes:
       label: FIW Tools version
-      description: The mod version (e.g. 1.0.2).
-      placeholder: "1.0.2"
+      description: The mod version (e.g. 1.0.5).
+      placeholder: "1.0.5"
     validations:
       required: true
 

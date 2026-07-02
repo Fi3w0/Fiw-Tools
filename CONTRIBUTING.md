@@ -8,7 +8,7 @@
 
 ## Build
 
-The mod currently targets Fabric and NeoForge across three modules:
+The mod currently targets Fabric and NeoForge across five loader modules:
 
 ```bash
 ./gradlew build
@@ -22,7 +22,7 @@ For a single target:
 
 ## Development Workflow
 
-- New item or ability logic should start in `common-1.21.11`.
+- New item or ability logic should start in `common-1.21.11`, then be ported to the other `common-*` source sets as API differences require.
 - Loader wiring belongs in `fabric-*` or `neoforge-*`, not in `common-*`.
 - Version-specific API changes should stay inside the matching `common-*` folder.
 - Keep the public `FiwToolsAPI` signatures stable because FIW Bosses reflects them.
@@ -39,7 +39,7 @@ For a single target:
 Run the current matrix before pushing:
 
 ```bash
-./gradlew :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-26.2.1:build
+./gradlew :fabric-1.21.1:build :neoforge-1.21.1:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-26.2.1:build
 ```
 
 For in-game testing, build the relevant jar and copy it to a matching Minecraft instance's `mods/` folder.
