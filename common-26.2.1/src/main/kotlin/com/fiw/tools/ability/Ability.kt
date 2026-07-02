@@ -14,11 +14,12 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 
 enum class AbilityTrigger {
-    ON_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK, WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
+    ON_RIGHT_CLICK, ON_SHIFT_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK, WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
 
     companion object {
         fun parse(s: String): AbilityTrigger? = when (s.lowercase()) {
             "on_right_click", "right_click" -> ON_RIGHT_CLICK
+            "on_shift_right_click", "shift_right_click", "sneak_right_click" -> ON_SHIFT_RIGHT_CLICK
             "on_attack", "attack" -> ON_ATTACK
             "on_kill", "kill" -> ON_KILL
             "on_hurt", "hurt" -> ON_HURT
