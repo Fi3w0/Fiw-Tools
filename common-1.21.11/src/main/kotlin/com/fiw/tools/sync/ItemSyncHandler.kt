@@ -86,7 +86,20 @@ object ItemSyncHandler {
         preservePlayerName(stack, rebuilt, tag.getString(ItemBuilder.CONFIG_NAME_KEY).orElse(""))
         preserveUncursed(tag, rebuilt)
         preserveImbueState(tag, rebuilt, registries)
+        preserveStackState(tag, rebuilt)
         return rebuilt
+    }
+
+    /**
+     * Carry per-stack lifecycle state (awakening progress) across rebuilds so a
+     * `/fiwtools reload` can't reset a half-awakened artifact.
+     */
+    private fun preserveStackState(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack) {
+        val progress = oldTag.getDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY).orElse(null) ?: return
+        val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
+        val tag = data.copyTag()
+        tag.putDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY, progress)
+        rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
     }
 
     /**

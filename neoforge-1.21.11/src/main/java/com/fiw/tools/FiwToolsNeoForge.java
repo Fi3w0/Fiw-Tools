@@ -124,6 +124,9 @@ public final class FiwToolsNeoForge {
         if (event.getEntity() instanceof ServerPlayer player) {
             AbilityDispatcher.INSTANCE.onHurt(player, event.getSource(), event.getAmount());
         }
+        if (event.getSource().getEntity() instanceof ServerPlayer attacker && attacker != event.getEntity()) {
+            AbilityDispatcher.INSTANCE.onDamageDealt(attacker, event.getAmount());
+        }
     }
 
     @SubscribeEvent
