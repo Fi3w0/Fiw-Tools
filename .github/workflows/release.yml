@@ -71,6 +71,7 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag }}
           files: release/*.jar
           body_path: RELEASE_NOTES.md
           fail_on_unmatched_files: true
