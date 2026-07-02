@@ -1,0 +1,20 @@
+{
+  "id": "oathkeeper",
+  "base": "minecraft:diamond_sword",
+  "displayName": "&d&lOathkeeper",
+  "lore": [
+    "&7Swears itself to the first hand that wields it.",
+    "&8Bound artifact — cursed for thieves."
+  ],
+  "rarity": "epic",
+  "enchantments": { "minecraft:sharpness": 6 },
+  "binding": {
+    "mode": "first_use",
+    "curse": true,
+    "cursePerTick": 2.0,
+    "message": "&d&lOathkeeper has sworn itself to you."
+  },
+  "abilities": [
+    { "type": "heal_on_hit", "trigger": "on_attack", "chance": 0.3, "params": { "amount": 2.0 } }
+  ]
+}

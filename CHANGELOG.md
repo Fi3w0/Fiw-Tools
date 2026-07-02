@@ -40,3 +40,10 @@ version header.
   - Chain awakenings by giving the upgraded item its own `awakening` block (awaken once or many times)
   - Craft-based awakening: make a custom recipe whose result is the awakened item
 
+- **Bound artifacts** (`com.fiw.tools.bind`):
+  - New `binding` item block — the artifact belongs to one player once bound
+  - `mode: "first_use"` binds to the first player who right-clicks or attacks with it; `mode: "first_pickup"` binds to the first inventory it lands in
+  - Non-owners can't trigger any of its abilities (`blockUse`, default on) — they get a "Bound to X" action-bar notice instead
+  - Optional `curse: true`: non-owners carrying someone else's artifact take `cursePerTick` damage per second (same armor-bypassing damage type as the curse system)
+  - Custom bind `message` (text codes); ownership survives reloads, rebuilds, and restarts
+
