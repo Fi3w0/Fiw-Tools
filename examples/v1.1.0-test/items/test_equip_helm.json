@@ -1,0 +1,13 @@
+{
+  "id": "test_equip_helm",
+  "base": "minecraft:leather_helmet",
+  "displayName": "&a&lTest Equip Helm",
+  "lore": ["&7Speaks when worn or removed. Dyed green."],
+  "dyedColor": "#22CC44",
+  "abilities": [
+    { "type": "run_command", "trigger": "on_equip",
+      "params": { "slot": "head", "command": "title {player} actionbar {\"text\":\"helm on\",\"color\":\"green\"}" } },
+    { "type": "run_command", "trigger": "on_unequip",
+      "params": { "slot": "head", "command": "title {player} actionbar {\"text\":\"helm off\",\"color\":\"gray\"}" } }
+  ]
+}

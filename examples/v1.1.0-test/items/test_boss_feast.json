@@ -1,0 +1,18 @@
+{
+  "id": "test_boss_feast",
+  "base": "minecraft:potion",
+  "displayName": "&5&lTest Boss Brew",
+  "lore": [
+    "&7Drink: night-only regen (on_consume + whenNight).",
+    "&7Kill any boss holding it: 5 diamonds.",
+    "&8Purple brew — potionColor test."
+  ],
+  "potionColor": "#9911EE",
+  "infinite": "keep",
+  "abilities": [
+    { "type": "run_command", "trigger": "on_consume",
+      "params": { "whenNight": true, "command": "effect give {player} minecraft:regeneration 8 1" } },
+    { "type": "run_command", "trigger": "on_boss_kill",
+      "params": { "command": "give {player} minecraft:diamond 5" } }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "test_charge_wand",
+  "base": "minecraft:breeze_rod",
+  "displayName": "&b&lTest Charge Wand",
+  "lore": ["&7Right-click: blink (2 charges + 1 hunger)."],
+  "charges": { "max": 6, "start": 4, "regenTicks": 100, "regenAmount": 1 },
+  "dynamicLore": [
+    "&8Charges: &b{charges}&8/&b{max_charges}"
+  ],
+  "abilities": [
+    {
+      "type": "blink",
+      "trigger": "on_right_click",
+      "cooldownTicks": 20,
+      "cooldownGroup": "test_mobility",
+      "cost": { "charges": 2, "hunger": 1 },
+      "params": { "distance": 6.0 }
+    }
+  ],
+  "rechargeOnKill": { "target": "any", "charges": 2 }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "test_group_dash",
+  "base": "minecraft:feather",
+  "displayName": "&f&lTest Group Dash",
+  "lore": ["&7Shares its cooldown with the Charge Wand's blink.", "&8cooldownGroup: test_mobility"],
+  "abilities": [
+    {
+      "type": "riptide_dash",
+      "trigger": "on_right_click",
+      "cooldownTicks": 100,
+      "cooldownGroup": "test_mobility",
+      "params": { "distance": 4.0 }
+    }
+  ]
+}

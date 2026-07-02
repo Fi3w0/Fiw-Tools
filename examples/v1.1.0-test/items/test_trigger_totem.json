@@ -1,0 +1,22 @@
+{
+  "id": "test_trigger_totem",
+  "base": "minecraft:amethyst_shard",
+  "displayName": "&d&lTest Trigger Totem",
+  "lore": ["&7Whispers on pickup/drop/consume/death/respawn,", "&7dimension travel — all via silent commands."],
+  "abilities": [
+    { "type": "run_command", "trigger": "on_pickup",
+      "params": { "command": "title {player} actionbar {\"text\":\"picked up\",\"color\":\"aqua\"}" } },
+    { "type": "run_command", "trigger": "on_drop",
+      "params": { "command": "title {player} actionbar {\"text\":\"dropped\",\"color\":\"red\"}" } },
+    { "type": "run_command", "trigger": "on_death",
+      "params": { "command": "title {player} title {\"text\":\"you died holding me\",\"color\":\"dark_red\"}" } },
+    { "type": "run_command", "trigger": "on_respawn",
+      "params": { "command": "effect give {player} minecraft:resistance 10 1" } },
+    { "type": "run_command", "trigger": "on_enter_dimension",
+      "params": { "dimension": "minecraft:the_nether",
+        "command": "title {player} actionbar {\"text\":\"welcome to the nether\",\"color\":\"gold\"}" } },
+    { "type": "run_command", "trigger": "on_leave_dimension",
+      "params": { "dimension": "minecraft:overworld",
+        "command": "title {player} actionbar {\"text\":\"left the overworld\",\"color\":\"yellow\"}" } }
+  ]
+}
