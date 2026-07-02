@@ -14,6 +14,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -123,6 +124,11 @@ public final class FiwToolsNeoForge {
         if (event.getEntity() instanceof ServerPlayer player) {
             AbilityDispatcher.INSTANCE.onHurt(player, event.getSource(), event.getAmount());
         }
+    }
+
+    @SubscribeEvent
+    public void onEntityJoin(EntityJoinLevelEvent event) {
+        com.fiw.tools.infinite.InfiniteItems.INSTANCE.onEntityLoad(event.getEntity());
     }
 
     @SubscribeEvent

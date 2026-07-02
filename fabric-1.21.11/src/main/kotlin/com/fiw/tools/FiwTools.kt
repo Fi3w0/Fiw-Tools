@@ -3,10 +3,12 @@ package com.fiw.tools
 import com.fiw.tools.ability.AbilityDispatcher
 import com.fiw.tools.command.FiwToolsCommand
 import com.fiw.tools.death.KeepOnDeathHandler
+import com.fiw.tools.infinite.InfiniteItems
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback
@@ -64,6 +66,7 @@ object FiwTools : ModInitializer {
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> FiwToolsCommon.playerJoin(handler.player) }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> FiwToolsCommon.playerDisconnect(handler.player) }
         ServerPlayerEvents.COPY_FROM.register { _, newPlayer, alive -> KeepOnDeathHandler.onClone(newPlayer, alive) }
+        ServerEntityEvents.ENTITY_LOAD.register { entity, _ -> InfiniteItems.onEntityLoad(entity) }
         ServerTickEvents.END_SERVER_TICK.register(FiwToolsCommon::serverTick)
         ServerLifecycleEvents.SERVER_STARTING.register { FiwToolsCommon.serverStarting() }
         ServerLifecycleEvents.SERVER_STOPPED.register { FiwToolsCommon.serverStopped() }
