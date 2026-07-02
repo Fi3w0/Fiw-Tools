@@ -97,7 +97,7 @@ object AbilityDispatcher {
         var any = false
         abilities.forEachIndexed { idx, abilityDef ->
             if (AbilityTrigger.parse(abilityDef.trigger) != trigger) return@forEachIndexed
-            val key = AbilityCooldownTracker.key(def.id, idx)
+            val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (abilityDef.chance < 1f && ThreadLocalRandom.current().nextFloat() > abilityDef.chance) return@forEachIndexed
             val ability = AbilityRegistry.get(abilityDef.type) ?: run {

@@ -65,6 +65,7 @@ object ItemConfigParser {
                 trigger = o.optString("trigger", "on_right_click"),
                 cooldownTicks = o.optInt("cooldownTicks", 0),
                 chance = o.optFloat("chance", 1f),
+                cooldownGroup = o.optStringOrNull("cooldownGroup"),
                 params = o.getAsJsonObject("params") ?: JsonObject()
             )
         } ?: emptyList()

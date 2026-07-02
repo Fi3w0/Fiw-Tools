@@ -54,10 +54,10 @@ object RechargeOnKillHandler {
         if (cfg.chance < 1f && ThreadLocalRandom.current().nextFloat() > cfg.chance) return
 
         val abilities = ImbueMods.effectiveAbilities(stack, def)
-        val indices = selectedAbilityIndices(abilities, cfg)
-        if (cfg.resetCooldowns) AbilityCooldownTracker.clearItem(player, id, indices)
+        val keys = selectedCooldownKeys(id, abilities, cfg)
+        if (cfg.resetCooldowns) AbilityCooldownTracker.clearKeys(player, keys)
         if (cfg.cooldownTicks > 0 || cfg.cooldownPercent > 0f) {
-            AbilityCooldownTracker.reduceItem(player, id, indices, cfg.cooldownTicks, cfg.cooldownPercent)
+            AbilityCooldownTracker.reduceKeys(player, keys, cfg.cooldownTicks, cfg.cooldownPercent)
         }
 
         if (applyDurabilityRewards(stack, cfg) && def.infinite != null) {
@@ -65,18 +65,19 @@ object RechargeOnKillHandler {
         }
     }
 
-    private fun selectedAbilityIndices(
+    /** Group-aware cooldown keys for the abilities selected by the type/trigger filters. */
+    private fun selectedCooldownKeys(
+        itemId: String,
         abilities: List<ItemDefinition.AbilityDef>,
         cfg: ItemDefinition.RechargeOnKillDef
-    ): List<Int> {
+    ): List<String> {
         val types = cfg.cooldownAbilityTypes.map { it.lowercase() }.toSet()
         val triggers = cfg.cooldownTriggers.map { it.lowercase() }.toSet()
-        if (types.isEmpty() && triggers.isEmpty()) return abilities.indices.toList()
         return abilities.mapIndexedNotNull { index, ability ->
             val typeOk = types.isEmpty() || ability.type.lowercase() in types
             val triggerOk = triggers.isEmpty() || ability.trigger.lowercase() in triggers
-            if (typeOk && triggerOk) index else null
-        }
+            if (typeOk && triggerOk) AbilityCooldownTracker.keyFor(itemId, index, ability.cooldownGroup) else null
+        }.distinct()
     }
 
     private fun matchesSlot(configured: String, actual: String): Boolean = when (configured) {

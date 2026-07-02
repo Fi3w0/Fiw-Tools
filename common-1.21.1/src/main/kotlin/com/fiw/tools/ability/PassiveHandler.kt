@@ -123,7 +123,7 @@ object PassiveHandler {
             if (AbilityTrigger.parse(ab.trigger) != trigger) return@forEachIndexed
             val filterValue = ab.params.get(filterKey)?.takeIf { !it.isJsonNull }?.asString?.lowercase() ?: filterDefault
             if (filterValue != filterDefault && filterValue != actualSlot) return@forEachIndexed
-            val key = AbilityCooldownTracker.key(def.id, idx)
+            val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, ab.params)) return@forEachIndexed
             if (ab.chance < 1f && ThreadLocalRandom.current().nextFloat() > ab.chance) return@forEachIndexed

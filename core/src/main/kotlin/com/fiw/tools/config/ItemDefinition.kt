@@ -199,6 +199,11 @@ data class ItemDefinition(
         val trigger: String,
         val cooldownTicks: Int = 0,
         val chance: Float = 1f,
+        /**
+         * Optional shared cooldown group. Abilities with the same group name share one per-player
+         * cooldown — across items too — so stacking several burst items can't chain-cast them.
+         */
+        val cooldownGroup: String? = null,
         val params: JsonObject = JsonObject()
     )
 
