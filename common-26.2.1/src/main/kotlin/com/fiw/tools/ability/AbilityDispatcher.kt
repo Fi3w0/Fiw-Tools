@@ -64,6 +64,16 @@ object AbilityDispatcher {
     ): Boolean {
         if (stack.isEmpty) return false
         val def = resolveDefinition(stack) ?: return false
+        // Binding gate first: right-click/attack are the deliberate "uses" that can bind a fresh
+        // artifact; any trigger is refused outright when the stack belongs to someone else.
+        if (def.binding != null) {
+            val deliberateUse = trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_ATTACK
+            if (deliberateUse) {
+                if (!com.fiw.tools.bind.BindingHandler.onUse(player, stack, def)) return false
+            } else if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) {
+                return false
+            }
+        }
         // Imbued abilities live in the stack's log, not the definition — merged in via effectiveAbilities.
         val abilities = ImbueMods.effectiveAbilities(stack, def)
         if (abilities.isEmpty()) return false

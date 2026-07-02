@@ -91,14 +91,19 @@ object ItemSyncHandler {
     }
 
     /**
-     * Carry per-stack lifecycle state (awakening progress) across rebuilds so a
-     * `/fiwtools reload` can't reset a half-awakened artifact.
+     * Carry per-stack lifecycle state (awakening progress, binding owner) across rebuilds so a
+     * `/fiwtools reload` can't reset a half-awakened or soul-bound artifact.
      */
     private fun preserveStackState(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack) {
-        val progress = oldTag.getDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY).orElse(null) ?: return
+        val progress = oldTag.getDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY).orElse(null)
+        val boundOwner = oldTag.getString(com.fiw.tools.bind.BindingHandler.OWNER_KEY).orElse(null)
+        val boundName = oldTag.getString(com.fiw.tools.bind.BindingHandler.OWNER_NAME_KEY).orElse(null)
+        if (progress == null && boundOwner == null) return
         val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
         val tag = data.copyTag()
-        tag.putDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY, progress)
+        progress?.let { tag.putDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY, it) }
+        boundOwner?.let { tag.putString(com.fiw.tools.bind.BindingHandler.OWNER_KEY, it) }
+        boundName?.let { tag.putString(com.fiw.tools.bind.BindingHandler.OWNER_NAME_KEY, it) }
         rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
     }
 

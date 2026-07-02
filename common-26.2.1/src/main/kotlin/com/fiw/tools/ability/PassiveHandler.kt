@@ -118,6 +118,7 @@ object PassiveHandler {
         if (stack.isEmpty) return
         val id = FiwItems.fiwId(stack) ?: return
         val def = ItemRegistry.byId(id) ?: return
+        if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) return
         ImbueMods.effectiveAbilities(stack, def).forEachIndexed { idx, ab ->
             if (AbilityTrigger.parse(ab.trigger) != trigger) return@forEachIndexed
             val filterValue = ab.params.get(filterKey)?.takeIf { !it.isJsonNull }?.asString?.lowercase() ?: filterDefault
