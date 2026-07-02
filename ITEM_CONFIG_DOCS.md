@@ -67,6 +67,10 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - **[Artifact Awakening](#artifact-awakening):** `awakening` field — kill / damage / dimension triggers
 - **[Bound Artifacts](#bound-artifacts):** `binding` field — first_use / first_pickup + thief curse
 - **[Item Commands](#item-commands-run_command):** [run_command](#item-commands-run_command) ability + `on_shift_right_click` trigger
+- **[Charges and Use Costs](#charges-and-use-costs):** `charges` pool + per-ability `cost` block
+- **[Cooldown Groups](#cooldown-groups):** shared cooldowns across abilities and items
+- **[Ability Conditions](#ability-conditions):** `whenBelowHealth`, `whenDimension`, `whenNight`, … on any trigger
+- **[Dynamic Lore](#dynamic-lore):** live lore placeholders (`{owner}`, `{charges}`, `{souls}`, …)
 - [Bind with Fiw Bosses](#bind-with-fiw-bosses)
 - [Behavior Notes](#behavior-notes)
 
@@ -123,6 +127,11 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `rechargeOnKill` | object | null | Kill reward for cooldowns and durability — see [Recharge on Kill](#recharge-on-kill) |
 | `awakening` | object | null | Auto-upgrade condition — see [Artifact Awakening](#artifact-awakening) |
 | `binding` | object | null | Ownership binding — see [Bound Artifacts](#bound-artifacts) |
+| `charges` | int/object | null | Universal charge pool — see [Charges and Use Costs](#charges-and-use-costs) |
+| `dynamicLore` | string array | [] | Live lore lines — see [Dynamic Lore](#dynamic-lore) |
+| `potionColor` | string | null | Potion liquid color (`"#RRGGBB"`), for potion/tipped-arrow bases |
+| `dyedColor` | string | null | Dye color (`"#RRGGBB"`), for leather armor and dyeables |
+| `itemModel` | string | null | Client model to render, e.g. `minecraft:trident` (not on 1.21.1) |
 
 ---
 
@@ -336,8 +345,10 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `type` | required | Ability identifier — see below |
 | `trigger` | `on_right_click` | When the ability fires |
 | `cooldownTicks` | 0 | Per-player per-ability cooldown (20 ticks = 1 s) |
+| `cooldownGroup` | null | Shared cooldown group name — see [Cooldown Groups](#cooldown-groups) |
 | `chance` | 1.0 | Roll per fire (0.0–1.0) |
-| `params` | {} | Ability-specific knobs |
+| `cost` | null | Resources consumed per fire — see [Charges and Use Costs](#charges-and-use-costs) |
+| `params` | {} | Ability-specific knobs. Every ability also accepts [condition keys](#ability-conditions) |
 
 **Triggers:**
 
@@ -349,6 +360,16 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `on_kill` | Player kills an entity with the item in main hand |
 | `on_hurt` | Player takes damage while holding the item |
 | `on_block_break` | Player breaks a block while holding the item |
+| `on_boss_kill` | Player kills a boss with the item in main hand. Default bosses: ender dragon, wither, warden, elder guardian, and every FIW Bosses entity; override per ability with `"params": { "bosses": ["minecraft:wither"] }` |
+| `on_consume` | Player finishes eating/drinking the item |
+| `on_pickup` | Player picks the item up off the ground |
+| `on_drop` | Player deliberately drops the item (death drops don't count) |
+| `on_death` | Player dies — fires for every Fiw item in their inventory |
+| `on_respawn` | Player respawns — fires for every Fiw item they still carry |
+| `on_enter_dimension` | Player arrives in a dimension. Filter with `"params": { "dimension": "minecraft:the_nether" }` |
+| `on_leave_dimension` | Player leaves a dimension. Same `dimension` param filter |
+| `on_equip` | The item is equipped (armor or hand). Filter with `"params": { "slot": "head" }` |
+| `on_unequip` | The item is unequipped. Same `slot` param filter |
 | `while_held` | Periodic sweep (every 10 ticks ≈ 0.5 s) while the item is in your hand — see [Passives](#passives-while_held) |
 | `while_worn` | Same sweep but for armor slots — see [Worn passives](#worn-passives-while_worn) |
 | `while_sneaking` | Same as `while_held` / `while_worn` but **only fires when the player is crouching** — use for sneak-activated passives |
@@ -2292,6 +2313,114 @@ The `run_command` ability (alias `command`) executes server commands when trigge
 | `{target}` | The right-clicked/attacked entity's name (empty if none) |
 
 Commands run at full permission level, so anything an op could do, an item can grant. Works with every trigger — pair `on_right_click` and `on_shift_right_click` for two command sets on one item, or hook `on_kill` / `on_hurt` for reactive effects.
+
+---
+
+## Charges and Use Costs
+
+Give any item a **universal charge pool** and make abilities spend resources per use.
+
+```json
+"charges": { "max": 10, "start": 10, "regenTicks": 200, "regenAmount": 1 },
+"abilities": [
+  {
+    "type": "meteor_strike",
+    "trigger": "on_right_click",
+    "cooldownTicks": 60,
+    "cost": { "charges": 3, "health": 2.0 },
+    "params": {}
+  }
+]
+```
+
+**`charges` block** (or shorthand `"charges": 10`):
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `max` | required | Pool size |
+| `start` | max | Charges on a freshly built stack |
+| `regenTicks` | 0 | Ticks between natural regens; 0 = no regen. The countdown restarts whenever a charge is spent from full |
+| `regenAmount` | 1 | Charges restored per regen |
+
+**`cost` block** on any ability — all resources are checked *before* the ability runs (all-or-nothing) and only spent when it actually fires; a miss costs nothing:
+
+| Field | Description |
+|-------|-------------|
+| `charges` | Charges from the item's pool |
+| `durability` | Durability points — the item is never broken by a cost; the use is refused instead |
+| `health` | Half-hearts — never lethal; the use is refused instead |
+| `hunger` | Hunger points |
+| `xpLevels` | XP levels |
+| `item` + `itemCount` | Consume items from the inventory: `fiw:<id>`, a vanilla id, or `#tag` |
+
+Refills: natural regen, or grant `"charges": N` inside [`rechargeOnKill`](#recharge-on-kill). Show the pool on the item with [Dynamic Lore](#dynamic-lore).
+
+---
+
+## Cooldown Groups
+
+Give abilities a `cooldownGroup` name and they **share one cooldown per player — across items too**. This is the anti-combo dial: without it, carrying three blink items means three separate blink cooldowns.
+
+```json
+"abilities": [
+  { "type": "blink", "trigger": "on_right_click", "cooldownTicks": 200, "cooldownGroup": "mobility" },
+  { "type": "riptide_dash", "trigger": "on_shift_right_click", "cooldownTicks": 200, "cooldownGroup": "mobility" }
+]
+```
+
+Firing either ability puts the whole `mobility` group on cooldown — including abilities in the same group on *other* items the player carries. Group names are case-insensitive. `rechargeOnKill` cooldown rewards recharge group cooldowns too.
+
+---
+
+## Ability Conditions
+
+Every ability — active or passive, any trigger — accepts optional condition keys in its `params`. All declared conditions must hold (ANDed); a missing key never gates.
+
+| Key | Type | Fires only when… |
+|-----|------|------------------|
+| `whenBelowHealth` | 0.0–1.0 | health fraction is at or below the value |
+| `whenAboveHealth` | 0.0–1.0 | health fraction is at or above the value |
+| `whenUnderwater` | bool | the player is underwater |
+| `whenInWater` | bool | the player is touching water |
+| `whenEnemyWithin` | blocks | a hostile mob is within the radius |
+| `whenInCombat` | ticks | the player took damage within the last N ticks |
+| `whenOutOfCombat` | ticks | the player has NOT taken damage for N ticks |
+| `whenDimension` | id | the player is in that dimension |
+| `whenDay` / `whenNight` | bool | it is day / night |
+| `whenRaining` / `whenThundering` | bool | the weather matches |
+| `whenSneaking` | bool | the player is sneaking |
+| `whenOnFire` | bool | the player is burning |
+
+```json
+{ "type": "second_wind", "trigger": "on_hurt",
+  "params": { "whenBelowHealth": 0.3, "whenNight": true } }
+```
+
+---
+
+## Dynamic Lore
+
+`dynamicLore` lines are appended below the static `lore` and refreshed live (once a second) with the stack's real state:
+
+```json
+"dynamicLore": [
+  "&8Owner: &7{owner}",
+  "&8Charges: &c{charges}&8/&c{max_charges}",
+  "&8Souls: &5{souls}&8/&5{soul_capacity}",
+  "&8Awakening: &7{awakening_stage}"
+]
+```
+
+| Placeholder | Shows |
+|-------------|-------|
+| `{owner}` | Binding owner's name, or `Unbound` |
+| `{charges}` / `{max_charges}` | Charge pool state |
+| `{souls}` / `{soul_capacity}` | Soul system state |
+| `{awakening_stage}` | `progress/target` while dormant, `Awakened` when the item has no awakening left |
+| `{awakening_progress}` / `{awakening_count}` | Raw awakening numbers |
+| `{durability}` / `{max_durability}` | Remaining / max durability |
+
+The lore component is only rewritten when the text actually changes, so idle items cost nothing to keep fresh.
 
 ---
 
