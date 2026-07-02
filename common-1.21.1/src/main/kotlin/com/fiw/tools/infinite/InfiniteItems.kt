@@ -9,9 +9,12 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.core.component.DataComponents
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.projectile.AbstractArrow
+import net.minecraft.world.food.FoodProperties
 import net.minecraft.world.item.ItemStack
+import java.util.Optional
 
 /**
  * Infinite-use items. Three modes (`infinite` in the item JSON):
@@ -21,8 +24,9 @@ import net.minecraft.world.item.ItemStack
  *   when the next use would exceed `maxDamage`
  * - `replace` — each use turns the item into `replaceWith` (vanilla or `fiw:` item)
  *
- * Minecraft 1.21.1 does not expose the later `use_remainder` data component. Bow/crossbow
- * ammo is still restored through the entity-spawn hook in [onEntityLoad].
+ * Minecraft 1.21.1 does not expose the later generic `use_remainder` data component. Edible
+ * items are restored through the older food `usingConvertsTo` field; bow/crossbow ammo is still
+ * restored through the entity-spawn hook in [onEntityLoad].
  */
 object InfiniteItems {
     /** Entity command-tag marking an arrow already restored to its shooter (persisted with the entity). */
@@ -36,7 +40,21 @@ object InfiniteItems {
 
     /** Called by [ItemBuilder] once every other component is on the stack. */
     fun applyUseRemainder(stack: ItemStack, def: ItemDefinition, registries: HolderLookup.Provider) {
-        // Added after 1.21.1. Non-ammo infinite uses are unavailable on this port.
+        val inf = def.infinite ?: return
+        val food = stack.get(DataComponents.FOOD) ?: return
+        val remainder = when (inf.mode) {
+            "keep" -> stack.copyWithCount(1)
+            "damage" -> {
+                val next = stack.damageValue + inf.damagePerUse
+                if (stack.maxDamage in 1..next) null
+                else stack.copyWithCount(1).also { it.damageValue = next }
+            }
+            "replace" -> buildReplacement(inf, registries)
+            else -> null
+        } ?: return
+
+        stripFoodRemainder(remainder)
+        stack.set(DataComponents.FOOD, withFoodRemainder(food, remainder))
     }
 
     private fun buildReplacement(inf: ItemDefinition.InfiniteDef, registries: HolderLookup.Provider): ItemStack? {
@@ -52,14 +70,14 @@ object InfiniteItems {
             }
         }
         val id = ResourceLocation.tryParse(spec) ?: return null
-        val item = BuiltInRegistries.ITEM.get(id) ?: return null
+        val item = BuiltInRegistries.ITEM.get(id)
         val stack = ItemStack(item, inf.replaceCount)
         return if (stack.isEmpty) null else stack
     }
 
     /**
-     * Re-stamp sweep. A consumed infinite item comes back as its baked remainder, which by
-     * construction lacks its own `use_remainder`; this puts it back (and, for damage mode, keeps
+     * Re-stamp sweep. A consumed infinite food item comes back as its baked remainder, which by
+     * construction lacks its own food remainder; this puts it back (and, for damage mode, keeps
      * the baked remainder's durability one step ahead of the live stack).
      */
     fun tick(server: MinecraftServer) {
@@ -79,14 +97,24 @@ object InfiniteItems {
     }
 
     private fun restamp(stack: ItemStack, def: ItemDefinition, registries: HolderLookup.Provider) {
-        val inf = def.infinite ?: return
-        when (inf.mode) {
-            "damage" -> {
-                val next = stack.damageValue + inf.damagePerUse
-                return
-            }
-            else -> return
-        }
+        applyUseRemainder(stack, def, registries)
+    }
+
+    private fun stripFoodRemainder(stack: ItemStack) {
+        val food = stack.get(DataComponents.FOOD) ?: return
+        if (food.usingConvertsTo().isEmpty) return
+        stack.set(DataComponents.FOOD, withFoodRemainder(food, null))
+    }
+
+    private fun withFoodRemainder(food: FoodProperties, remainder: ItemStack?): FoodProperties {
+        return FoodProperties(
+            food.nutrition(),
+            food.saturation(),
+            food.canAlwaysEat(),
+            food.eatSeconds(),
+            Optional.ofNullable(remainder),
+            food.effects()
+        )
     }
 
     /**
