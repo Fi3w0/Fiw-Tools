@@ -42,19 +42,27 @@ object InfiniteItems {
     fun applyUseRemainder(stack: ItemStack, def: ItemDefinition, registries: HolderLookup.Provider) {
         val inf = def.infinite ?: return
         val food = stack.get(DataComponents.FOOD) ?: return
-        val remainder = when (inf.mode) {
+        val expected = when (inf.mode) {
             "keep" -> stack.copyWithCount(1)
             "damage" -> {
                 val next = stack.damageValue + inf.damagePerUse
-                if (stack.maxDamage in 1..next) null
+                if (stack.maxDamage in 1..next) null // next use is the last — let vanilla consume it
                 else stack.copyWithCount(1).also { it.damageValue = next }
             }
             "replace" -> buildReplacement(inf, registries)
             else -> null
-        } ?: return
-
-        stripFoodRemainder(remainder)
-        stack.set(DataComponents.FOOD, withFoodRemainder(food, remainder))
+        }
+        val baked = food.usingConvertsTo().orElse(null)
+        if (expected == null) {
+            if (baked != null) stack.set(DataComponents.FOOD, withFoodRemainder(food, null))
+            return
+        }
+        stripFoodRemainder(expected)
+        // Only re-set when the baked remainder is missing or stale. FoodProperties embeds an
+        // ItemStack and never compares equal, so an unconditional set would dirty the slot on
+        // every sweep and re-send it to clients twice a second.
+        if (baked != null && baked.count == expected.count && ItemStack.isSameItemSameComponents(baked, expected)) return
+        stack.set(DataComponents.FOOD, withFoodRemainder(food, expected))
     }
 
     private fun buildReplacement(inf: ItemDefinition.InfiniteDef, registries: HolderLookup.Provider): ItemStack? {
