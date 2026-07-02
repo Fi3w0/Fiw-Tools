@@ -13,4 +13,9 @@ object FiwToolsPlatform {
         (configDirectory ?: error("Fiw Tools platform config directory was not initialized"))
             .resolve("fiw_tools")
             .resolve("items")
+
+    fun recipesRoot(): Path =
+        (configDirectory ?: error("Fiw Tools platform config directory was not initialized"))
+            .resolve("fiw_tools")
+            .resolve("recipes")
 }
