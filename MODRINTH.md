@@ -4,7 +4,7 @@
 
 ### Build custom items from JSON.
 
-**Weapons. Armor. Food. Curses. Imbuements. Passives. Player abilities.**
+**Weapons. Armor. Food. Curses. Imbuements. Custom crafting. Infinite items. Awakening artifacts. Bound artifacts. Item commands.**
 No Java. No restarts. Fabric and NeoForge builds are both supported.
 
 [![Modrinth](https://img.shields.io/modrinth/v/fiw-tools?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-tools)
@@ -77,7 +77,17 @@ Tweak the file, reload, try again.
 
 **Imbuements** - catalyst-based upgrades with weighted outcomes, charges, target caps, stat changes, new abilities, and history that survives reloads.
 
-**Hot reload** - update configs live while preserving player changes like durability, renames, extra enchants, uncurse flags, and imbuement logs.
+**Custom crafting** - JSON recipes in `config/fiw_tools/recipes/`, many per file, shaped or shapeless. Craft custom items from vanilla, vanilla from custom, or custom from custom — in any crafting grid, fully server-side.
+
+**Infinite items** - food that never runs out, arrows that return the instant they're fired, items that spend durability instead of being consumed, or transform into something else on use (`keep` / `damage` / `replace` modes).
+
+**Awakening artifacts** - items that auto-upgrade when their holder proves worthy: kill a boss N times, slay a specific player, deal enough total damage, or set foot in a dimension. Chain stages for multi-awakening artifacts, or awaken via a custom recipe.
+
+**Bound artifacts** - an item binds to the first player who uses or picks it up. Nobody else can trigger its abilities — and with the optional curse, thieves bleed for every second they hold it.
+
+**Item commands** - the `run_command` ability silently runs any server command(s) on any trigger, with placeholders. The new `on_shift_right_click` trigger gives every item a second right-click kit.
+
+**Hot reload** - update configs live while preserving player changes like durability, renames, extra enchants, uncurse flags, imbuement logs, awakening progress, and binding owners.
 
 ---
 
@@ -105,6 +115,7 @@ Tweak the file, reload, try again.
 | `hemorrhage` | On-hurt: inflict bleed DoT on whoever hit you |
 | `flame_dash` | Teleport forward, igniting enemies along the path |
 | `meteor_strike` | Raycast impact AoE at cursor position |
+| `run_command` | Silently run any server command(s) from an item |
 
 Full schema and every ability parameter are in the documentation.
 
@@ -131,6 +142,7 @@ The repo module is named `fabric-26.2.1` as requested, but Fabric's official met
 ```text
 /fiwtools give <players> <itemId> [count]   /fiwtools list
 /fiwtools info <itemId>                     /fiwtools reload
+/fiwtools recipes
 /fiwtools curse add|remove|list ...
 /fiwtools uncurse_held
 /fiwtools imbue best|roll|reset|clear|log

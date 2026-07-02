@@ -126,6 +126,26 @@ Items with `soulCapacity` can store souls. `soul_collector` adds one on kill; `s
 
 Catalyst items can upgrade targets with deterministic or weighted-random outcomes: new abilities, extra attributes, enchantment upgrades, lore rewrites, charge limits, and per-target imbuement caps.
 
+### Custom crafting recipes
+
+Drop JSON recipe files into `config/fiw_tools/recipes/` — shaped and shapeless, multiple recipes per file. Craft custom items from vanilla ingredients, vanilla items from custom ingredients, or custom from custom, in any crafting grid. Fully server-side; vanilla clients craft normally.
+
+### Infinite use items
+
+The `infinite` field makes consumables never run out: `keep` (never consumed — infinite food, potions, pearls, arrows), `damage` (uses durability instead), or `replace` (turns into another item). Fired infinite arrows return to the shooter instantly and can't be dupe-farmed.
+
+### Artifact awakening
+
+The `awakening` field auto-upgrades an item into another when its holder proves worthy: kill a boss or specific mob N times, kill (a specific) player, deal total damage, or visit a dimension. Chain awakenings for multi-stage artifacts, or awaken via a custom crafting recipe.
+
+### Bound artifacts
+
+The `binding` field ties an item to the first player who uses or picks it up. Non-owners can't fire its abilities, and an optional curse damages anyone else who dares carry it.
+
+### Item commands
+
+The `run_command` ability silently executes any server command(s) on any trigger — with `{player}`, `{x}/{y}/{z}`, `{target}` placeholders. Combined with the new `on_shift_right_click` trigger, one item can carry two full command kits.
+
 ### Hot reload and sync
 
 `/fiwtools reload` re-reads item configs live. Existing player stacks are rebuilt from the new definition while preserving durability, player-added enchants, player renames, uncurse flags, and imbuement history.
@@ -166,6 +186,7 @@ Abilities are small, tunable modules. Add them to an item, set a trigger, tune t
 | `hemorrhage` | On-hurt: bleed DoT applied to whoever damaged you |
 | `flame_dash` | Dash forward, igniting enemies along the path |
 | `meteor_strike` | Raycast AoE impact at cursor position |
+| `run_command` | Silently run any server command(s) — infinite ability possibilities |
 
 <details>
 <summary><strong>Core ability groups</strong></summary>
@@ -188,6 +209,7 @@ Full ability parameters and examples live in **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG
 ```text
 /fiwtools give <players> <itemId> [count]
 /fiwtools list
+/fiwtools recipes
 /fiwtools info <itemId>
 /fiwtools reload
 
@@ -208,7 +230,8 @@ Full ability parameters and examples live in **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG
 **Config folder**
 
 ```text
-config/fiw_tools/items/   active item definitions
+config/fiw_tools/items/     active item definitions
+config/fiw_tools/recipes/   custom crafting recipes
 ```
 
 ---
