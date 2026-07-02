@@ -103,6 +103,31 @@ object ItemConfigParser {
         if (infinite != null && infinite.mode == "replace" && infinite.replaceWith == null)
             throw IllegalArgumentException("infinite mode 'replace' needs 'replaceWith'")
 
+        val awakeningObj = root.getAsJsonObject("awakening")
+        val awakening = if (awakeningObj != null) {
+            val trigger = awakeningObj.requireString("trigger").lowercase()
+            if (trigger !in setOf("kill_entity", "kill_player", "deal_damage", "visit_dimension"))
+                throw IllegalArgumentException("unknown awakening trigger '$trigger'")
+            val def = ItemDefinition.AwakeningDef(
+                trigger = trigger,
+                entity = awakeningObj.optStringOrNull("entity"),
+                playerName = awakeningObj.optStringOrNull("playerName"),
+                dimension = awakeningObj.optStringOrNull("dimension"),
+                count = awakeningObj.optDouble("count", 1.0),
+                upgradeTo = awakeningObj.requireString("upgradeTo"),
+                message = awakeningObj.optStringOrNull("message"),
+                broadcast = awakeningObj.optBool("broadcast", false),
+                sound = awakeningObj.optStringOrNull("sound") ?: "minecraft:entity.wither.spawn",
+                showProgress = awakeningObj.optBool("showProgress", true)
+            )
+            if (trigger == "kill_entity" && def.entity == null)
+                throw IllegalArgumentException("awakening trigger 'kill_entity' needs 'entity'")
+            if (trigger == "visit_dimension" && def.dimension == null)
+                throw IllegalArgumentException("awakening trigger 'visit_dimension' needs 'dimension'")
+            if (def.count <= 0) throw IllegalArgumentException("awakening 'count' must be > 0")
+            def
+        } else null
+
         return ItemDefinition(
             id = id,
             base = base,
@@ -130,7 +155,8 @@ object ItemConfigParser {
             soulCapacity = root.optIntOrNull("soulCapacity"),
             resonanceId = root.get("resonanceId")?.takeIf { !it.isJsonNull }?.asString,
             resonanceRequires = root.optInt("resonanceRequires", 2),
-            infinite = infinite
+            infinite = infinite,
+            awakening = awakening
         )
     }
 

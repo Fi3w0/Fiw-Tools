@@ -52,8 +52,35 @@ data class ItemDefinition(
      * Infinite-use behaviour. `null` = vanilla consumption. Covers anything the game consumes on
      * use: food, potions, throwables, and (via the projectile hook) arrows fired from a bow.
      */
-    val infinite: InfiniteDef? = null
+    val infinite: InfiniteDef? = null,
+    /**
+     * Awakening — the artifact upgrades itself into [AwakeningDef.upgradeTo] when its condition is
+     * met. Chain awakenings by giving the upgraded item its own `awakening` block. `null` = never.
+     */
+    val awakening: AwakeningDef? = null
 ) {
+    data class AwakeningDef(
+        /** `kill_entity`, `kill_player`, `deal_damage`, or `visit_dimension`. */
+        val trigger: String,
+        /** kill_entity: entity type id, e.g. `minecraft:wither` (bosses are just entity ids). */
+        val entity: String? = null,
+        /** kill_player: restrict to a specific victim (name or UUID). Null = any player counts. */
+        val playerName: String? = null,
+        /** visit_dimension: dimension id, e.g. `minecraft:the_end`. */
+        val dimension: String? = null,
+        /** Kills needed / total damage to deal. Ignored by visit_dimension. */
+        val count: Double = 1.0,
+        /** Fiw item id this artifact transforms into. */
+        val upgradeTo: String,
+        /** Message shown on awakening (text codes supported). */
+        val message: String? = null,
+        /** Broadcast [message] to the whole server instead of just the holder. */
+        val broadcast: Boolean = false,
+        val sound: String? = "minecraft:entity.wither.spawn",
+        /** Action-bar progress (e.g. `Awakening 3/10`) each time progress is made. */
+        val showProgress: Boolean = true
+    )
+
     data class InfiniteDef(
         /** `keep`/`normal` = never consumed; `damage` = costs durability per use; `replace` = turns into another item. */
         val mode: String = "keep",
