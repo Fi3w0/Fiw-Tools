@@ -110,11 +110,16 @@ jobs:
           VERSION: ${{ steps.ver.outputs.version }}
           CHANGELOG: ${{ steps.relnotes.outputs.content }}
         run: |
+          set -euo pipefail
           # Write changelog to file to avoid shell escaping issues
           printf '%s' "$CHANGELOG" > /tmp/changelog.txt
 
           publish() {
             local file="$1" game_ver="$2" loader="$3"
+            if [[ ! -f "$file" ]]; then
+              echo "::error file=$file::Missing jar for Modrinth publish"
+              exit 1
+            fi
             python3 - "$VERSION" "$game_ver" "$loader" <<'PYEOF'
           import json, sys, pathlib
           ver, game_ver, loader = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -124,7 +129,7 @@ jobs:
             {'project_id': 'Ha28R6CL', 'dependency_type': 'required'},
           ]
           payload = json.dumps({
-            'name': f'FIW Tools {ver}',
+            'name': f'FIW Tools {ver} ({loader} {game_ver})',
             'version_number': ver,
             'changelog': changelog,
             'dependencies': deps,
@@ -137,15 +142,17 @@ jobs:
           })
           pathlib.Path('/tmp/modrinth_data.json').write_text(payload)
           PYEOF
-            curl -sf \
+            curl -fsS \
               -H "Authorization: $MODRINTH_TOKEN" \
               -F "data=</tmp/modrinth_data.json;type=application/json" \
               -F "file=@$file" \
               "https://api.modrinth.com/v2/version"
             echo " -> published $file ($loader $game_ver)"
           }
+          publish "release/fiw-tools-fabric-1.21.1-${VERSION}.jar"    "1.21.1"  "fabric"
           publish "release/fiw-tools-fabric-1.21.11-${VERSION}.jar"   "1.21.11" "fabric"
           publish "release/fiw-tools-fabric-26.1.2-${VERSION}.jar"    "26.1.2"  "fabric"
+          publish "release/fiw-tools-neoforge-1.21.1-${VERSION}.jar"  "1.21.1"  "neoforge"
           publish "release/fiw-tools-neoforge-1.21.11-${VERSION}.jar" "1.21.11" "neoforge"
 
       - name: Sync project description to Modrinth
