@@ -85,6 +85,24 @@ object ItemConfigParser {
             )
         } else ItemDefinition.CurseSettings()
 
+        val infiniteEl = root.get("infinite")?.takeIf { !it.isJsonNull }
+        val infinite = when {
+            infiniteEl == null -> null
+            infiniteEl.isJsonPrimitive -> ItemDefinition.InfiniteDef(mode = normalizeInfiniteMode(infiniteEl.asString))
+            infiniteEl.isJsonObject -> {
+                val o = infiniteEl.asJsonObject
+                ItemDefinition.InfiniteDef(
+                    mode = normalizeInfiniteMode(o.optString("mode", "keep")),
+                    damagePerUse = o.optInt("damagePerUse", 1),
+                    replaceWith = o.optStringOrNull("replaceWith"),
+                    replaceCount = o.optInt("replaceCount", 1)
+                )
+            }
+            else -> throw IllegalArgumentException("'infinite' must be a mode string or an object")
+        }
+        if (infinite != null && infinite.mode == "replace" && infinite.replaceWith == null)
+            throw IllegalArgumentException("infinite mode 'replace' needs 'replaceWith'")
+
         return ItemDefinition(
             id = id,
             base = base,
@@ -111,8 +129,17 @@ object ItemConfigParser {
             imbueLimit = root.optIntOrNull("imbueLimit"),
             soulCapacity = root.optIntOrNull("soulCapacity"),
             resonanceId = root.get("resonanceId")?.takeIf { !it.isJsonNull }?.asString,
-            resonanceRequires = root.optInt("resonanceRequires", 2)
+            resonanceRequires = root.optInt("resonanceRequires", 2),
+            infinite = infinite
         )
+    }
+
+    /** `normal` is the everyday alias players expect; `keep` is the canonical name. */
+    private fun normalizeInfiniteMode(raw: String): String = when (raw.lowercase()) {
+        "normal", "keep" -> "keep"
+        "damage" -> "damage"
+        "replace" -> "replace"
+        else -> throw IllegalArgumentException("unknown infinite mode '$raw' (keep/normal, damage, replace)")
     }
 
     private fun JsonObject.requireString(key: String): String =

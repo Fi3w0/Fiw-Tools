@@ -47,8 +47,24 @@ data class ItemDefinition(
      */
     val resonanceId: String? = null,
     /** How many items from the set must be equipped to activate resonance. Default 2. */
-    val resonanceRequires: Int = 2
+    val resonanceRequires: Int = 2,
+    /**
+     * Infinite-use behaviour. `null` = vanilla consumption. Covers anything the game consumes on
+     * use: food, potions, throwables, and (via the projectile hook) arrows fired from a bow.
+     */
+    val infinite: InfiniteDef? = null
 ) {
+    data class InfiniteDef(
+        /** `keep`/`normal` = never consumed; `damage` = costs durability per use; `replace` = turns into another item. */
+        val mode: String = "keep",
+        /** Damage mode: durability lost per use. The item finally breaks when it would exceed maxDamage. */
+        val damagePerUse: Int = 1,
+        /** Replace mode: item spec the used item turns into — `fiw:<id>` or a vanilla id. */
+        val replaceWith: String? = null,
+        /** Replace mode: how many of [replaceWith] you get back. */
+        val replaceCount: Int = 1
+    )
+
     data class CurseSettings(
         val perTick: Float = 1.0f,
         val ignoreArmor: Boolean = true,
@@ -109,5 +125,6 @@ data class ItemDefinition(
         if (keepOnDeath) append(", keepOnDeath")
         if (cursed) append(", CURSED(wl=").append(curseWhitelist.size).append(')')
         imbueLimit?.let { append(", imbueLimit=").append(it) }
+        infinite?.let { append(", infinite=").append(it.mode) }
     }
 }
