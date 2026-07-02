@@ -57,6 +57,11 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - **[Resonance / Set Bonus](#resonance--set-bonus-system):** `resonanceId` + `resonanceRequires` fields — abilities with `trigger: resonance`
 - **[Elemental Status](#elemental-status-system):** [freeze](#freeze) · [soak](#soak) · [shock](#shock) · [thaw_burst](#thaw_burst) · [storm_chain](#storm_chain)
 - **[Soul System](#soul-system):** [soul_collector](#soul_collector) · [soul_surge](#soul_surge)
+- **[Custom Crafting Recipes](#custom-crafting-recipes):** shaped + shapeless JSON recipes in `config/fiw_tools/recipes/`
+- **[Infinite Use Items](#infinite-use-items):** `infinite` field — `keep` / `damage` / `replace` modes
+- **[Artifact Awakening](#artifact-awakening):** `awakening` field — kill / damage / dimension triggers
+- **[Bound Artifacts](#bound-artifacts):** `binding` field — first_use / first_pickup + thief curse
+- **[Item Commands](#item-commands-run_command):** [run_command](#item-commands-run_command) ability + `on_shift_right_click` trigger
 - [Bind with Fiw Bosses](#bind-with-fiw-bosses)
 - [Behavior Notes](#behavior-notes)
 
@@ -109,6 +114,9 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `repairCost` | int | 0 | XP cost added when this item is used in an anvil |
 | `customData` | object | null | Free-form NBT passthrough — survives in `custom_data` |
 | `abilities` | array | [] | Custom triggered effects (see below) |
+| `infinite` | string/object | null | Infinite-use behaviour — see [Infinite Use Items](#infinite-use-items) |
+| `awakening` | object | null | Auto-upgrade condition — see [Artifact Awakening](#artifact-awakening) |
+| `binding` | object | null | Ownership binding — see [Bound Artifacts](#bound-artifacts) |
 
 ---
 
@@ -330,6 +338,7 @@ Abilities are server-side effects triggered by player actions. They never damage
 | Trigger | Fires when |
 |---------|------------|
 | `on_right_click` | Player right-clicks holding the item |
+| `on_shift_right_click` | Player right-clicks **while sneaking** (aliases: `shift_right_click`, `sneak_right_click`). When an item defines this, plain `on_right_click` stops firing during sneak — one item, two right-click ability sets. Items without it behave exactly as before |
 | `on_attack` | Player damages an entity with the item |
 | `on_kill` | Player kills an entity with the item in main hand |
 | `on_hurt` | Player takes damage while holding the item |
@@ -2016,6 +2025,205 @@ This is how you ship an OP weapon that can take 1–2 risky imbuements at most.
 ```
 
 `best` ignores `rng` so admins can reward proven feats with the catalyst's god-roll without RNG luck.
+
+---
+
+## Custom Crafting Recipes
+
+Drop JSON files into **`config/fiw_tools/recipes/`** and run `/fiwtools reload`. Fully server-side: vanilla clients place ingredients in any crafting grid (2x2 inventory or 3x3 table) and the result appears — no client install, no datapacks.
+
+One file can hold **as many recipes as you like**: a single recipe object, a bare array, or a `{ "recipes": [ ... ] }` wrapper.
+
+```json
+{
+  "recipes": [
+    {
+      "id": "craft_soul_blade",
+      "type": "shaped",
+      "pattern": [
+        " N ",
+        "NDN",
+        " S "
+      ],
+      "key": {
+        "N": "minecraft:netherite_ingot",
+        "D": "minecraft:diamond_sword",
+        "S": "minecraft:stick"
+      },
+      "result": { "item": "fiw:soul_blade", "count": 1 }
+    },
+    {
+      "id": "blade_to_star",
+      "type": "shapeless",
+      "ingredients": ["fiw:soul_blade", "minecraft:diamond_block"],
+      "result": { "item": "minecraft:nether_star" }
+    }
+  ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Optional unique name (defaults to `<filename>#<index>`). Shown by `/fiwtools recipes` |
+| `type` | `shaped` or `shapeless`. Optional — presence of `pattern` implies shaped |
+| `pattern` | Shaped: 1–3 rows of 1–3 symbols. Space = slot must be empty. Mirrored placement matches too |
+| `key` | Shaped: symbol → ingredient spec |
+| `ingredients` | Shapeless: 1–9 ingredient specs, each consumes one item |
+| `result.item` | What you get — any ingredient spec form below |
+| `result.count` | Stack size of the result (default 1) |
+
+**Ingredient / result specs:**
+
+| Spec | Matches |
+|------|---------|
+| `fiw:<id>` | A Fiw Tools item by its custom id |
+| `minecraft:stick` (any registry id) | That vanilla/modded item — **never** a Fiw item built on it |
+| `#minecraft:planks` | Any item in that item tag (ingredients only) |
+
+So you can craft **custom from vanilla**, **vanilla from custom**, and **custom from custom** — including crafting [awakened](#artifact-awakening) versions of artifacts.
+
+**Protection rule:** when Fiw items sit in the grid and no custom recipe matches, any vanilla-computed result is suppressed — two Fiw swords can never be melted into a plain item by the vanilla repair recipe.
+
+Commands: `/fiwtools recipes` lists everything loaded; `/fiwtools reload` reloads items **and** recipes.
+
+---
+
+## Infinite Use Items
+
+The `infinite` root field makes consumable items refuse to run out — food, potions, snowballs, ender pearls, arrows, anything the game consumes on use.
+
+```json
+"infinite": "keep"
+```
+
+or the full form:
+
+```json
+"infinite": { "mode": "damage", "damagePerUse": 2 }
+```
+
+| Mode | Behaviour |
+|------|-----------|
+| `keep` (alias `normal`) | The item is never consumed. Eat the golden apple forever; the arrow returns to your quiver the instant it's fired |
+| `damage` | Each use costs `damagePerUse` durability instead of the item (give the item `maxDamage`). When the next use would exceed max durability, the item is consumed for real |
+| `replace` | Each use turns the item into `replaceWith` (`fiw:<id>` or vanilla id) × `replaceCount` |
+
+```json
+"infinite": { "mode": "replace", "replaceWith": "minecraft:bowl", "replaceCount": 1 }
+```
+
+**Notes:**
+- Built on vanilla's `use_remainder` component plus a re-stamp sweep — survives reloads, restarts, and stacking.
+- Fired arrows are restored instantly and the flying arrow can't be picked up (no duping). Multishot crossbows and the Infinity enchant are handled.
+- `damage` mode needs a `maxDamage` value to count against; without one the item never breaks.
+
+---
+
+## Artifact Awakening
+
+The `awakening` root field turns an item into a **dormant artifact** that upgrades itself into another item when its holder proves worthy.
+
+```json
+"awakening": {
+  "trigger": "kill_entity",
+  "entity": "minecraft:wither",
+  "count": 3,
+  "upgradeTo": "soul_blade_awakened",
+  "message": "&5&lThe blade drinks the Wither's soul... it awakens!",
+  "broadcast": true,
+  "sound": "minecraft:entity.wither.spawn",
+  "showProgress": true
+}
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `trigger` | required | `kill_entity`, `kill_player`, `deal_damage`, `visit_dimension` |
+| `entity` | — | `kill_entity`: entity type id. Bosses are just ids — `minecraft:ender_dragon`, `minecraft:wither`, or any modded boss |
+| `playerName` | any | `kill_player`: restrict to one specific victim (name or UUID) |
+| `dimension` | — | `visit_dimension`: dimension id, e.g. `minecraft:the_end` |
+| `count` | 1 | Kills needed, or total damage for `deal_damage` |
+| `upgradeTo` | required | Fiw item id the artifact transforms into |
+| `message` | generic | Awakening announcement (`&` codes) |
+| `broadcast` | false | Send `message` to the whole server instead of just the holder |
+| `sound` | wither spawn | Sound played at the holder |
+| `showProgress` | true | Action-bar `Awakening 3/10` on each step |
+
+**How it works:**
+- Kill and damage progress counts the **main-hand** item; dimension visits check the whole inventory (checked once a second).
+- Progress is stored on the specific stack and survives `/fiwtools reload`, rebuilds, and restarts.
+- **Awaken more than once:** give `soul_blade_awakened` its own `awakening` block pointing at a third item, and so on — chains of any length.
+- **Awaken by crafting:** make a [custom recipe](#custom-crafting-recipes) whose result is the awakened item (e.g. the dormant blade surrounded by nether stars).
+
+---
+
+## Bound Artifacts
+
+The `binding` root field ties an item to **one owner** — defined by who touches it first.
+
+```json
+"binding": {
+  "mode": "first_use",
+  "curse": true,
+  "cursePerTick": 2.0,
+  "message": "&d&lThe artifact has sworn itself to you.",
+  "blockUse": true
+}
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `mode` | required | `first_use` — binds to the first player who right-clicks or attacks with it. `first_pickup` — binds to the first inventory it lands in (detected within a second) |
+| `curse` | false | Non-owners take damage every second while carrying it — the artifact punishes thieves. Uses the same armor-bypassing damage type as the [Curse System](#curse-system) |
+| `cursePerTick` | 1.0 | Curse damage per second |
+| `message` | generic | Shown to the player the moment it binds (`&` codes) |
+| `blockUse` | true | Non-owners can't fire any of the item's abilities; they get a `Bound to <owner>` action-bar notice |
+
+Ownership is stored on the stack and survives reloads, rebuilds, restarts, and being dropped — a bound artifact stays bound to its player forever.
+
+---
+
+## Item Commands (`run_command`)
+
+The `run_command` ability (alias `command`) executes server commands when triggered — infinite ability possibilities without waiting for a dedicated ability type. Execution is **completely silent**: nothing in chat, nothing in the console, no admin broadcast.
+
+```json
+"abilities": [
+  {
+    "type": "run_command",
+    "trigger": "on_right_click",
+    "cooldownTicks": 100,
+    "params": {
+      "commands": [
+        "effect give {player} minecraft:speed 15 1",
+        "particle minecraft:end_rod {x} {y} {z} 0.5 1 0.5 0.05 40"
+      ]
+    }
+  },
+  {
+    "type": "run_command",
+    "trigger": "on_shift_right_click",
+    "cooldownTicks": 1200,
+    "params": { "command": "execute in minecraft:overworld run tp {player} 0 100 0" }
+  }
+]
+```
+
+| Param | Description |
+|-------|-------------|
+| `command` | A single command string (leading `/` optional) |
+| `commands` | An array of command strings, run in order |
+
+**Placeholders:**
+
+| Placeholder | Replaced with |
+|-------------|---------------|
+| `{player}` | The triggering player's name |
+| `{uuid}` | Their UUID |
+| `{x}` `{y}` `{z}` | Their block position |
+| `{target}` | The right-clicked/attacked entity's name (empty if none) |
+
+Commands run at full permission level, so anything an op could do, an item can grant. Works with every trigger — pair `on_right_click` and `on_shift_right_click` for two command sets on one item, or hook `on_kill` / `on_hurt` for reactive effects.
 
 ---
 
