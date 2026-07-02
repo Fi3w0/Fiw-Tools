@@ -63,6 +63,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - **[Soul System](#soul-system):** [soul_collector](#soul_collector) · [soul_surge](#soul_surge)
 - **[Custom Crafting Recipes](#custom-crafting-recipes):** shaped + shapeless JSON recipes in `config/fiw_tools/recipes/`
 - **[Infinite Use Items](#infinite-use-items):** `infinite` field — `keep` / `damage` / `replace` modes
+- **[Recharge on Kill](#recharge-on-kill):** `rechargeOnKill` field — kill-based cooldown and durability rewards
 - **[Artifact Awakening](#artifact-awakening):** `awakening` field — kill / damage / dimension triggers
 - **[Bound Artifacts](#bound-artifacts):** `binding` field — first_use / first_pickup + thief curse
 - **[Item Commands](#item-commands-run_command):** [run_command](#item-commands-run_command) ability + `on_shift_right_click` trigger
@@ -119,6 +120,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `customData` | object | null | Free-form NBT passthrough — survives in `custom_data` |
 | `abilities` | array | [] | Custom triggered effects (see below) |
 | `infinite` | string/object | null | Infinite-use behaviour — see [Infinite Use Items](#infinite-use-items) |
+| `rechargeOnKill` | object | null | Kill reward for cooldowns and durability — see [Recharge on Kill](#recharge-on-kill) |
 | `awakening` | object | null | Auto-upgrade condition — see [Artifact Awakening](#artifact-awakening) |
 | `binding` | object | null | Ownership binding — see [Bound Artifacts](#bound-artifacts) |
 
@@ -2121,6 +2123,67 @@ or the full form:
 - On Minecraft 1.21.1, vanilla has no generic `use_remainder` component yet. That port supports infinite food through the older food conversion field and infinite arrows through the projectile hook; generic non-food consumed items require 1.21.11 or 26.1.2.
 - Fired arrows are restored instantly and the flying arrow can't be picked up (no duping). Multishot crossbows and the Infinity enchant are handled.
 - `damage` mode needs a `maxDamage` value to count against; without one the item never breaks.
+
+---
+
+## Recharge on Kill
+
+The `rechargeOnKill` root field rewards kills by recharging this item and/or repairing it. It is intentionally strong enough for "busted mending" artifacts: it can work from an inventory slot, repair durability-spending infinite items, grow max durability, and even make the item unbreakable.
+
+```json
+"rechargeOnKill": {
+  "slot": "any",
+  "entity": "any",
+  "repairDamage": 1
+}
+```
+
+Big artifact example:
+
+```json
+"rechargeOnKill": {
+  "slot": "any",
+  "target": "mobs",
+  "entities": ["minecraft:wither", "minecraft:ender_dragon"],
+  "cooldownTicks": 100,
+  "cooldownPercent": 0.25,
+  "cooldownAbilities": ["meteor_strike", "blood_pact"],
+  "cooldownTriggers": ["on_right_click"],
+  "resetCooldowns": false,
+  "repairDamage": 25,
+  "repairPercent": 0.10,
+  "fullRepair": false,
+  "addMaxDamage": 5,
+  "maxDamageCap": 4000,
+  "unbreakable": false,
+  "chance": 1.0
+}
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `slot` / `hand` | `main` | Where the item can be when the player gets a kill: `main`, `off`, `both`, or `any`. `any` scans carried inventory slots too |
+| `entity` | `any` | Shortcut target. Use `any`, `mobs`, `players`, or a specific entity id like `minecraft:zombie` |
+| `target` | inferred | Explicit target mode: `any`, `mobs`, `players`, or `entities` |
+| `entities` | [] | Specific entity ids. When present without `target`, target becomes `entities` |
+| `players` / `playerNames` / `player` | [] | Specific player names or UUIDs to match |
+| `chance` | 1.0 | Chance to apply after the target filter passes |
+| `cooldownTicks` | 0 | Flat cooldown reduction for this item's active cooldowns |
+| `cooldownPercent` | 0.0 | Percent of remaining cooldown to remove (`0.25` = 25%) |
+| `resetCooldowns` | false | Clear matching cooldowns completely |
+| `cooldownAbilities` / `abilityTypes` | [] | Only recharge these ability type ids. Empty = all abilities on this item |
+| `cooldownTriggers` / `triggers` | [] | Only recharge abilities with these triggers. Empty = all triggers |
+| `repairDamage` | 0 | Flat durability damage repaired |
+| `repairPercent` | 0.0 | Repair a percent of current max durability |
+| `fullRepair` / `repairToFull` | false | Set item damage to 0 on a matching kill |
+| `addMaxDamage` / `addDurability` | 0 | Increase this stack's max durability on each matching kill |
+| `maxDamageCap` | none | Cap for `addMaxDamage` growth |
+| `unbreakable` / `makeUnbreakable` | false | Stamp the stack as unbreakable on a matching kill |
+
+**Notes:**
+- Durability repair works on normal damaged Fiw items and on `infinite: { "mode": "damage" }` items. Infinite remainders are re-stamped immediately after repair.
+- `addMaxDamage` and `unbreakable` are stack upgrades. They survive `/fiwtools reload` because sync preserves earned max durability and unbreakable state.
+- Cooldowns are per player and item id. If two copies share the same item id, recharging one item id affects that shared cooldown.
 
 ---
 

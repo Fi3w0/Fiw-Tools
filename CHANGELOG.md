@@ -4,6 +4,25 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.0.6] - Recharge on kill item rewards
+
+### Added
+
+- Added `rechargeOnKill`, a kill reward block for cooldown recharge and durability upkeep.
+- Supports `slot` / `hand` filters: `main`, `off`, `both`, and `any` carried inventory slot.
+- Supports target filters for any living entity, mobs, players, specific entity ids, and specific player names/UUIDs.
+- Cooldowns can be reset, reduced by flat ticks, reduced by percentage, and filtered by ability type or trigger.
+- Durability rewards can repair flat damage, repair by percent, fully repair, increase max durability, cap max durability growth, or make the stack unbreakable.
+
+### Fixed
+
+- Durability-spending infinite items are re-stamped immediately after `rechargeOnKill` repair so their next-use remainder stays correct.
+- Item sync now preserves earned max durability and earned unbreakable state across `/fiwtools reload`.
+
+### Changed
+
+- Bumped the mod version to 1.0.6.
+
 ## [1.0.5] - Minecraft 1.21.1 ports and release publishing
 
 ### Added

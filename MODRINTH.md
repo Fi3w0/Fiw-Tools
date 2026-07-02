@@ -83,6 +83,8 @@ Tweak the file, reload, try again.
 
 **Infinite items** - food that never runs out, arrows that return the instant they're fired, items that spend durability instead of being consumed, or transform into something else on use (`keep` / `damage` / `replace` modes). On Minecraft 1.21.1, infinite support is limited to food and arrows because that version predates the generic vanilla `use_remainder` component.
 
+**Recharge on kill** - turn kills into busted mending: repair damage, recharge cooldowns, grow max durability, or make the item unbreakable. Works from hands or inventory slots and can target mobs, players, specific entity ids, or anything living.
+
 **Awakening artifacts** - items that auto-upgrade when their holder proves worthy: kill a boss N times, slay a specific player, deal enough total damage, or set foot in a dimension. Chain stages for multi-awakening artifacts, or awaken via a custom recipe.
 
 **Bound artifacts** - an item binds to the first player who uses or picks it up. Nobody else can trigger its abilities — and with the optional curse, thieves bleed for every second they hold it.

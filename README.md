@@ -138,6 +138,10 @@ Drop JSON recipe files into `config/fiw_tools/recipes/` — shaped and shapeless
 
 The `infinite` field makes consumables never run out: `keep` (never consumed — infinite food, potions, pearls, arrows), `damage` (uses durability instead), or `replace` (turns into another item). Fired infinite arrows return to the shooter instantly and can't be dupe-farmed. On Minecraft 1.21.1, the port supports infinite food and arrows through the older food-conversion and arrow hooks; generic non-food consumed items need a newer target with vanilla `use_remainder`.
 
+### Recharge on kill
+
+The `rechargeOnKill` field turns kills into item upkeep: reduce or reset cooldowns, repair damage, grow max durability, or make the item unbreakable. It can trigger from main hand, offhand, both hands, or any inventory slot, and can match any entity, mobs, players, specific mob ids, or specific player names/UUIDs.
+
 ### Artifact awakening
 
 The `awakening` field auto-upgrades an item into another when its holder proves worthy: kill a boss or specific mob N times, kill (a specific) player, deal total damage, or visit a dimension. Chain awakenings for multi-stage artifacts, or awaken via a custom crafting recipe.

@@ -212,5 +212,6 @@ data class ItemDefinition(
         if (cursed) append(", CURSED(wl=").append(curseWhitelist.size).append(')')
         imbueLimit?.let { append(", imbueLimit=").append(it) }
         infinite?.let { append(", infinite=").append(it.mode) }
+        rechargeOnKill?.let { append(", rechargeOnKill=").append(it.target).append('@').append(it.hand) }
     }
 }
