@@ -16,6 +16,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -117,6 +118,33 @@ public final class FiwToolsNeoForge {
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
         AbilityDispatcher.INSTANCE.onKill(event.getEntity(), event.getSource());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            AbilityDispatcher.INSTANCE.onDeath(player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            AbilityDispatcher.INSTANCE.onRespawn(player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            AbilityDispatcher.INSTANCE.onDimensionChange(player,
+                    event.getFrom().identifier().toString(),
+                    event.getTo().identifier().toString());
+        }
+    }
+
+    @SubscribeEvent
+    public void onEquipmentChange(LivingEquipmentChangeEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            AbilityDispatcher.INSTANCE.onEquipmentChange(player,
+                    event.getSlot().getName(), event.getFrom(), event.getTo());
+        }
     }
 
     @SubscribeEvent

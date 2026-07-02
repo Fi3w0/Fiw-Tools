@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback
@@ -54,7 +55,10 @@ object FiwTools : ModInitializer {
             InteractionResult.PASS
         }
 
-        ServerLivingEntityEvents.AFTER_DEATH.register(AbilityDispatcher::onKill)
+        ServerLivingEntityEvents.AFTER_DEATH.register { entity, source ->
+            AbilityDispatcher.onKill(entity, source)
+            if (entity is ServerPlayer) AbilityDispatcher.onDeath(entity)
+        }
         ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, amount ->
             if (entity is ServerPlayer) AbilityDispatcher.onHurt(entity, source, amount)
             val attacker = source.entity
@@ -69,6 +73,17 @@ object FiwTools : ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> FiwToolsCommon.playerDisconnect(handler.player) }
         ServerPlayerEvents.COPY_FROM.register { _, newPlayer, alive -> KeepOnDeathHandler.onClone(newPlayer, alive) }
         ServerEntityEvents.ENTITY_LOAD.register { entity, _ -> InfiniteItems.onEntityLoad(entity) }
+        ServerPlayerEvents.AFTER_RESPAWN.register { _, newPlayer, _ -> AbilityDispatcher.onRespawn(newPlayer) }
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register { player, origin, destination ->
+            AbilityDispatcher.onDimensionChange(
+                player,
+                origin.dimension().identifier().toString(),
+                destination.dimension().identifier().toString()
+            )
+        }
+        ServerEntityEvents.EQUIPMENT_CHANGE.register { entity, slot, previous, current ->
+            if (entity is ServerPlayer) AbilityDispatcher.onEquipmentChange(entity, slot.getName(), previous, current)
+        }
         ServerTickEvents.END_SERVER_TICK.register(FiwToolsCommon::serverTick)
         ServerLifecycleEvents.SERVER_STARTING.register { FiwToolsCommon.serverStarting() }
         ServerLifecycleEvents.SERVER_STOPPED.register { FiwToolsCommon.serverStopped() }
