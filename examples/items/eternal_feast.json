@@ -1,0 +1,12 @@
+{
+  "id": "eternal_feast",
+  "base": "minecraft:golden_apple",
+  "displayName": "&6&lEternal Feast",
+  "lore": [
+    "&7A feast that never ends.",
+    "&8Infinite: keep"
+  ],
+  "rarity": "epic",
+  "infinite": "keep",
+  "food": { "nutrition": 8, "saturation": 1.2, "canAlwaysEat": true }
+}

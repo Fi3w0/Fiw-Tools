@@ -23,3 +23,11 @@ version header.
   - Grid protection: when Fiw items are in the grid and no custom recipe matches, vanilla results are suppressed (no more losing artifacts to the sword-repair recipe)
   - `/fiwtools recipes` lists every loaded recipe
 
+- **Infinite-use items** (`com.fiw.tools.infinite`):
+  - New `infinite` item field — string shorthand (`"infinite": "keep"`) or object form
+  - Mode `keep` (alias `normal`): the item is never consumed — infinite food, potions, snowballs, ender pearls, arrows…
+  - Mode `damage`: each use costs `damagePerUse` durability instead of consuming the item; it breaks for real when durability runs out
+  - Mode `replace`: the item turns into `replaceWith` (vanilla id or `fiw:` item) × `replaceCount` when used
+  - Built on vanilla's `use_remainder` component + a re-stamp sweep — survives reloads and restarts
+  - Arrows fired from bows/crossbows are restored to the shooter instantly via an entity-spawn hook; fired arrows can't be picked up (no duping), multishot and Infinity are handled
+

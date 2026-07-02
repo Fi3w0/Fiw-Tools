@@ -1,0 +1,11 @@
+{
+  "id": "quiver_of_the_endless",
+  "base": "minecraft:arrow",
+  "displayName": "&b&lArrow of the Endless",
+  "lore": [
+    "&7Never runs out — the quiver refills itself.",
+    "&8Infinite: keep"
+  ],
+  "rarity": "rare",
+  "infinite": "keep"
+}
