@@ -17,6 +17,12 @@ data class ItemDefinition(
     val maxDamage: Int? = null,
     val damage: Int? = null,
     val enchantmentGlint: Boolean? = null,
+    /** Potion liquid color for potion/tipped-arrow bases: `"#RRGGBB"` or a decimal int. */
+    val potionColor: String? = null,
+    /** Dye color for leather armor (and anything dyeable): `"#RRGGBB"` or a decimal int. */
+    val dyedColor: String? = null,
+    /** Client model to render, e.g. `minecraft:diamond_sword`. Not available on the 1.21.1 port. */
+    val itemModel: String? = null,
     val enchantments: Map<String, Int> = emptyMap(),
     val attributes: List<AttrDef> = emptyList(),
     val keepOnDeath: Boolean = false,
