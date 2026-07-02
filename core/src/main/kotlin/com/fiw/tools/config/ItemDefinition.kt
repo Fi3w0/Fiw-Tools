@@ -57,8 +57,27 @@ data class ItemDefinition(
      * Awakening — the artifact upgrades itself into [AwakeningDef.upgradeTo] when its condition is
      * met. Chain awakenings by giving the upgraded item its own `awakening` block. `null` = never.
      */
-    val awakening: AwakeningDef? = null
+    val awakening: AwakeningDef? = null,
+    /**
+     * Binding — the artifact belongs to the first player who uses it (`first_use`) or picks it up
+     * (`first_pickup`). Non-owners can't trigger its abilities, and with `curse: true` they take
+     * damage every second just for carrying it. `null` = unbound, anyone can use it.
+     */
+    val binding: BindingDef? = null
 ) {
+    data class BindingDef(
+        /** `first_use` (right-click or attack) or `first_pickup` (first inventory it lands in). */
+        val mode: String,
+        /** Curse non-owners: carrying someone else's artifact hurts. */
+        val curse: Boolean = false,
+        /** Curse damage per second while a non-owner carries it. */
+        val cursePerTick: Float = 1.0f,
+        /** Message shown to the player the moment the artifact binds to them (text codes). */
+        val message: String? = null,
+        /** Block ability use by non-owners. On by default — that's the point of binding. */
+        val blockUse: Boolean = true
+    )
+
     data class AwakeningDef(
         /** `kill_entity`, `kill_player`, `deal_damage`, or `visit_dimension`. */
         val trigger: String,

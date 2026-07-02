@@ -128,6 +128,20 @@ object ItemConfigParser {
             def
         } else null
 
+        val bindingObj = root.getAsJsonObject("binding")
+        val binding = if (bindingObj != null) {
+            val mode = bindingObj.requireString("mode").lowercase()
+            if (mode !in setOf("first_use", "first_pickup"))
+                throw IllegalArgumentException("unknown binding mode '$mode' (first_use, first_pickup)")
+            ItemDefinition.BindingDef(
+                mode = mode,
+                curse = bindingObj.optBool("curse", false),
+                cursePerTick = bindingObj.optFloat("cursePerTick", 1.0f),
+                message = bindingObj.optStringOrNull("message"),
+                blockUse = bindingObj.optBool("blockUse", true)
+            )
+        } else null
+
         return ItemDefinition(
             id = id,
             base = base,
@@ -156,7 +170,8 @@ object ItemConfigParser {
             resonanceId = root.get("resonanceId")?.takeIf { !it.isJsonNull }?.asString,
             resonanceRequires = root.optInt("resonanceRequires", 2),
             infinite = infinite,
-            awakening = awakening
+            awakening = awakening,
+            binding = binding
         )
     }
 
