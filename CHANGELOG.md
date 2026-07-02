@@ -13,3 +13,13 @@ version header.
 
 ### Added
 
+- **Custom crafting system** (`com.fiw.tools.recipe`):
+  - New config folder `config/fiw_tools/recipes/` — drop JSON files, `/fiwtools reload` picks them up
+  - Multiple recipes per file: single object, bare array, or `{ "recipes": [ ... ] }`
+  - Shaped (`pattern` + `key`, with mirroring) and shapeless (`ingredients`) recipes
+  - Ingredients/results: `fiw:<id>` custom items, vanilla ids, and `#namespace:tag` item tags
+  - Craft custom items from vanilla, vanilla from custom, or custom from custom
+  - Works in the 2x2 inventory grid and the 3x3 crafting table, fully server-side — vanilla clients craft normally
+  - Grid protection: when Fiw items are in the grid and no custom recipe matches, vanilla results are suppressed (no more losing artifacts to the sword-repair recipe)
+  - `/fiwtools recipes` lists every loaded recipe
+

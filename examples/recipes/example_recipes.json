@@ -1,0 +1,39 @@
+{
+  "recipes": [
+    {
+      "id": "craft_ancient_blade",
+      "type": "shaped",
+      "pattern": [
+        " N ",
+        "NDN",
+        " S "
+      ],
+      "key": {
+        "N": "minecraft:netherite_ingot",
+        "D": "minecraft:diamond_sword",
+        "S": "minecraft:stick"
+      },
+      "result": { "item": "fiw:ancient_blade", "count": 1 }
+    },
+    {
+      "id": "blade_to_star",
+      "type": "shapeless",
+      "ingredients": ["fiw:ancient_blade", "minecraft:diamond_block"],
+      "result": { "item": "minecraft:nether_star", "count": 1 }
+    },
+    {
+      "id": "planks_charm",
+      "type": "shaped",
+      "pattern": [
+        "PPP",
+        "PGP",
+        "PPP"
+      ],
+      "key": {
+        "P": "#minecraft:planks",
+        "G": "minecraft:gold_block"
+      },
+      "result": { "item": "fiw:blessed_scroll", "count": 2 }
+    }
+  ]
+}
