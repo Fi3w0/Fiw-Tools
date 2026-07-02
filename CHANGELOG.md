@@ -47,3 +47,15 @@ version header.
   - Optional `curse: true`: non-owners carrying someone else's artifact take `cursePerTick` damage per second (same armor-bypassing damage type as the curse system)
   - Custom bind `message` (text codes); ownership survives reloads, rebuilds, and restarts
 
+- **Item commands** (`run_command` ability, alias `command`):
+  - Executes any server command(s) when triggered — infinite custom abilities via the command system
+  - Fully silent: no chat feedback, no console log, no admin broadcast
+  - `command` (single) or `commands` (array) in params; leading `/` optional
+  - Placeholders: `{player}`, `{uuid}`, `{x}` `{y}` `{z}` (block position), `{target}`
+  - Works on any trigger, including the new one below
+
+- **New trigger `on_shift_right_click`** (aliases `shift_right_click`, `sneak_right_click`):
+  - Fires instead of `on_right_click` when the player is sneaking
+  - Backward compatible: items without a shift ability keep firing `on_right_click` while sneaking
+  - Lets one item carry two separate right-click ability sets
+

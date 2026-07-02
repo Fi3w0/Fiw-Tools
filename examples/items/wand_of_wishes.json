@@ -1,0 +1,32 @@
+{
+  "id": "wand_of_wishes",
+  "base": "minecraft:blaze_rod",
+  "displayName": "&d&lWand of Wishes",
+  "lore": [
+    "&7Right-click: a taste of speed.",
+    "&7Shift-right-click: come home."
+  ],
+  "rarity": "rare",
+  "enchantmentGlint": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 100,
+      "params": {
+        "commands": [
+          "effect give {player} minecraft:speed 15 1",
+          "particle minecraft:end_rod {x} {y} {z} 0.5 1 0.5 0.05 40"
+        ]
+      }
+    },
+    {
+      "type": "run_command",
+      "trigger": "on_shift_right_click",
+      "cooldownTicks": 1200,
+      "params": {
+        "command": "execute in minecraft:overworld run tp {player} 0 100 0"
+      }
+    }
+  ]
+}
