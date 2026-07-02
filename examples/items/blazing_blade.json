@@ -1,0 +1,21 @@
+{
+  "id": "blazing_blade",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&6&lBlazing Blade",
+  "lore": [
+    "&7Awakened steel, wreathed in fire.",
+    "&8Deal 500 damage to reach its final form."
+  ],
+  "rarity": "epic",
+  "enchantments": { "minecraft:sharpness": 5, "minecraft:fire_aspect": 2 },
+  "abilities": [
+    { "type": "ignite", "trigger": "on_attack", "chance": 0.5, "params": { "seconds": 4 } }
+  ],
+  "awakening": {
+    "trigger": "deal_damage",
+    "count": 500,
+    "upgradeTo": "solar_apex",
+    "message": "&c&lThe Blazing Blade reaches its final form: Solar Apex!",
+    "broadcast": true
+  }
+}

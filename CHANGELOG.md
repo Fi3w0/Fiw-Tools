@@ -31,3 +31,12 @@ version header.
   - Built on vanilla's `use_remainder` component + a re-stamp sweep — survives reloads and restarts
   - Arrows fired from bows/crossbows are restored to the shooter instantly via an entity-spawn hook; fired arrows can't be picked up (no duping), multishot and Infinity are handled
 
+- **Artifact awakening** (`com.fiw.tools.awaken`):
+  - New `awakening` item block — the artifact auto-upgrades into `upgradeTo` when its condition is met
+  - Triggers: `kill_entity` (any entity id — wither, ender dragon, or any boss), `kill_player` (any player, or one specific `playerName`), `deal_damage` (total damage dealt while holding the item), `visit_dimension`
+  - Per-stack progress stored on the item and preserved across `/fiwtools reload` and rebuilds
+  - `count` sets kills needed / damage required; optional action-bar progress (`showProgress`)
+  - Awakening `message` (text codes) to the holder or the whole server (`broadcast: true`), plus a `sound`
+  - Chain awakenings by giving the upgraded item its own `awakening` block (awaken once or many times)
+  - Craft-based awakening: make a custom recipe whose result is the awakened item
+

@@ -1,0 +1,19 @@
+{
+  "id": "dormant_blade",
+  "base": "minecraft:iron_sword",
+  "displayName": "&7&lDormant Blade",
+  "lore": [
+    "&7Something sleeps inside this steel.",
+    "&8Slay 10 blazes to awaken it."
+  ],
+  "rarity": "uncommon",
+  "awakening": {
+    "trigger": "kill_entity",
+    "entity": "minecraft:blaze",
+    "count": 10,
+    "upgradeTo": "blazing_blade",
+    "message": "&6&lThe Dormant Blade erupts into flame!",
+    "broadcast": true,
+    "sound": "minecraft:entity.blaze.death"
+  }
+}
