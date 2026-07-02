@@ -42,9 +42,78 @@ object AbilityDispatcher {
         val attacker = source.entity
         if (attacker is ServerPlayer) {
             fire(AbilityTrigger.ON_KILL, attacker, attacker.mainHandItem, attacker.serverLevel(), entity, entity.position())
+            val victimId = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entity.type).toString()
+            fire(AbilityTrigger.ON_BOSS_KILL, attacker, attacker.mainHandItem, attacker.serverLevel(), entity, entity.position(),
+                abilityFilter = { ab -> bossMatches(ab, victimId) })
             com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, attacker.mainHandItem, entity)
             com.fiw.tools.recharge.RechargeOnKillHandler.onKill(attacker, entity)
         }
+    }
+
+    /** Vanilla bosses recognised by `on_boss_kill` when the ability lists no explicit `bosses`. */
+    private val DEFAULT_BOSSES = setOf(
+        "minecraft:ender_dragon", "minecraft:wither", "minecraft:warden", "minecraft:elder_guardian"
+    )
+
+    /** An explicit `bosses` param wins; otherwise FIW Bosses entities and the vanilla boss set count. */
+    private fun bossMatches(ab: ItemDefinition.AbilityDef, victimId: String): Boolean {
+        val listed = ab.params.getAsJsonArray("bosses")
+        if (listed != null) return listed.any { it.isJsonPrimitive && it.asString.equals(victimId, ignoreCase = true) }
+        return victimId.startsWith("fiw_bosses:") || victimId in DEFAULT_BOSSES
+    }
+
+    fun onConsume(player: ServerPlayer, stack: ItemStack) {
+        fire(AbilityTrigger.ON_CONSUME, player, stack, player.serverLevel(), null, null)
+    }
+
+    fun onPickup(player: ServerPlayer, stack: ItemStack) {
+        fire(AbilityTrigger.ON_PICKUP, player, stack, player.serverLevel(), null, null)
+    }
+
+    fun onDrop(player: ServerPlayer, stack: ItemStack) {
+        fire(AbilityTrigger.ON_DROP, player, stack, player.serverLevel(), null, null)
+    }
+
+    fun onDeath(player: ServerPlayer) = fireInventory(AbilityTrigger.ON_DEATH, player, null)
+
+    fun onRespawn(player: ServerPlayer) = fireInventory(AbilityTrigger.ON_RESPAWN, player, null)
+
+    /** Fires leave for the origin and enter for the destination; abilities may filter via a `dimension` param. */
+    fun onDimensionChange(player: ServerPlayer, fromId: String, toId: String) {
+        fireInventory(AbilityTrigger.ON_LEAVE_DIMENSION, player) { ab -> paramMatches(ab, "dimension", fromId) }
+        fireInventory(AbilityTrigger.ON_ENTER_DIMENSION, player) { ab -> paramMatches(ab, "dimension", toId) }
+    }
+
+    /** Armor/hand slot changed; abilities may filter via a `slot` param (`head`, `chest`, `mainhand`, …). */
+    fun onEquipmentChange(player: ServerPlayer, slotName: String, previous: ItemStack, current: ItemStack) {
+        val world = player.serverLevel()
+        if (!previous.isEmpty) {
+            fire(AbilityTrigger.ON_UNEQUIP, player, previous, world, null, null,
+                abilityFilter = { ab -> paramMatches(ab, "slot", slotName) })
+        }
+        if (!current.isEmpty) {
+            fire(AbilityTrigger.ON_EQUIP, player, current, world, null, null,
+                abilityFilter = { ab -> paramMatches(ab, "slot", slotName) })
+        }
+    }
+
+    private fun fireInventory(
+        trigger: AbilityTrigger,
+        player: ServerPlayer,
+        abilityFilter: ((ItemDefinition.AbilityDef) -> Boolean)?
+    ) {
+        val world = player.serverLevel()
+        val inv = player.inventory
+        for (slot in 0 until inv.containerSize) {
+            val stack = inv.getItem(slot)
+            if (!stack.isEmpty) fire(trigger, player, stack, world, null, null, abilityFilter = abilityFilter)
+        }
+    }
+
+    /** True when the ability doesn't declare [key], or declares it equal to [value]. */
+    private fun paramMatches(ab: ItemDefinition.AbilityDef, key: String, value: String): Boolean {
+        val configured = ab.params.get(key)?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asString ?: return true
+        return configured.equals(value, ignoreCase = true)
     }
 
     /** Damage the player dealt to something else — feeds `deal_damage` awakening progress. */
@@ -75,7 +144,8 @@ object AbilityDispatcher {
         target: LivingEntity?,
         targetPos: Vec3?,
         damageSource: net.minecraft.world.damagesource.DamageSource? = null,
-        damageAmount: Float = 0f
+        damageAmount: Float = 0f,
+        abilityFilter: ((ItemDefinition.AbilityDef) -> Boolean)? = null
     ): Boolean {
         if (stack.isEmpty) return false
         val def = resolveDefinition(stack) ?: return false
@@ -97,6 +167,7 @@ object AbilityDispatcher {
         var any = false
         abilities.forEachIndexed { idx, abilityDef ->
             if (AbilityTrigger.parse(abilityDef.trigger) != trigger) return@forEachIndexed
+            if (abilityFilter != null && !abilityFilter(abilityDef)) return@forEachIndexed
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, abilityDef.params)) return@forEachIndexed
