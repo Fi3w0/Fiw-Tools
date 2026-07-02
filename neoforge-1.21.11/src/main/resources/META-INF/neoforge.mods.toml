@@ -6,10 +6,10 @@ issueTrackerURL = "https://github.com/Fi3w0/Fiw-Tools/issues"
 [[mods]]
 modId = "fiw_tools"
 version = "${version}"
-displayName = "FIW Tools"
+displayName = "Fiw Custom Items"
 authors = "Fiw"
 logoFile = "icon.png"
-description = "JSON-driven custom items, weapons, armor and player abilities. Server-side only — install on the server; clients do not need this mod."
+description = "Create custom server-side items, weapons, armor, food and abilities from JSON. Clients do not need this mod."
 
 [[mixins]]
 config = "fiw-tools.mixins.json"

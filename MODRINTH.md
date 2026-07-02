@@ -1,8 +1,8 @@
 <div align="center">
 
-# FIW Tools
+# Fiw Custom Items
 
-### Build custom items from JSON.
+### Build custom server items from JSON.
 
 **Weapons. Armor. Food. Curses. Imbuements. Custom crafting. Infinite items. Awakening artifacts. Bound artifacts. Item commands.**
 No Java. No restarts. Fabric and NeoForge builds are both supported.
@@ -18,13 +18,15 @@ No Java. No restarts. Fabric and NeoForge builds are both supported.
 
 ## The pitch
 
-FIW Tools gives server owners a JSON item framework: drop a file into `config/fiw_tools/items/`, run `/fiwtools reload`, and a custom item is live.
+Fiw Custom Items gives server owners custom items from JSON: drop a file into `config/fiw_tools/items/`, run `/fiwtools reload`, and a custom item is live.
 
-It is not a fixed item pack. It is a toolkit for building your own progression: custom display, lore, attributes, enchantments above vanilla caps, durability, food, tool rules, active abilities, passive armor effects, curses, imbuements, and persistent upgrades.
+It is not a fixed item pack. It lets you build your own progression: custom display, lore, attributes, enchantments above vanilla caps, durability, food, tool rules, active abilities, passive armor effects, curses, imbuements, and persistent upgrades.
 
-It also pairs with **FIW Bosses**. Bosses can equip or drop Fiw Tools items by id through `toolId`, and the boss mod safely skips those entries if Fiw Tools is not installed.
+It also pairs with **FIW Bosses**. Bosses can equip or drop Fiw Custom Items entries by id through `toolId`, and the boss mod safely skips those entries if Fiw Custom Items is not installed.
 
-FIW Tools is server-side only — it has no client-side code. Install it on the server (Fabric or NeoForge); players do not need the mod to join. On Fabric, even fully vanilla clients can connect.
+Fiw Custom Items is server-side only — it has no client-side code. Install it on the server (Fabric or NeoForge); players do not need the mod to join. On Fabric, even fully vanilla clients can connect.
+
+The internal mod id, config folder, `/fiwtools` command, and `FiwToolsAPI` names stay as `fiw_tools` / Fiw Tools for compatibility with existing servers and integrations.
 
 ---
 
@@ -133,7 +135,7 @@ Full schema and every ability parameter are in the documentation.
 
 Fabric builds need [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin).
 
-NeoForge builds include the Kotlin runtime inside the FIW Tools jar. Install it on the NeoForge server only; clients do not need the mod, and no separate KotlinForForge mod is required.
+NeoForge builds include the Kotlin runtime inside the Fiw Custom Items jar. Install it on the NeoForge server only; clients do not need the mod, and no separate KotlinForForge mod is required.
 
 The repo module is named `fabric-26.2.1` as requested, but Fabric's official metadata currently rejects the `26.2.1` game coordinate. The buildable target is `26.1.2` until Fabric publishes a valid `26.2.1` coordinate.
 

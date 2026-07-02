@@ -55,7 +55,7 @@ jobs:
             p { print }
           ' CHANGELOG.md > RELEASE_NOTES.md
           if [ ! -s RELEASE_NOTES.md ]; then
-            echo "Fiw Tools $VERSION" > RELEASE_NOTES.md
+            echo "Fiw Custom Items $VERSION" > RELEASE_NOTES.md
           fi
           echo "--- release notes ---"; cat RELEASE_NOTES.md
 
@@ -99,7 +99,7 @@ jobs:
             {'project_id': 'Ha28R6CL', 'dependency_type': 'required'},
           ]
           payload = json.dumps({
-            'name': f'FIW Tools {ver} ({loader} {game_ver})',
+            'name': f'Fiw Custom Items {ver} ({loader} {game_ver})',
             'version_number': ver,
             'changelog': changelog,
             'dependencies': deps,

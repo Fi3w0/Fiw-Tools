@@ -1,4 +1,4 @@
-# FIW Tools Examples
+# Fiw Custom Items Examples
 
 Copy item JSON files from `examples/items/` into:
 
@@ -20,4 +20,4 @@ Then run:
 - Copy `examples/fiw_bosses_integration/bosses/void_reaver_boss.json` into `config/fiw_bosses/bosses/`.
 - Run `/fiwtools reload` and `/boss reload`.
 
-The boss uses Fiw Tools item ids through `toolId` equipment and loot entries. If Fiw Tools is missing, FIW Bosses skips those entries instead of crashing.
+The boss uses Fiw Custom Items ids through `toolId` equipment and loot entries. If Fiw Custom Items is missing, FIW Bosses skips those entries instead of crashing.

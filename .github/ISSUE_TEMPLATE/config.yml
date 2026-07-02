@@ -5,7 +5,7 @@ contact_links:
     about: Full JSON config reference - check here before filing a "how do I..." issue.
   - name: FIW Bosses
     url: https://github.com/Fi3w0/Fiw-Bosses
-    about: Boss framework that can equip and drop FIW Tools items by toolId.
+    about: Boss framework that can equip and drop Fiw Custom Items entries by toolId.
   - name: Modrinth page
     url: https://modrinth.com/mod/fiw-tools
     about: Downloads and version list.

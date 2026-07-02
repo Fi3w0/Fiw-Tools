@@ -1,4 +1,4 @@
-# Contributing to FIW Tools
+# Contributing to Fiw Custom Items
 
 ## Getting Started
 

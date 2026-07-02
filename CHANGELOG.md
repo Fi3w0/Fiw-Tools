@@ -19,6 +19,7 @@ version header.
 ### Changed
 
 - Bumped the mod version to 1.0.5.
+- Rebranded public-facing text to Fiw Custom Items while keeping the existing mod id, config paths, `/fiwtools` command, and API names for compatibility.
 - Updated public docs and issue templates for the expanded target matrix.
 
 ## [1.0.4] - Custom crafting, infinite items, awakening, binding, and command abilities

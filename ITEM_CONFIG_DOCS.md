@@ -1,4 +1,4 @@
-# Fiw Tools — Item Configuration Guide
+# Fiw Custom Items — Item Configuration Guide
 
 Items are defined as `.json` files — no coding, no client install, no server restart needed.
 
@@ -7,9 +7,11 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `config/fiw_tools/items/` | Active item definitions |
 | `examples/items/` | Pre-built items ready to copy |
 
-> **Server-side only.** Fiw Tools has no client-side code, so it installs on the server only (Fabric or NeoForge) and players never need the mod to join. On Fabric, even fully vanilla clients can connect.
+> **Server-side only.** Fiw Custom Items has no client-side code, so it installs on the server only (Fabric or NeoForge) and players never need the mod to join. On Fabric, even fully vanilla clients can connect.
 
 > **Hot reload:** `/fiwtools reload` — picks up all item changes instantly.
+
+> **Compatibility note:** the public name is Fiw Custom Items, but the internal mod id, config folder, `/fiwtools` command, and `FiwToolsAPI` class keep the Fiw Tools naming for existing servers and integrations.
 
 > **Version note:** Some newer Minecraft data components do not exist on 1.21.1 or lower. Those features use version-specific fallback systems where possible; each affected section notes the exact behavior.
 
@@ -305,7 +307,7 @@ Apply this to any base item to make it edible (e.g. `minecraft:diamond` becomes 
 }
 ```
 
-Free-form NBT — readable by other mods, datapacks, or `/data get`. Two keys are reserved by Fiw Tools: `fiw_tools_id` (always added so the item can be looked up) and `fiw_keep_on_death` (set when `keepOnDeath: true`).
+Free-form NBT — readable by other mods, datapacks, or `/data get`. Two keys are reserved by Fiw Custom Items: `fiw_tools_id` (always added so the item can be looked up) and `fiw_keep_on_death` (set when `keepOnDeath: true`).
 
 ---
 
@@ -2078,7 +2080,7 @@ One file can hold **as many recipes as you like**: a single recipe object, a bar
 
 | Spec | Matches |
 |------|---------|
-| `fiw:<id>` | A Fiw Tools item by its custom id |
+| `fiw:<id>` | A Fiw Custom Items entry by its custom id |
 | `minecraft:stick` (any registry id) | That vanilla/modded item — **never** a Fiw item built on it |
 | `#minecraft:planks` | Any item in that item tag (ingredients only) |
 
@@ -2232,9 +2234,9 @@ Commands run at full permission level, so anything an op could do, an item can g
 
 ## Bind with Fiw Bosses
 
-Fiw Tools and Fiw Bosses are **fully independent mods** — each one works without the other.
+Fiw Custom Items and Fiw Bosses are **fully independent mods** — each one works without the other.
 
-When **both** are installed, Fiw Bosses can reference a Fiw Tools item by id from its loot or equipment slots:
+When **both** are installed, Fiw Bosses can reference a Fiw Custom Items entry by id from its loot or equipment slots:
 
 ```json
 // boss loot entry
@@ -2244,15 +2246,15 @@ When **both** are installed, Fiw Bosses can reference a Fiw Tools item by id fro
 "mainHand": { "toolId": "soul_blade" }
 ```
 
-Internally, Fiw Bosses calls the stable public API documented below. If Fiw Tools is missing, the lookup is silently skipped (the loot entry drops nothing, the equipment slot stays empty) — boss configs never crash because of a missing Tools install.
+Internally, Fiw Bosses calls the stable public API documented below. If Fiw Custom Items is missing, the lookup is silently skipped (the loot entry drops nothing, the equipment slot stays empty) — boss configs never crash because of a missing install.
 
-The reverse direction does **not** apply: Fiw Tools never reads Fiw Bosses. The two mods can be released, updated, and run independently.
+The reverse direction does **not** apply: Fiw Custom Items never reads Fiw Bosses. The two mods can be released, updated, and run independently.
 
 ---
 
 ## Public API for Other Mods
 
-Other mods can integrate with Fiw Tools without depending on its internals. FIW Bosses uses this same API by reflection, so these signatures are kept stable across loader modules:
+Other mods can integrate with Fiw Custom Items without depending on its internals. FIW Bosses uses this same API by reflection, so these signatures are kept stable across loader modules. The API class keeps the Fiw Tools name for compatibility:
 
 ```text
 com.fiw.tools.api.FiwToolsAPI.isLoaded(): boolean
@@ -2265,7 +2267,7 @@ com.fiw.tools.api.FiwToolsAPI.getItemStack(String id, HolderLookup.Provider regi
 
 | Method | Behavior |
 |--------|----------|
-| `isLoaded()` | Returns `true` when Fiw Tools is present and the API class loaded successfully. |
+| `isLoaded()` | Returns `true` when Fiw Custom Items is present and the API class loaded successfully. |
 | `listIds()` | Returns the currently loaded item ids. Empty means no item configs have loaded yet. |
 | `getItemStack(id, server, count)` | Builds a fresh stack from the currently loaded config id. Returns `null` if the id is unknown or cannot be built. |
 | `getItemStack(id, registries, count)` | Same lookup when the caller already has registry access. |
@@ -2273,9 +2275,9 @@ com.fiw.tools.api.FiwToolsAPI.getItemStack(String id, HolderLookup.Provider regi
 ### Failure rules
 
 - Unknown ids return `null`.
-- Missing Fiw Tools should be treated as "skip this optional item", not as a hard error.
+- Missing Fiw Custom Items should be treated as "skip this optional item", not as a hard error.
 - Returned stacks are fresh copies; callers can safely place them in loot drops, inventories, or equipment slots.
-- The API does not force-load configs. Call it after the server has started and Fiw Tools has loaded its registry.
+- The API does not force-load configs. Call it after the server has started and Fiw Custom Items has loaded its registry.
 
 ### Reflection-safe lookup
 
@@ -2292,9 +2294,9 @@ ItemStack stack = (ItemStack) getItemStack.invoke(null, "void_reaver", server, 1
 ## Behavior Notes
 
 **Server-side guarantee**
-- Fiw Tools has no client-side code; install it on the server only.
-- On Fabric, fully vanilla clients can connect with no Fiw Tools install.
-- On NeoForge, clients do not need Fiw Tools installed to join.
+- Fiw Custom Items has no client-side code; install it on the server only.
+- On Fabric, fully vanilla clients can connect with no Fiw Custom Items install.
+- On NeoForge, clients do not need Fiw Custom Items installed to join.
 - All custom data, lore, attributes, and ability effects are server-authoritative.
 
 **Hot reload**

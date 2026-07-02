@@ -1,8 +1,8 @@
 <div align="center">
 
-# FIW Tools
+# Fiw Custom Items
 
-**A data-driven custom item framework for Fabric and NeoForge. Define custom weapons, armor, food, curses, imbuements, and player abilities entirely through JSON - no coding, no restarts.**
+**Create custom weapons, armor, food, curses, imbuements, and player abilities entirely through JSON - no coding, no restarts.**
 
 [![Build](https://github.com/Fi3w0/Fiw-Tools/actions/workflows/build.yml/badge.svg)](https://github.com/Fi3w0/Fiw-Tools/actions/workflows/build.yml)
 [![Modrinth](https://img.shields.io/modrinth/v/fiw-tools?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-tools)
@@ -20,11 +20,13 @@
 
 ## Overview
 
-FIW Tools turns JSON files into custom items. Drop an item file into `config/fiw_tools/items/`, run `/fiwtools reload`, and your server can give it immediately - no code, no restart.
+Fiw Custom Items turns JSON files into playable server items. Drop an item file into `config/fiw_tools/items/`, run `/fiwtools reload`, and your server can give it immediately - no code, no restart.
 
-It is a **framework**, not a fixed item pack: vanilla item bases, custom names and lore, attributes, enchantments above vanilla caps, durability, food, tool rules, curses, imbuements, keep-on-death flags, and active or passive abilities all come from config.
+It is not a fixed item pack: vanilla item bases, custom names and lore, attributes, enchantments above vanilla caps, durability, food, tool rules, curses, imbuements, keep-on-death flags, and active or passive abilities all come from config.
 
-> **Server-side only.** FIW Tools has no client-side code — install it on the server only, on Fabric or NeoForge. Players do not need the mod (or any resource pack) to join. On Fabric, even fully vanilla clients can connect.
+> **Server-side only.** Fiw Custom Items has no client-side code — install it on the server only, on Fabric or NeoForge. Players do not need the mod (or any resource pack) to join. On Fabric, even fully vanilla clients can connect.
+
+> **Compatibility note:** the internal mod id, config folder, `/fiwtools` command, and `FiwToolsAPI` names stay as `fiw_tools` / Fiw Tools for existing servers and integrations.
 
 ---
 
@@ -33,11 +35,11 @@ It is a **framework**, not a fixed item pack: vanilla item bases, custom names a
 ```bash
 # Fabric:
 # 1. Install Fabric Loader, Fabric API, and Fabric Language Kotlin.
-# 2. Drop the Fabric FIW Tools jar into mods/.
+# 2. Drop the Fabric Fiw Custom Items jar into mods/.
 #
 # NeoForge:
 # 1. Install NeoForge for the matching Minecraft version.
-# 2. Drop the NeoForge FIW Tools jar into mods/.
+# 2. Drop the NeoForge Fiw Custom Items jar into mods/.
 #    The NeoForge jar includes the Kotlin runtime it needs.
 #
 # Start once, then add an item file:
@@ -90,7 +92,7 @@ The `fabric-26.2.1` module keeps the requested folder/module name. Fabric's offi
 | Loader | Extra requirements |
 | ------ | ------------------ |
 | Fabric | **[Fabric API](https://modrinth.com/mod/fabric-api)** and **[Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin)** |
-| NeoForge | Kotlin runtime is included in the FIW Tools NeoForge jar. Install it on the NeoForge server only; clients do not need the mod. |
+| NeoForge | Kotlin runtime is included in the Fiw Custom Items NeoForge jar. Install it on the NeoForge server only; clients do not need the mod. |
 
 ---
 
@@ -154,7 +156,7 @@ The `run_command` ability silently executes any server command(s) on any trigger
 
 ### FIW Bosses integration
 
-FIW Bosses can reference Fiw Tools items by `toolId` in equipment and loot entries. If Fiw Tools is missing, those entries are skipped without crashing the boss mod.
+FIW Bosses can reference Fiw Custom Items entries by `toolId` in equipment and loot entries. If Fiw Custom Items is missing, those entries are skipped without crashing the boss mod.
 
 ---
 

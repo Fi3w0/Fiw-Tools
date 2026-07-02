@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in FIW Tools, please report it privately. Do not open a public issue with exploit details.
+If you discover a security vulnerability in Fiw Custom Items, please report it privately. Do not open a public issue with exploit details.
 
 To report, create a new issue on the [issue tracker](https://github.com/Fi3w0/Fiw-Tools/issues) and mark it as a security vulnerability if the option is available. Otherwise, contact the maintainer directly.
 
