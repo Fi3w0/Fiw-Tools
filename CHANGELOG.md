@@ -4,6 +4,30 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.1.0] - Charges, costs, ten new triggers, conditions, dynamic lore
+
+> **Big systems update.** A universal charge economy, per-ability use costs, shared cooldown
+> groups, ten new item lifecycle triggers, conditions on every ability, live dynamic lore, and
+> vanilla visual components — plus a round of fixes. Fully additive and backward-compatible;
+> still 100% server-side.
+
+### Added
+
+- **Universal charges** — `charges` block (`max`, `start`, `regenTicks`, `regenAmount`); per-stack pool that regenerates over time, survives reloads, and can be granted by `rechargeOnKill` (`"charges": N`)
+- **Use costs** — per-ability `cost` block: `charges`, `durability`, `health`, `hunger`, `xpLevels`, and `item`+`itemCount` (vanilla, `fiw:` or `#tag`). All-or-nothing, checked before the ability fires, only spent when it actually acts; never breaks the item, never kills the payer
+- **Cooldown groups** — `cooldownGroup` on any ability shares one per-player cooldown across abilities *and items*, killing broken multi-item combos
+- **Ten new triggers** — `on_consume`, `on_pickup`, `on_drop`, `on_death`, `on_respawn`, `on_enter_dimension`, `on_leave_dimension` (with `dimension` param filter), `on_equip`, `on_unequip` (with `slot` param filter), and `on_boss_kill` (vanilla bosses + every FIW Bosses entity, or an explicit `bosses` list)
+- **Ability conditions everywhere** — the passive condition keys now gate *every* trigger, plus new ones: `whenDimension`, `whenDay`/`whenNight`, `whenRaining`/`whenThundering`, `whenSneaking`, `whenOnFire`, `whenInWater`
+- **Dynamic lore** — `dynamicLore` lines refreshed live with `{owner}`, `{charges}`/`{max_charges}`, `{souls}`/`{soul_capacity}`, `{awakening_stage}`/`{awakening_progress}`/`{awakening_count}`, `{durability}`/`{max_durability}`
+- **Visual components** — `potionColor` (potion liquid), `dyedColor` (leather), `itemModel` (render as another item's model; 1.21.2+ only)
+
+### Fixed
+
+- Recharge durability rewards (`addMaxDamage`, `unbreakable`) are now recorded per stack and replayed on rebuilds — config edits that lower `maxDamage` or remove `unbreakable` win again
+- 1.21.1: infinite food no longer re-stamps its remainder every sweep (stopped needless client resyncs)
+- `rechargeOnKill` with `target: "mobs"` plus a `players` filter is now rejected at parse time instead of silently never firing
+- `rechargeOnKill` cooldown rewards now also recharge group cooldowns
+
 ## [1.0.6] - Recharge on kill item rewards
 
 ### Added

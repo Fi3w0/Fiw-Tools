@@ -150,6 +150,30 @@ The `awakening` field auto-upgrades an item into another when its holder proves 
 
 The `binding` field ties an item to the first player who uses or picks it up. Non-owners can't fire its abilities, and an optional curse damages anyone else who dares carry it.
 
+### Universal charges and use costs
+
+Give items a regenerating `charges` pool and make any ability spend charges, durability, health, hunger, XP levels, or inventory items per use. All-or-nothing, refused when unaffordable, refunded on a miss.
+
+### Cooldown groups
+
+`cooldownGroup` shares one cooldown across abilities and across items — the anti-broken-combo dial.
+
+### Ten lifecycle triggers
+
+`on_consume`, `on_pickup`, `on_drop`, `on_death`, `on_respawn`, `on_enter_dimension`, `on_leave_dimension`, `on_equip`, `on_unequip`, `on_boss_kill` (vanilla + FIW Bosses aware).
+
+### Conditions on everything
+
+`whenBelowHealth`, `whenDimension`, `whenNight`, `whenRaining`, `whenSneaking`, `whenEnemyWithin`, … gate any ability on any trigger.
+
+### Dynamic lore
+
+`dynamicLore` lines update live on the item: `{owner}`, `{charges}/{max_charges}`, `{souls}/{soul_capacity}`, `{awakening_stage}`, `{durability}`.
+
+### Vanilla visuals
+
+`potionColor`, `dyedColor`, and `itemModel` set the corresponding vanilla components straight from JSON.
+
 ### Item commands
 
 The `run_command` ability silently executes any server command(s) on any trigger — with `{player}`, `{x}/{y}/{z}`, `{target}` placeholders. Combined with the new `on_shift_right_click` trigger, one item can carry two full command kits.

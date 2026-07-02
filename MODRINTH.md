@@ -89,7 +89,19 @@ Tweak the file, reload, try again.
 
 **Bound artifacts** - an item binds to the first player who uses or picks it up. Nobody else can trigger its abilities — and with the optional curse, thieves bleed for every second they hold it.
 
-**Item commands** - the `run_command` ability silently runs any server command(s) on any trigger, with placeholders. The new `on_shift_right_click` trigger gives every item a second right-click kit.
+**Item commands** - the `run_command` ability silently runs any server command(s) on any trigger, with placeholders. The `on_shift_right_click` trigger gives every item a second right-click kit.
+
+**Charges & costs** - items carry a regenerating charge pool; abilities can cost charges, durability, health, hunger, XP levels, or items per use.
+
+**Cooldown groups** - one shared cooldown across abilities and items. No more stacking three blink trinkets.
+
+**Ten lifecycle triggers** - react to eating, pickup, drop, death, respawn, dimension travel, equip/unequip, and boss kills (FIW Bosses aware).
+
+**Conditions** - gate any ability: low health, night, storm, dimension, sneaking, enemies nearby, in combat, and more.
+
+**Dynamic lore** - lore that updates live: owner, charges, souls, awakening progress, durability.
+
+**Vanilla visuals** - potion colors, leather dye, and item models straight from JSON.
 
 **Hot reload** - update configs live while preserving player changes like durability, renames, extra enchants, uncurse flags, imbuement logs, awakening progress, and binding owners.
 
