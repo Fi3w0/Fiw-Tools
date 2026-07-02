@@ -14,7 +14,9 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 
 enum class AbilityTrigger {
-    ON_RIGHT_CLICK, ON_SHIFT_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_HURT, ON_BLOCK_BREAK, WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
+    ON_RIGHT_CLICK, ON_SHIFT_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_BOSS_KILL, ON_HURT, ON_BLOCK_BREAK,
+    ON_CONSUME, ON_PICKUP, ON_DROP, ON_DEATH, ON_RESPAWN, ON_ENTER_DIMENSION, ON_LEAVE_DIMENSION,
+    ON_EQUIP, ON_UNEQUIP, WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
 
     companion object {
         fun parse(s: String): AbilityTrigger? = when (s.lowercase()) {
@@ -24,6 +26,16 @@ enum class AbilityTrigger {
             "on_kill", "kill" -> ON_KILL
             "on_hurt", "hurt" -> ON_HURT
             "on_block_break", "block_break" -> ON_BLOCK_BREAK
+            "on_boss_kill", "boss_kill" -> ON_BOSS_KILL
+            "on_consume", "consume", "on_eat" -> ON_CONSUME
+            "on_pickup", "pickup" -> ON_PICKUP
+            "on_drop", "drop" -> ON_DROP
+            "on_death", "death" -> ON_DEATH
+            "on_respawn", "respawn" -> ON_RESPAWN
+            "on_enter_dimension", "enter_dimension" -> ON_ENTER_DIMENSION
+            "on_leave_dimension", "leave_dimension" -> ON_LEAVE_DIMENSION
+            "on_equip", "equip" -> ON_EQUIP
+            "on_unequip", "unequip" -> ON_UNEQUIP
             "while_held", "passive", "held" -> WHILE_HELD
             "while_worn", "worn", "armor" -> WHILE_WORN
             "while_sneaking", "sneaking", "sneak" -> WHILE_SNEAKING

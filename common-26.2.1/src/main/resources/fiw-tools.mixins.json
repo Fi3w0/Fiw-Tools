@@ -6,7 +6,10 @@
 		"AnvilProtectMixin",
 		"BlockItemPlacePreventMixin",
 		"GrindstoneProtectMixin",
-		"PlayerInventoryDropAllMixin"
+		"ItemEntityPickupMixin",
+		"LivingEntityConsumeMixin",
+		"PlayerInventoryDropAllMixin",
+		"ServerPlayerDropMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
