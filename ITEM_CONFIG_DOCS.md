@@ -11,6 +11,8 @@ Items are defined as `.json` files — no coding, no client install, no server r
 
 > **Hot reload:** `/fiwtools reload` — picks up all item changes instantly.
 
+> **Version note:** Some newer Minecraft data components do not exist on 1.21.1 or lower. Those features use version-specific fallback systems where possible; each affected section notes the exact behavior.
+
 **Commands:**
 
 | Command | Permission | Description |
