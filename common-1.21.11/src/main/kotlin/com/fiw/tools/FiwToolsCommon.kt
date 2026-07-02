@@ -10,6 +10,8 @@ import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.ProjectileBurstAbility
 import com.fiw.tools.config.ItemRegistry
 import com.fiw.tools.curse.CurseHandler
+import com.fiw.tools.recipe.CraftingHandler
+import com.fiw.tools.recipe.RecipeRegistry
 import com.fiw.tools.sync.ItemSyncHandler
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -27,10 +29,13 @@ object FiwToolsCommon {
 
     fun serverStarting() {
         val report = ItemRegistry.loadAll()
-        logger.info("Fiw Tools loaded ${report.loaded} item(s); ${report.failed.size} failed.")
+        val recipes = RecipeRegistry.loadAll()
+        logger.info("Fiw Tools loaded ${report.loaded} item(s); ${report.failed.size} failed. " +
+            "${recipes.loaded} recipe(s); ${recipes.failed.size} failed.")
     }
 
     fun serverTick(server: MinecraftServer) {
+        CraftingHandler.tick(server)
         PassiveHandler.tick(server)
         CurseHandler.tick(server)
         ItemSyncHandler.tick(server)

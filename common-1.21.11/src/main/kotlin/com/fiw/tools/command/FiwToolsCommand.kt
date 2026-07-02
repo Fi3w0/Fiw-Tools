@@ -5,6 +5,7 @@ import com.fiw.tools.build.ItemBuilder
 import com.fiw.tools.config.ItemRegistry
 import com.fiw.tools.curse.CurseJsonWriter
 import com.fiw.tools.imbue.ImbueMods
+import com.fiw.tools.recipe.RecipeRegistry
 import com.fiw.tools.sync.ItemSyncHandler
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
@@ -39,6 +40,7 @@ object FiwToolsCommand {
                                     StringArgumentType.getString(ctx, "itemId"),
                                     IntegerArgumentType.getInteger(ctx, "count")) }))))
                 .then(Commands.literal("list").executes { list(it.source) })
+                .then(Commands.literal("recipes").executes { recipes(it.source) })
                 .then(Commands.literal("info")
                     .then(Commands.argument("itemId", StringArgumentType.word())
                         .suggests(ITEM_ID_SUGGESTIONS)
@@ -292,11 +294,27 @@ object FiwToolsCommand {
 
     private fun reload(source: CommandSourceStack): Int {
         val report = ItemRegistry.loadAll()
+        val recipes = RecipeRegistry.loadAll()
         ItemSyncHandler.syncAll(source.server)
-        source.sendSuccess({ Component.literal("Reloaded: ${report.loaded} loaded, ${report.failed.size} failed") }, true)
-        for ((file, err) in report.failed) {
+        source.sendSuccess({ Component.literal(
+            "Reloaded: ${report.loaded} item(s), ${recipes.loaded} recipe(s), " +
+            "${report.failed.size + recipes.failed.size} failed") }, true)
+        for ((file, err) in report.failed + recipes.failed) {
             source.sendFailure(Component.literal("  $file: $err"))
         }
         return report.loaded
+    }
+
+    private fun recipes(source: CommandSourceStack): Int {
+        val all = RecipeRegistry.all()
+        if (all.isEmpty()) {
+            source.sendSuccess({ Component.literal("No recipes loaded. Drop JSON files into config/fiw_tools/recipes/") }, false)
+        } else {
+            source.sendSuccess({ Component.literal("Loaded ${all.size} recipe(s):") }, false)
+            for (recipe in all) {
+                source.sendSuccess({ Component.literal("  ${recipe.id} — ${recipe.describeShort()}") }, false)
+            }
+        }
+        return all.size
     }
 }
