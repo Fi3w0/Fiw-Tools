@@ -5,7 +5,7 @@
 **Create custom weapons, armor, food, curses, imbuements, and player abilities entirely through JSON - no coding, no restarts.**
 
 [![Build](https://github.com/Fi3w0/Fiw-Tools/actions/workflows/build.yml/badge.svg)](https://github.com/Fi3w0/Fiw-Tools/actions/workflows/build.yml)
-[![Modrinth](https://img.shields.io/modrinth/v/fiw-tools?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-tools)
+[![Modrinth](https://img.shields.io/modrinth/v/fiw-custom-items?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-custom-items)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue)](LICENSE)
 

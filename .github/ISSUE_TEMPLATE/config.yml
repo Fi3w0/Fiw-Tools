@@ -7,5 +7,5 @@ contact_links:
     url: https://github.com/Fi3w0/Fiw-Bosses
     about: Boss framework that can equip and drop Fiw Custom Items entries by toolId.
   - name: Modrinth page
-    url: https://modrinth.com/mod/fiw-tools
+    url: https://modrinth.com/mod/fiw-custom-items
     about: Downloads and version list.

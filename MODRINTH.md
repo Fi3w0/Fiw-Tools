@@ -7,7 +7,7 @@
 **Weapons. Armor. Food. Curses. Imbuements. Custom crafting. Infinite items. Awakening artifacts. Bound artifacts. Item commands.**
 No Java. No restarts. Fabric and NeoForge builds are both supported.
 
-[![Modrinth](https://img.shields.io/modrinth/v/fiw-tools?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-tools)
+[![Modrinth](https://img.shields.io/modrinth/v/fiw-custom-items?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-custom-items)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
 [![Fabric](https://img.shields.io/badge/Fabric-✓-DBB591)](https://fabricmc.net)
 [![NeoForge](https://img.shields.io/badge/NeoForge-✓-F16436)](https://neoforged.net)
