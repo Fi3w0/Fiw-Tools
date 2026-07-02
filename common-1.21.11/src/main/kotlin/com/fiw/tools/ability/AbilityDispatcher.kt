@@ -17,8 +17,22 @@ import java.util.concurrent.ThreadLocalRandom
 object AbilityDispatcher {
     private val logger = LoggerFactory.getLogger("fiw-tools/abilities")
 
-    fun onRightClick(player: ServerPlayer, stack: ItemStack, world: ServerLevel, target: LivingEntity?, targetPos: Vec3?): Boolean =
-        fire(AbilityTrigger.ON_RIGHT_CLICK, player, stack, world, target, targetPos)
+    fun onRightClick(player: ServerPlayer, stack: ItemStack, world: ServerLevel, target: LivingEntity?, targetPos: Vec3?): Boolean {
+        // Sneaking routes to on_shift_right_click, but only when the item actually defines one —
+        // items from before this trigger existed keep firing on_right_click regardless of sneak.
+        val trigger = if (player.isShiftKeyDown && hasTrigger(stack, AbilityTrigger.ON_SHIFT_RIGHT_CLICK)) {
+            AbilityTrigger.ON_SHIFT_RIGHT_CLICK
+        } else {
+            AbilityTrigger.ON_RIGHT_CLICK
+        }
+        return fire(trigger, player, stack, world, target, targetPos)
+    }
+
+    private fun hasTrigger(stack: ItemStack, trigger: AbilityTrigger): Boolean {
+        if (stack.isEmpty) return false
+        val def = resolveDefinition(stack) ?: return false
+        return ImbueMods.effectiveAbilities(stack, def).any { AbilityTrigger.parse(it.trigger) == trigger }
+    }
 
     fun onAttack(player: ServerPlayer, stack: ItemStack, world: ServerLevel, target: LivingEntity) {
         fire(AbilityTrigger.ON_ATTACK, player, stack, world, target, target.position())
@@ -67,7 +81,8 @@ object AbilityDispatcher {
         // Binding gate first: right-click/attack are the deliberate "uses" that can bind a fresh
         // artifact; any trigger is refused outright when the stack belongs to someone else.
         if (def.binding != null) {
-            val deliberateUse = trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_ATTACK
+            val deliberateUse = trigger == AbilityTrigger.ON_RIGHT_CLICK ||
+                trigger == AbilityTrigger.ON_SHIFT_RIGHT_CLICK || trigger == AbilityTrigger.ON_ATTACK
             if (deliberateUse) {
                 if (!com.fiw.tools.bind.BindingHandler.onUse(player, stack, def)) return false
             } else if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) {

@@ -210,6 +210,10 @@ object AbilityRegistry {
 
         // Imbuement system
         register("imbue") { ImbueAbility }
+
+        // Command system — silent server commands from items
+        register("run_command") { com.fiw.tools.ability.impl.RunCommandAbility }
+        register("command") { com.fiw.tools.ability.impl.RunCommandAbility }
     }
 
     fun register(type: String, factory: () -> Ability) {
