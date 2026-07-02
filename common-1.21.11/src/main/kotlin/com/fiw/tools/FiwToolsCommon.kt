@@ -14,6 +14,7 @@ import com.fiw.tools.charge.ChargeHandler
 import com.fiw.tools.config.ItemRegistry
 import com.fiw.tools.curse.CurseHandler
 import com.fiw.tools.infinite.InfiniteItems
+import com.fiw.tools.lore.DynamicLoreHandler
 import com.fiw.tools.recipe.CraftingHandler
 import com.fiw.tools.recipe.RecipeRegistry
 import com.fiw.tools.sync.ItemSyncHandler
@@ -44,6 +45,7 @@ object FiwToolsCommon {
         AwakeningHandler.tick(server)
         BindingHandler.tick(server)
         ChargeHandler.tick(server)
+        DynamicLoreHandler.tick(server)
         PassiveHandler.tick(server)
         CurseHandler.tick(server)
         ItemSyncHandler.tick(server)

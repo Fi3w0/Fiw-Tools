@@ -43,6 +43,7 @@ object FiwToolsCommon {
         AwakeningHandler.tick(server)
         BindingHandler.tick(server)
         com.fiw.tools.charge.ChargeHandler.tick(server)
+        com.fiw.tools.lore.DynamicLoreHandler.tick(server)
         PassiveHandler.tick(server)
         CurseHandler.tick(server)
         ItemSyncHandler.tick(server)
