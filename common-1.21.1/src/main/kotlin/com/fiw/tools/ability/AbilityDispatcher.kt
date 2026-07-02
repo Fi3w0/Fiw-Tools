@@ -99,6 +99,7 @@ object AbilityDispatcher {
             if (AbilityTrigger.parse(abilityDef.trigger) != trigger) return@forEachIndexed
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
+            if (!PassiveConditions.met(player, world, abilityDef.params)) return@forEachIndexed
             if (abilityDef.chance < 1f && ThreadLocalRandom.current().nextFloat() > abilityDef.chance) return@forEachIndexed
             val cost = abilityDef.cost
             if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) {

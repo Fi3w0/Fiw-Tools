@@ -26,8 +26,19 @@ object PassiveConditions {
         params.optIOrNull("whenOutOfCombat")?.let { t ->
             if (AbilityState.ticksSinceDamage(player.uuid, world.gameTime) <= t) return false
         }
+        params.optSOrNull("whenDimension")?.let { if (world.dimension().identifier().toString() != it) return false }
+        params.optBOrNull("whenDay")?.let { if (it && !world.isBrightOutside) return false }
+        params.optBOrNull("whenNight")?.let { if (it && !world.isDarkOutside) return false }
+        params.optBOrNull("whenRaining")?.let { if (it && !world.isRaining) return false }
+        params.optBOrNull("whenThundering")?.let { if (it && !world.isThundering) return false }
+        params.optBOrNull("whenSneaking")?.let { if (it && !player.isShiftKeyDown) return false }
+        params.optBOrNull("whenOnFire")?.let { if (it && !player.isOnFire) return false }
+        params.optBOrNull("whenInWater")?.let { if (it && !player.isInWater) return false }
         return true
     }
+
+    private fun JsonObject.optSOrNull(key: String): String? =
+        get(key)?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asString
 
     private fun enemyWithin(player: ServerPlayer, world: ServerLevel, radius: Double): Boolean {
         val box = AABB.ofSize(player.position(), radius * 2, radius * 2, radius * 2)
