@@ -1,0 +1,18 @@
+{
+  "id": "blessed_scroll",
+  "base": "minecraft:paper",
+  "displayName": "&e&lBlessed Scroll",
+  "lore": [
+    "&7Showcases the uncurse ability.",
+    "&7Right-click to lift the curse from one",
+    "&7cursed item anywhere in your inventory.",
+    "",
+    "&8Consumed on use."
+  ],
+  "rarity": "rare",
+  "stackSize": 16,
+  "enchantmentGlint": true,
+  "abilities": [
+    { "type": "uncurse", "trigger": "on_right_click", "params": { "scope": "all_inventory", "limit": 1, "consumeSelf": true } }
+  ]
+}

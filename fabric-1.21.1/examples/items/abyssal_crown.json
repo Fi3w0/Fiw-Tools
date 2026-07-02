@@ -1,0 +1,23 @@
+{
+  "id": "abyssal_crown",
+  "base": "minecraft:turtle_helmet",
+  "displayName": "&b&lAbyssal Crown",
+  "lore": [
+    "&7Showcases conditional worn passives.",
+    "&7An underwater explorer's helmet.",
+    "",
+    "&8- Aqua kit (only while submerged)",
+    "&8- Haste + Speed when an enemy is near",
+    "&8- Glows nearby hostiles so none sneak up"
+  ],
+  "rarity": "rare",
+  "enchantments": { "minecraft:respiration": 3, "minecraft:aqua_affinity": 1 },
+  "attributes": [
+    { "type": "minecraft:armor", "slot": "head", "amount": 3.0, "operation": "add_value" }
+  ],
+  "abilities": [
+    { "type": "aqua_kit",     "trigger": "while_worn", "params": { "slot": "head", "buffDuration": 80 } },
+    { "type": "combat_focus", "trigger": "while_worn", "params": { "slot": "head", "radius": 10, "amplifier": 0, "buffDuration": 40 } },
+    { "type": "coward_mark",  "trigger": "while_worn", "cooldownTicks": 100, "params": { "slot": "head", "radius": 8, "duration": 120, "affects": "hostiles" } }
+  ]
+}

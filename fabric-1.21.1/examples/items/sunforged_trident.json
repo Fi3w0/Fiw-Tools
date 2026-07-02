@@ -1,0 +1,19 @@
+{
+  "id": "sunforged_trident",
+  "base": "minecraft:trident",
+  "displayName": "&6&lSunforged Trident",
+  "lore": [
+    "&7Showcases movement + crowd-control casts.",
+    "",
+    "&8Right-click: &7riptide dash forward",
+    "&8On hurt:     &7frost nova counter"
+  ],
+  "rarity": "epic",
+  "unbreakable": true,
+  "hideFlags": [ "attributes" ],
+  "enchantments": { "minecraft:riptide": 3, "minecraft:impaling": 5, "minecraft:loyalty": 3 },
+  "abilities": [
+    { "type": "riptide_dash", "trigger": "on_right_click", "cooldownTicks": 60, "params": { "distance": 6.0 } },
+    { "type": "frost_nova",   "trigger": "on_hurt", "chance": 0.4, "cooldownTicks": 100, "params": { "radius": 4, "slowDuration": 60, "affects": "all" } }
+  ]
+}

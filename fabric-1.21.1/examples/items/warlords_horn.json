@@ -1,0 +1,18 @@
+{
+  "id": "warlords_horn",
+  "base": "minecraft:goat_horn",
+  "displayName": "&6&lWarlord's Horn",
+  "lore": [
+    "&7Showcases team-support abilities.",
+    "&7A leader's tool — buffs allies, never enemies.",
+    "",
+    "&8Right-click: &7rally banner + healing totem",
+    "&8On kill:     &7celebration firework"
+  ],
+  "rarity": "rare",
+  "abilities": [
+    { "type": "rally_banner",   "trigger": "on_right_click", "cooldownTicks": 200, "params": { "radius": 8, "buffs": ["speed", "regeneration", "resistance"], "amplifier": 0, "duration": 200 } },
+    { "type": "healing_totem",  "trigger": "on_right_click", "cooldownTicks": 300, "params": { "radius": 5, "pulseAmount": 1.0, "lifetime": 200, "period": 20 } },
+    { "type": "firework_burst", "trigger": "on_kill" }
+  ]
+}

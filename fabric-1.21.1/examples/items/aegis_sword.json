@@ -1,0 +1,30 @@
+{
+  "id": "aegis_sword",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&b&lAegis",
+  "lore": [
+    "&7Showcases active abilities + uncapped power.",
+    "",
+    "&8Right-click: &7arc slash cone",
+    "&8On attack:  &7chance lightning, finisher, cleave"
+  ],
+  "rarity": "epic",
+  "unbreakable": true,
+  "enchantmentGlint": true,
+  "enchantments": {
+    "minecraft:sharpness": 8,
+    "minecraft:fire_aspect": 2,
+    "minecraft:unbreaking": 10
+  },
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 12.0, "operation": "add_value" },
+    { "type": "minecraft:attack_speed",  "slot": "mainhand", "amount": -2.2, "operation": "add_value" }
+  ],
+  "keepOnDeath": true,
+  "abilities": [
+    { "type": "arc_slash",       "trigger": "on_right_click", "cooldownTicks": 50, "params": { "damage": 6, "range": 4 } },
+    { "type": "lightning_strike","trigger": "on_attack", "chance": 0.25, "cooldownTicks": 40, "params": { "damage": 4 } },
+    { "type": "execute",         "trigger": "on_attack", "params": { "threshold": 0.3, "bonus": 8, "affects": "players" } },
+    { "type": "cleave",          "trigger": "on_attack", "params": { "radius": 3.5, "damage": 4, "affects": "hostiles" } }
+  ]
+}

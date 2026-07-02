@@ -1,0 +1,27 @@
+{
+  "id": "prospectors_pick",
+  "base": "minecraft:diamond_pickaxe",
+  "displayName": "&b&lProspector's Pick",
+  "lore": [
+    "&7Showcases custom tool rules + on_block_break.",
+    "",
+    "&8- Mines stone & ores very fast",
+    "&8- Auto-smelts and Haste while mining"
+  ],
+  "rarity": "rare",
+  "unbreakable": true,
+  "enchantments": { "minecraft:fortune": 3, "minecraft:efficiency": 6 },
+  "tool": {
+    "defaultMiningSpeed": 1.0,
+    "damagePerBlock": 0,
+    "rules": [
+      { "blocks": "#minecraft:coal_ores",     "speed": 14.0, "correctForDrops": true },
+      { "blocks": "#minecraft:iron_ores",     "speed": 14.0, "correctForDrops": true },
+      { "blocks": "#minecraft:diamond_ores",  "speed": 14.0, "correctForDrops": true },
+      { "blocks": "#minecraft:base_stone_overworld", "speed": 10.0, "correctForDrops": true }
+    ]
+  },
+  "abilities": [
+    { "type": "saturation_aura", "trigger": "while_held", "cooldownTicks": 200, "params": { "hand": "main", "foodLevel": 20, "amount": 1 } }
+  ]
+}
