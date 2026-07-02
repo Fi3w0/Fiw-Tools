@@ -42,6 +42,7 @@ object FiwToolsCommon {
         InfiniteItems.tick(server)
         AwakeningHandler.tick(server)
         BindingHandler.tick(server)
+        com.fiw.tools.charge.ChargeHandler.tick(server)
         PassiveHandler.tick(server)
         CurseHandler.tick(server)
         ItemSyncHandler.tick(server)

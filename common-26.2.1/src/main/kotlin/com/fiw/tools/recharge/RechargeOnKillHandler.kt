@@ -60,6 +60,7 @@ object RechargeOnKillHandler {
             AbilityCooldownTracker.reduceKeys(player, keys, cfg.cooldownTicks, cfg.cooldownPercent)
         }
 
+        if (cfg.charges > 0) com.fiw.tools.charge.ChargeHandler.add(stack, def, cfg.charges)
         if (applyDurabilityRewards(stack, cfg) && def.infinite != null) {
             InfiniteItems.applyUseRemainder(stack, def, player.level().registryAccess())
         }

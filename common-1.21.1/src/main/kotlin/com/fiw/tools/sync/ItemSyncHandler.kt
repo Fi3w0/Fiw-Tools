@@ -88,7 +88,7 @@ object ItemSyncHandler {
         preservePlayerName(stack, rebuilt, tag.getString(ItemBuilder.CONFIG_NAME_KEY))
         preserveUncursed(tag, rebuilt)
         preserveImbueState(tag, rebuilt, registries)
-        preserveStackState(tag, rebuilt)
+        preserveStackState(tag, rebuilt, def)
         return rebuilt
     }
 
@@ -121,18 +121,25 @@ object ItemSyncHandler {
      * Carry per-stack lifecycle state (awakening progress, binding owner) across rebuilds so a
      * `/fiwtools reload` can't reset a half-awakened or soul-bound artifact.
      */
-    private fun preserveStackState(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack) {
+    private fun preserveStackState(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack, def: ItemDefinition) {
         val progress = if (oldTag.contains(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY)) {
             oldTag.getDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY)
         } else null
         val boundOwner = oldTag.getString(com.fiw.tools.bind.BindingHandler.OWNER_KEY).takeIf { it.isNotEmpty() }
         val boundName = oldTag.getString(com.fiw.tools.bind.BindingHandler.OWNER_NAME_KEY).takeIf { it.isNotEmpty() }
-        if (progress == null && boundOwner == null) return
+        val oldCharges = if (oldTag.contains(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY)) {
+            oldTag.getInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY)
+        } else -1
+        val keepCharges = oldCharges >= 0 && def.charges != null
+        if (progress == null && boundOwner == null && !keepCharges) return
         val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
         val tag = data.copyTag()
         progress?.let { tag.putDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY, it) }
         boundOwner?.let { tag.putString(com.fiw.tools.bind.BindingHandler.OWNER_KEY, it) }
         boundName?.let { tag.putString(com.fiw.tools.bind.BindingHandler.OWNER_NAME_KEY, it) }
+        if (keepCharges) {
+            tag.putInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY, oldCharges.coerceAtMost(def.charges!!.max))
+        }
         rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
     }
 

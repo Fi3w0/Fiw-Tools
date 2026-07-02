@@ -127,10 +127,13 @@ object PassiveHandler {
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, ab.params)) return@forEachIndexed
             if (ab.chance < 1f && ThreadLocalRandom.current().nextFloat() > ab.chance) return@forEachIndexed
+            val cost = ab.cost
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) return@forEachIndexed
             val ability = AbilityRegistry.get(ab.type) ?: return@forEachIndexed
             try {
                 if (ability.execute(AbilityContext(player, stack, world, null, null, ab.params))) {
                     AbilityCooldownTracker.arm(player, key, ab.cooldownTicks)
+                    if (cost != null) AbilityCosts.pay(player, stack, cost)
                 }
             } catch (e: Exception) {
                 logger.warn("Passive '${ab.type}' on '${def.id}' threw: ${e.message}")

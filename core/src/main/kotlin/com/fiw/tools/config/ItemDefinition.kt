@@ -68,8 +68,49 @@ data class ItemDefinition(
      * (`first_pickup`). Non-owners can't trigger its abilities, and with `curse: true` they take
      * damage every second just for carrying it. `null` = unbound, anyone can use it.
      */
-    val binding: BindingDef? = null
+    val binding: BindingDef? = null,
+    /**
+     * Universal charge pool stored per stack. Abilities spend charges via their `cost` block;
+     * charges regenerate over time and can be granted by `rechargeOnKill`. `null` = no pool.
+     */
+    val charges: ChargesDef? = null,
+    /**
+     * Extra lore lines refreshed live with placeholders: `{owner}`, `{charges}`, `{max_charges}`,
+     * `{souls}`, `{soul_capacity}`, `{awakening_stage}`, `{awakening_progress}`, `{awakening_count}`.
+     */
+    val dynamicLore: List<String> = emptyList()
 ) {
+    data class ChargesDef(
+        val max: Int,
+        /** Charges a freshly built stack starts with. -1 (default) = full. */
+        val start: Int = -1,
+        /** Ticks between natural regens. 0 = no natural regen. */
+        val regenTicks: Int = 0,
+        /** Charges restored per natural regen. */
+        val regenAmount: Int = 1
+    ) {
+        val effectiveStart: Int get() = if (start < 0) max else start.coerceAtMost(max)
+    }
+
+    data class CostDef(
+        /** Charges consumed from the item's [ChargesDef] pool. */
+        val charges: Int = 0,
+        /** Durability consumed. Never breaks the item — the use is refused instead. */
+        val durability: Int = 0,
+        /** Health paid. Never lethal — the use is refused when it would drop the player to 0. */
+        val health: Float = 0f,
+        /** Hunger points consumed. */
+        val hunger: Int = 0,
+        /** XP levels consumed. */
+        val xpLevels: Int = 0,
+        /** Item consumed from the inventory: `fiw:<id>`, a vanilla id, or `#tag`. */
+        val item: String? = null,
+        val itemCount: Int = 1
+    ) {
+        val isFree: Boolean
+            get() = charges == 0 && durability == 0 && health == 0f && hunger == 0 && xpLevels == 0 && item == null
+    }
+
     data class RechargeOnKillDef(
         /** `main`, `off`, `both`, or `any`. Controls which carried copy can trigger from a player kill. */
         val hand: String = "main",
@@ -102,7 +143,9 @@ data class ItemDefinition(
         /** Random chance to apply after the target filter passes. */
         val chance: Float = 1f,
         /** Specific player names or UUIDs to match. Empty = any player when target allows players. */
-        val players: List<String> = emptyList()
+        val players: List<String> = emptyList(),
+        /** Charges granted to the item's [ChargesDef] pool on a matching kill. */
+        val charges: Int = 0
     )
 
     data class BindingDef(
@@ -204,6 +247,8 @@ data class ItemDefinition(
          * cooldown — across items too — so stacking several burst items can't chain-cast them.
          */
         val cooldownGroup: String? = null,
+        /** Resources consumed per successful fire. Checked before execution; unpaid = no fire. */
+        val cost: CostDef? = null,
         val params: JsonObject = JsonObject()
     )
 

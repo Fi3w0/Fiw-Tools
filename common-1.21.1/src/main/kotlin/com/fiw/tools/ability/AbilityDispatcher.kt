@@ -100,6 +100,14 @@ object AbilityDispatcher {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (abilityDef.chance < 1f && ThreadLocalRandom.current().nextFloat() > abilityDef.chance) return@forEachIndexed
+            val cost = abilityDef.cost
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) {
+                if (trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_SHIFT_RIGHT_CLICK ||
+                    trigger == AbilityTrigger.ON_ATTACK) {
+                    AbilityCosts.notifyInsufficient(player)
+                }
+                return@forEachIndexed
+            }
             val ability = AbilityRegistry.get(abilityDef.type) ?: run {
                 logger.warn("Unknown ability type '${abilityDef.type}' on '${def.id}'")
                 return@forEachIndexed
@@ -107,6 +115,7 @@ object AbilityDispatcher {
             try {
                 if (ability.execute(AbilityContext(player, stack, world, target, targetPos, abilityDef.params, damageSource, damageAmount))) {
                     AbilityCooldownTracker.arm(player, key, abilityDef.cooldownTicks)
+                    if (cost != null) AbilityCosts.pay(player, stack, cost)
                     any = true
                 }
             } catch (e: Exception) {

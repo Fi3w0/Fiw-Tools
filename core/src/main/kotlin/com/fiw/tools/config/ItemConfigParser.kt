@@ -66,6 +66,7 @@ object ItemConfigParser {
                 cooldownTicks = o.optInt("cooldownTicks", 0),
                 chance = o.optFloat("chance", 1f),
                 cooldownGroup = o.optStringOrNull("cooldownGroup"),
+                cost = parseCost(o.getAsJsonObject("cost")),
                 params = o.getAsJsonObject("params") ?: JsonObject()
             )
         } ?: emptyList()
@@ -138,6 +139,7 @@ object ItemConfigParser {
                 maxDamageCap = rechargeObj.optIntOrNull("maxDamageCap"),
                 unbreakable = rechargeObj.optBool("unbreakable", rechargeObj.optBool("makeUnbreakable", false)),
                 chance = rechargeObj.optFloat("chance", 1f),
+                charges = rechargeObj.optInt("charges", rechargeObj.optInt("addCharges", 0)),
                 players = rechargeObj.stringList("players") + rechargeObj.stringList("playerNames") + rechargeObj.optStringOrNull("player").let { if (it == null) emptyList() else listOf(it) }
             )
             if (def.cooldownTicks < 0) throw IllegalArgumentException("rechargeOnKill cooldownTicks must be >= 0")
@@ -147,6 +149,7 @@ object ItemConfigParser {
             if (def.addMaxDamage < 0) throw IllegalArgumentException("rechargeOnKill addMaxDamage must be >= 0")
             if (def.maxDamageCap != null && def.maxDamageCap < 1) throw IllegalArgumentException("rechargeOnKill maxDamageCap must be >= 1")
             if (def.chance !in 0f..1f) throw IllegalArgumentException("rechargeOnKill chance must be between 0 and 1")
+            if (def.charges < 0) throw IllegalArgumentException("rechargeOnKill charges must be >= 0")
             // A players filter forces the victim to be a player, so it can never match target "mobs".
             if (def.target == "mobs" && def.players.isNotEmpty())
                 throw IllegalArgumentException("rechargeOnKill target 'mobs' cannot be combined with a 'players' filter")
@@ -177,6 +180,30 @@ object ItemConfigParser {
             if (def.count <= 0) throw IllegalArgumentException("awakening 'count' must be > 0")
             def
         } else null
+
+        val chargesEl = root.get("charges")?.takeIf { !it.isJsonNull }
+        val charges = when {
+            chargesEl == null -> null
+            chargesEl.isJsonPrimitive -> ItemDefinition.ChargesDef(max = chargesEl.asInt)
+            chargesEl.isJsonObject -> {
+                val o = chargesEl.asJsonObject
+                ItemDefinition.ChargesDef(
+                    max = o.optInt("max", 1),
+                    start = o.optInt("start", -1),
+                    regenTicks = o.optInt("regenTicks", 0),
+                    regenAmount = o.optInt("regenAmount", 1)
+                )
+            }
+            else -> throw IllegalArgumentException("'charges' must be a max number or an object")
+        }
+        if (charges != null) {
+            if (charges.max < 1) throw IllegalArgumentException("charges max must be >= 1")
+            if (charges.regenTicks < 0) throw IllegalArgumentException("charges regenTicks must be >= 0")
+            if (charges.regenAmount < 1) throw IllegalArgumentException("charges regenAmount must be >= 1")
+            if (charges.start > charges.max) throw IllegalArgumentException("charges start cannot exceed max")
+        }
+
+        val dynamicLore = root.getAsJsonArray("dynamicLore")?.map { it.asString } ?: emptyList()
 
         val bindingObj = root.getAsJsonObject("binding")
         val binding = if (bindingObj != null) {
@@ -222,8 +249,26 @@ object ItemConfigParser {
             infinite = infinite,
             rechargeOnKill = rechargeOnKill,
             awakening = awakening,
-            binding = binding
+            binding = binding,
+            charges = charges,
+            dynamicLore = dynamicLore
         )
+    }
+
+    private fun parseCost(o: JsonObject?): ItemDefinition.CostDef? {
+        if (o == null) return null
+        val cost = ItemDefinition.CostDef(
+            charges = o.optInt("charges", 0),
+            durability = o.optInt("durability", 0),
+            health = o.optFloat("health", 0f),
+            hunger = o.optInt("hunger", 0),
+            xpLevels = o.optInt("xpLevels", o.optInt("levels", 0)),
+            item = o.optStringOrNull("item"),
+            itemCount = o.optInt("itemCount", o.optInt("count", 1))
+        )
+        if (cost.charges < 0 || cost.durability < 0 || cost.health < 0f || cost.hunger < 0 || cost.xpLevels < 0 || cost.itemCount < 1)
+            throw IllegalArgumentException("ability cost values must be >= 0 (itemCount >= 1)")
+        return if (cost.isFree) null else cost
     }
 
     /** `normal` is the everyday alias players expect; `keep` is the canonical name. */
