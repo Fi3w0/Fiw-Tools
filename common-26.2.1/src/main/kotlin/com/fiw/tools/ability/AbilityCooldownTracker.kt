@@ -26,10 +26,6 @@ object AbilityCooldownTracker {
         map[key] = player.level().gameTime + cooldownTicks
     }
 
-    fun clearItem(player: ServerPlayer, itemId: String, abilityCount: Int): Int {
-        return clearItem(player, itemId, 0 until abilityCount)
-    }
-
     fun clearItem(player: ServerPlayer, itemId: String, abilityIndices: Iterable<Int>): Int {
         val map = cooldowns[player.uuid] ?: return 0
         var changed = 0
@@ -38,10 +34,6 @@ object AbilityCooldownTracker {
         }
         if (map.isEmpty()) cooldowns.remove(player.uuid)
         return changed
-    }
-
-    fun reduceItem(player: ServerPlayer, itemId: String, abilityCount: Int, ticks: Int): Int {
-        return reduceItem(player, itemId, 0 until abilityCount, ticks, 0f)
     }
 
     fun reduceItem(player: ServerPlayer, itemId: String, abilityIndices: Iterable<Int>, ticks: Int, percent: Float): Int {
