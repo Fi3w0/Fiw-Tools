@@ -28,7 +28,13 @@ object AbilityDispatcher {
         val attacker = source.entity
         if (attacker is ServerPlayer) {
             fire(AbilityTrigger.ON_KILL, attacker, attacker.mainHandItem, attacker.level(), entity, entity.position())
+            com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, attacker.mainHandItem, entity)
         }
+    }
+
+    /** Damage the player dealt to something else — feeds `deal_damage` awakening progress. */
+    fun onDamageDealt(attacker: ServerPlayer, amount: Float) {
+        com.fiw.tools.awaken.AwakeningHandler.onDamageDealt(attacker, attacker.mainHandItem, amount)
     }
 
     fun onHurt(player: ServerPlayer, source: DamageSource, amount: Float) {

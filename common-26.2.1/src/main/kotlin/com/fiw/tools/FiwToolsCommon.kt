@@ -8,6 +8,7 @@ import com.fiw.tools.elemental.ElementalStatusTracker
 import com.fiw.tools.ability.ZoneEffects
 import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.ProjectileBurstAbility
+import com.fiw.tools.awaken.AwakeningHandler
 import com.fiw.tools.config.ItemRegistry
 import com.fiw.tools.curse.CurseHandler
 import com.fiw.tools.infinite.InfiniteItems
@@ -38,6 +39,7 @@ object FiwToolsCommon {
     fun serverTick(server: MinecraftServer) {
         CraftingHandler.tick(server)
         InfiniteItems.tick(server)
+        AwakeningHandler.tick(server)
         PassiveHandler.tick(server)
         CurseHandler.tick(server)
         ItemSyncHandler.tick(server)
