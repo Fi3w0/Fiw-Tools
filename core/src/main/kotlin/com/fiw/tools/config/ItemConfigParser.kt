@@ -146,6 +146,9 @@ object ItemConfigParser {
             if (def.addMaxDamage < 0) throw IllegalArgumentException("rechargeOnKill addMaxDamage must be >= 0")
             if (def.maxDamageCap != null && def.maxDamageCap < 1) throw IllegalArgumentException("rechargeOnKill maxDamageCap must be >= 1")
             if (def.chance !in 0f..1f) throw IllegalArgumentException("rechargeOnKill chance must be between 0 and 1")
+            // A players filter forces the victim to be a player, so it can never match target "mobs".
+            if (def.target == "mobs" && def.players.isNotEmpty())
+                throw IllegalArgumentException("rechargeOnKill target 'mobs' cannot be combined with a 'players' filter")
             def
         } else null
 

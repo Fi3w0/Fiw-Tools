@@ -105,6 +105,23 @@ class ItemConfigParserTest {
     }
 
     @Test
+    fun rejectsRechargeMobsTargetWithPlayersFilter() {
+        val error = runCatching {
+            ItemConfigParser.parse(
+                """
+                {
+                  "id": "contradiction",
+                  "base": "minecraft:iron_sword",
+                  "rechargeOnKill": { "target": "mobs", "players": ["Fi3w0"] }
+                }
+                """.trimIndent()
+            )
+        }.exceptionOrNull()
+        assertNotNull(error)
+        assertTrue(error is IllegalArgumentException)
+    }
+
+    @Test
     fun rejectsMissingRequiredFields() {
         val error = runCatching {
             ItemConfigParser.parse("""{"id":"missing_base"}""")
