@@ -266,7 +266,7 @@ object FiwToolsCommand {
         for (player in targets) {
             val stack = ItemBuilder.build(def, count, player.level().registryAccess()) ?: continue
             if (player.inventory.add(stack)) given++
-            else player.drop(stack, false, false)
+            else com.fiw.tools.util.InternalDrops.drop(player, stack)
         }
         source.sendSuccess({ Component.literal("Gave ${count}x $id to $given player(s)") }, true)
         return given

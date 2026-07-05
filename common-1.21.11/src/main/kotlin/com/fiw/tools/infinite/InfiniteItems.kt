@@ -71,7 +71,7 @@ object InfiniteItems {
             val def = ItemRegistry.byId(spec.removePrefix("fiw:")) ?: return null
             buildingReplacement.set(true)
             try {
-                return ItemBuilder.build(def, inf.replaceCount, registries)
+                return clampToMaxStack(ItemBuilder.build(def, inf.replaceCount, registries))
             } finally {
                 buildingReplacement.set(false)
             }
@@ -79,7 +79,13 @@ object InfiniteItems {
         val id = Identifier.tryParse(spec) ?: return null
         val holder = BuiltInRegistries.ITEM.get(id).orElse(null) ?: return null
         val stack = ItemStack(com.fiw.tools.util.HolderAccess.value(holder), inf.replaceCount)
-        return if (stack.isEmpty) null else stack
+        return if (stack.isEmpty) null else clampToMaxStack(stack)
+    }
+
+    /** Config `replaceCount` may exceed the item's stack cap; oversized stacks corrupt saves. */
+    private fun clampToMaxStack(stack: ItemStack?): ItemStack? {
+        if (stack != null && stack.count > stack.maxStackSize) stack.count = stack.maxStackSize
+        return stack
     }
 
     /**
@@ -156,7 +162,7 @@ object InfiniteItems {
             else -> null
         }
         if (give != null && !owner.inventory.add(give)) {
-            owner.drop(give, false, false)
+            com.fiw.tools.util.InternalDrops.drop(owner, give)
         }
     }
 }

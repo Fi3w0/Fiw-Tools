@@ -9,9 +9,11 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractCraftingMenu
 import net.minecraft.world.item.ItemStack
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 /**
  * Server-side custom crafting. Every tick, players with a crafting grid open (2x2 inventory or
@@ -27,12 +29,33 @@ import org.slf4j.LoggerFactory
 object CraftingHandler {
     private val logger = LoggerFactory.getLogger("fiw-tools/crafting")
 
+    /** Last custom result shown per player, so reload/despawn races can't hand it out unconsumed. */
+    private val customResults = HashMap<UUID, ItemStack>()
+
     fun tick(server: MinecraftServer) {
-        if (RecipeRegistry.all().isEmpty()) return
+        if (RecipeRegistry.all().isEmpty() && customResults.isEmpty()) return
         for (player in server.playerList.players) {
-            val menu = player.containerMenu as? AbstractCraftingMenu ?: continue
+            val menu = player.containerMenu as? AbstractCraftingMenu
+            if (menu == null) {
+                customResults.remove(player.uuid)
+                continue
+            }
             handle(player, menu)
         }
+    }
+
+    /**
+     * Was [taken] the custom result this player's grid was showing? Covers the race where the
+     * result is taken in the same tick a reload removed its recipe — ResultSlotCraftMixin then
+     * still consumes the ingredients instead of letting vanilla's no-recipe fallback refund them.
+     */
+    fun wasCustomResult(player: Player, taken: ItemStack): Boolean {
+        val marker = customResults[player.uuid] ?: return false
+        return ItemStack.isSameItemSameComponents(marker, taken)
+    }
+
+    fun clear(player: Player) {
+        customResults.remove(player.uuid)
     }
 
     private fun handle(player: ServerPlayer, menu: AbstractCraftingMenu) {
@@ -42,7 +65,10 @@ object CraftingHandler {
         if (gridSlots.size != width * height) return
 
         val grid = gridSlots.map { it.item }
-        if (grid.all { it.isEmpty }) return
+        if (grid.all { it.isEmpty }) {
+            customResults.remove(player.uuid)
+            return
+        }
 
         val recipe = match(grid, width, height)
         val resultSlot = menu.resultSlot
@@ -52,8 +78,19 @@ object CraftingHandler {
             if (!ItemStack.isSameItemSameComponents(existing, result) || existing.count != result.count) {
                 resultSlot.set(result)
             }
-        } else if (grid.any { FiwItems.isFiwItem(it) }) {
+            customResults[player.uuid] = result
+            return
+        }
+        val stale = customResults.remove(player.uuid)
+        if (grid.any { FiwItems.isFiwItem(it) }) {
             if (!resultSlot.item.isEmpty) resultSlot.set(ItemStack.EMPTY)
+        } else if (stale != null && !resultSlot.item.isEmpty &&
+            ItemStack.isSameItemSameComponents(resultSlot.item, stale)
+        ) {
+            // Recipes changed under an open grid (reload): wipe our stale result and let
+            // vanilla recompute its own result for this grid.
+            resultSlot.set(ItemStack.EMPTY)
+            menu.slotsChanged(gridSlots[0].container)
         }
     }
 

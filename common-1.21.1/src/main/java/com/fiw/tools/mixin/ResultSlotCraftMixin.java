@@ -1,6 +1,8 @@
 package com.fiw.tools.mixin;
 
 import com.fiw.tools.recipe.CraftingHandler;
+import com.fiw.tools.util.InternalDrops;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultSlot;
@@ -28,7 +30,9 @@ public abstract class ResultSlotCraftMixin {
 
     @Inject(method = "onTake", at = @At("HEAD"), cancellable = true)
     private void fiwTools$consumeCustomRecipe(Player player, ItemStack stack, CallbackInfo ci) {
-        if (CraftingHandler.INSTANCE.match(craftSlots.getItems(), craftSlots.getWidth(), craftSlots.getHeight()) == null) {
+        boolean custom = CraftingHandler.INSTANCE.match(
+                craftSlots.getItems(), craftSlots.getWidth(), craftSlots.getHeight()) != null;
+        if (!custom && !CraftingHandler.INSTANCE.wasCustomResult(player, stack)) {
             return;
         }
         ci.cancel();
@@ -44,7 +48,8 @@ public abstract class ResultSlotCraftMixin {
             if (craftSlots.getItem(i).isEmpty()) {
                 craftSlots.setItem(i, remainder);
             } else if (!player.getInventory().add(remainder)) {
-                player.drop(remainder, false);
+                if (player instanceof ServerPlayer serverPlayer) InternalDrops.drop(serverPlayer, remainder);
+                else player.drop(remainder, false);
             }
         }
     }

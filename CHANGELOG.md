@@ -45,3 +45,13 @@ version header.
   no-recipe fallback refund and double the ingredients
 - Recipe results with a config `count` above the item's max stack size are clamped, so a
   mis-configured recipe can no longer inject oversized stacks into the world
+- Stale custom crafting results can no longer be exploited: if `/fiwtools reload` removes or
+  changes a recipe while its result is showing in an open grid, the result is wiped (vanilla's
+  own result is recomputed), and a take racing the same tick still consumes the ingredients
+  instead of triggering vanilla's no-recipe refund
+- `on_drop` no longer fires for the mod's own overflow drops (full-inventory spill from
+  `/fiwtools give`, infinite-ammo returns, keep-on-death restores, crafting remainders) — it now
+  only means a deliberate player toss
+- `infinite.replaceCount` above the item's max stack size is clamped, closing the same oversized-
+  stack hole as recipe `count`
+- `beam` with `windup: 0` now plays its fire sound

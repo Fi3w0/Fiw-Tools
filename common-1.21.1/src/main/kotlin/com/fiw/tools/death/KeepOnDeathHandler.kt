@@ -35,7 +35,7 @@ object KeepOnDeathHandler {
             if (slot in 0 until inv.containerSize && inv.getItem(slot).isEmpty) {
                 inv.setItem(slot, stack)
             } else if (!inv.add(stack)) {
-                newPlayer.drop(stack, false, false)
+                com.fiw.tools.util.InternalDrops.drop(newPlayer, stack)
             }
         }
     }

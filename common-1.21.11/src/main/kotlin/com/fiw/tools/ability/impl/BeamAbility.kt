@@ -175,6 +175,10 @@ object BeamAbility : Ability {
         }
 
         // ── Firing ────────────────────────────────────────────────────────────
+        if (b.tick == 1 && b.windup == 0 && b.fireSound != null) {
+            world.playSound(null, owner.x, owner.y, owner.z, b.fireSound, SoundSource.PLAYERS,
+                b.fireVolume, b.firePitch)
+        }
         val dir = when {
             b.followLook -> owner.lookAngle.normalize()
             else -> b.lockedDir ?: owner.lookAngle.normalize().also { b.lockedDir = it }

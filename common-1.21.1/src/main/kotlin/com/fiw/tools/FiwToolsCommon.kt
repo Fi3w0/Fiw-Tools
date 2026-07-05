@@ -71,6 +71,7 @@ object FiwToolsCommon {
     fun playerDisconnect(player: ServerPlayer) {
         AbilityCooldownTracker.clear(player)
         AbilityState.clear(player)
+        CraftingHandler.clear(player)
     }
 
     fun serverStopped() {

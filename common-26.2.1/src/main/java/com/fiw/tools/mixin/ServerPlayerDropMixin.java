@@ -2,6 +2,7 @@ package com.fiw.tools.mixin;
 
 import com.fiw.tools.ability.AbilityDispatcher;
 import com.fiw.tools.build.FiwItems;
+import com.fiw.tools.util.InternalDrops;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +23,7 @@ public abstract class ServerPlayerDropMixin {
     )
     private void fiwTools$onDrop(ItemStack stack, boolean throwRandomly, boolean includeThrower,
                                  CallbackInfoReturnable<ItemEntity> cir) {
+        if (InternalDrops.active()) return;
         ServerPlayer self = (ServerPlayer) (Object) this;
         if (!stack.isEmpty() && !self.isDeadOrDying() && FiwItems.isFiwItem(stack)) {
             AbilityDispatcher.INSTANCE.onDrop(self, stack);
