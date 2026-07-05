@@ -42,7 +42,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - [Custom Data](#custom-data)
 - [Abilities](#abilities)
   - [Targeting (`affects`)](#targeting-affects)
-  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [arc_slash_barrage](#arc_slash_barrage) · [arc_slash_storm](#arc_slash_storm) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
+  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [arc_slash_barrage](#arc_slash_barrage) · [arc_slash_storm](#arc_slash_storm) · [beam](#beam) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
   - PvP: [grappling_pull](#grappling_pull) · [disarm](#disarm) · [parry_counter](#parry_counter) · [execute](#execute) · [leech](#leech) · [silence_sigil](#silence_sigil) · [tether](#tether)
   - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
   - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
@@ -510,6 +510,41 @@ caster (and hitting anything that walks in mid-storm).
 ```json
 { "type": "arc_slash_storm", "trigger": "on_shift_right_click", "cooldownTicks": 2400,
   "params": { "radius": 20, "damage": 4 } }
+```
+
+---
+
+### `beam`
+
+Sustained energy beam — the Fiw Bosses beam attack in item form. A windup gathers spiraling
+energy at your eyes, then a solid particle beam fires along your crosshair for `duration` ticks,
+damaging everything caught in its cylinder every tick (vanilla hurt-invulnerability paces the
+hits). By default the beam follows your aim so you can sweep it like a laser; it stops at the
+first wall it hits.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `windup` | 20 | Charge-up ticks before the beam fires |
+| `duration` | 50 | Ticks the beam stays on |
+| `damage` | 3.0 | Damage per tick to anything inside the beam |
+| `width` | 0.9 | Beam hitbox half-width in blocks |
+| `range` | 35.0 | Max beam length |
+| `affects` | `all` | Who the beam hurts |
+| `ignoreArmor` | true | `true`/`false` or a percent (like the slash abilities) |
+| `followLook` | true | Beam tracks your crosshair; `false` locks the direction when the windup ends |
+| `throughBlocks` | false | `true` lets the beam pass through walls |
+| `startMessage` | *(none)* | Optional chat line at cast; `startMessageRadius` 48 |
+| `chargeSound` | `minecraft:entity.elder_guardian.curse` | + `chargeSoundVolume` 1.5 / `chargeSoundPitch` 1.0 |
+| `fireSound` | `minecraft:entity.guardian.attack` | Fires when the windup ends; volume 1.8 / pitch 0.6 |
+| `humSound` | `minecraft:entity.guardian.attack` | Loops every `humInterval` (8) ticks; volume 0.6 / pitch 1.3 |
+| `endSound` | `minecraft:block.glass.break` | Shutdown; volume 1.0 / pitch 0.8 |
+| `coreParticle` | `minecraft:end_rod` | Bright beam core; `coreDensity` 10 per block |
+| `outerParticle` | `minecraft:electric_spark` | Soft glow layer; `outerDensity` 5 per block |
+| `chargeParticle` | `minecraft:electric_spark` | Windup spiral; `chargeCoreParticle` `minecraft:end_rod` at the center |
+
+```json
+{ "type": "beam", "trigger": "on_right_click", "cooldownTicks": 300,
+  "params": { "damage": 3, "duration": 50, "range": 30 } }
 ```
 
 ---

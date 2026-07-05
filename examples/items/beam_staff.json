@@ -1,0 +1,25 @@
+{
+  "id": "beam_staff",
+  "base": "minecraft:blaze_rod",
+  "displayName": "&b&lGaze of the Deep",
+  "lore": [
+    "&7A guardian's stare, bottled.",
+    "",
+    "&bRight-click &8- &7charge up, then sweep",
+    "&8  a piercing energy beam."
+  ],
+  "rarity": "epic",
+  "abilities": [
+    {
+      "type": "beam",
+      "trigger": "on_right_click",
+      "cooldownTicks": 300,
+      "params": {
+        "windup": 20,
+        "duration": 50,
+        "damage": 3,
+        "range": 35
+      }
+    }
+  ]
+}

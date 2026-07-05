@@ -27,6 +27,7 @@ import com.fiw.tools.ability.impl.AquaKitAbility
 import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.ArcSlashBarrageAbility
 import com.fiw.tools.ability.impl.ArcSlashStormAbility
+import com.fiw.tools.ability.impl.BeamAbility
 import com.fiw.tools.ability.impl.BeaconAuraAbility
 import com.fiw.tools.ability.impl.BeaconPingAbility
 import com.fiw.tools.ability.impl.BerserkerAbility
@@ -94,6 +95,7 @@ object AbilityRegistry {
         register("arc_slash") { ArcSlashAbility }
         register("arc_slash_barrage") { ArcSlashBarrageAbility }
         register("arc_slash_storm") { ArcSlashStormAbility }
+        register("beam") { BeamAbility }
         register("lightning_strike") { LightningStrikeAbility }
         register("shockwave") { ShockwaveAbility }
         register("heal_on_hit") { HealOnHitAbility }

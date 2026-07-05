@@ -24,6 +24,11 @@ version header.
 - **`arc_slash_storm`** — the same engine as an area ultimate: every slash fires at every
   matching entity in `radius` (default: players and mobs within 40), 15 rolls fanning flat to
   near-vertical, no finisher. Example item: `examples/items/dismantle_blade.json`
+- **`beam`** — the Fiw Bosses beam attack as an item ability: spiral charge-up at the eyes, then
+  a sustained end-rod/spark beam along the crosshair that damages everything in its cylinder;
+  sweeps with your aim (or locks direction), stops at walls unless `throughBlocks`. All sounds,
+  particles, windup/duration/damage/width/range configurable. Example:
+  `examples/items/beam_staff.json`
 
 ### Fixed
 
