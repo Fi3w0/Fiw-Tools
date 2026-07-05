@@ -19,7 +19,8 @@ version header.
   behind them and one heavy armor-ignoring finisher. Targets mobs and players; with no victim it
   slashes the air in front instead. Every message, sound, particle, roll, delay and damage number
   is a param; `ignoreArmor`/`slashIgnoreArmor` take true/false or a percent for partial armor
-  piercing
+  piercing; the slash trail itself is drawn with a fully purple witch/dragon-breath/spark mix
+  (`arcParticles`)
 - **`arc_slash_storm`** — the same engine as an area ultimate: every slash fires at every
   matching entity in `radius` (default: players and mobs within 40), 15 rolls fanning flat to
   near-vertical, no finisher. Example item: `examples/items/dismantle_blade.json`

@@ -461,7 +461,7 @@ needs a locked target.
 | `startSoundVolume` / `startSoundPitch` | 2.0 / 0.5 | |
 | `slashSound` | `minecraft:entity.player.attack.sweep` | Per-slash sound (`""` disables) |
 | `slashSoundVolume` / `slashSoundPitch` | 1.0 / 1.2 | |
-| `arcParticle` | `minecraft:sweep_attack` | Particle traced along each arc |
+| `arcParticles` | witch ×2, dragon_breath ×1, electric_spark ×1 per arc point | Particles traced along each arc — the fully purple slash look (same burst format as `slashParticles`); a single id via `arcParticle` also works |
 | `slashParticles` | witch ×10, dragon_breath ×5, electric_spark ×2 | Bursts fired per slash: `[{ "particle", "amount", "hSpread", "vSpread", "speed" }]` |
 | `particleMode` | `all` | `all` = every burst each slash, `cycle` = one per slash in rotation |
 | `burstAt` | `self` | Where bursts appear: `self` (caster) or `target` |

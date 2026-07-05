@@ -77,7 +77,7 @@ internal object SlashBarrage {
         val height: Double,
         val rollRad: Double,
         val hitRadius: Double,
-        val arcParticle: ParticleOptions,
+        val arcParticles: List<Burst>,
         val affects: AffectScope,
         val armorPierce: Double,
         var tick: Int = 0,
@@ -106,7 +106,7 @@ internal object SlashBarrage {
         val points: Int,
         val hitRadius: Double,
         val slashDuration: Int,
-        val arcParticle: ParticleOptions,
+        val arcParticles: List<Burst>,
         val slashSound: SoundEvent?,
         val slashVolume: Float,
         val slashPitch: Float,
@@ -134,6 +134,13 @@ internal object SlashBarrage {
 
     private val sequences: MutableList<Sequence> = ArrayList()
     private val slashes: MutableList<Slash> = ArrayList()
+
+    /** Default arc trace: the fully purple witch / dragon-breath / spark mix. */
+    private val DEFAULT_ARC: List<Burst> = listOf(
+        Burst(ParticleTypes.WITCH, 2, 0.05, 0.05, 0.0),
+        Burst(ParticleTypes.DRAGON_BREATH, 1, 0.02, 0.02, 0.01),
+        Burst(ParticleTypes.ELECTRIC_SPARK, 1, 0.05, 0.05, 0.0)
+    )
 
     fun tick() {
         synchronized(this) {
@@ -198,7 +205,7 @@ internal object SlashBarrage {
             points = p.optI("points", 24).coerceIn(6, 64),
             hitRadius = p.optD("hitRadius", 1.0),
             slashDuration = p.optI("slashDuration", 2).coerceIn(1, 30),
-            arcParticle = ParticleSpec.parse(p.get("arcParticle")?.takeIf { it.isJsonPrimitive }?.asString, ParticleTypes.SWEEP_ATTACK),
+            arcParticles = parseArcParticles(p),
             slashSound = soundById(p.optS("slashSound", "minecraft:entity.player.attack.sweep")),
             slashVolume = p.optF("slashSoundVolume", 1.0f),
             slashPitch = p.optF("slashSoundPitch", 1.2f),
@@ -291,7 +298,7 @@ internal object SlashBarrage {
         val origin = victim.position().subtract(forward.scale(s.width))
         slashes.add(Slash(s.world, s.owner, origin, forward, right, s.arc, s.width, s.damage,
             s.knockback, s.slashDuration, s.points, s.yOffset, s.height,
-            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects, s.slashArmorPierce))
+            Math.toRadians(rollDeg), s.hitRadius, s.arcParticles, s.affects, s.slashArmorPierce))
     }
 
     /** No victim to aim at: carve the air [Sequence.frontDistance] blocks ahead of the caster's live look. */
@@ -304,7 +311,7 @@ internal object SlashBarrage {
         val origin = s.owner.position().add(forward.scale(s.frontDistance - s.width))
         slashes.add(Slash(s.world, s.owner, origin, forward, right, s.arc, s.width, s.damage,
             s.knockback, s.slashDuration, s.points, s.yOffset, s.height,
-            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects, s.slashArmorPierce))
+            Math.toRadians(rollDeg), s.hitRadius, s.arcParticles, s.affects, s.slashArmorPierce))
     }
 
     private fun fireBursts(s: Sequence) {
@@ -357,7 +364,9 @@ internal object SlashBarrage {
         for (pi in iStart..iEnd) {
             val t = pi.toDouble() / f.points
             val pos = arcPoint(f, -f.arc / 2.0 + t * f.arc, t)
-            f.world.sendParticles(f.arcParticle, pos.x, pos.y, pos.z, 1, 0.0, 0.0, 0.0, 0.0)
+            for (b in f.arcParticles) {
+                f.world.sendParticles(b.particle, pos.x, pos.y, pos.z, b.amount, b.hSpread, b.vSpread, b.hSpread, b.speed)
+            }
 
             val box = AABB(
                 pos.x - f.hitRadius, pos.y - f.hitRadius - 0.5, pos.z - f.hitRadius,
@@ -478,6 +487,14 @@ internal object SlashBarrage {
 
     private fun parseRolls(p: JsonObject, default: List<Double>): List<Double> =
         p.getAsJsonArray("rolls")?.map { it.asDouble }?.takeIf { it.isNotEmpty() } ?: default
+
+    /** `arcParticles` burst list traced along each arc; a bare `arcParticle` id string also works. */
+    private fun parseArcParticles(p: JsonObject): List<Burst> {
+        if (p.has("arcParticles")) return parseBursts(p, "arcParticles", DEFAULT_ARC)
+        val single = p.get("arcParticle")?.takeIf { it.isJsonPrimitive }?.asString
+        if (single != null) return listOf(Burst(ParticleSpec.parse(single), 1, 0.0, 0.0, 0.0))
+        return DEFAULT_ARC
+    }
 
     /** `[{particle, amount, hSpread, vSpread, speed}, ...]` or bare particle-id strings. */
     private fun parseBursts(p: JsonObject, key: String, default: List<Burst>): List<Burst> {
