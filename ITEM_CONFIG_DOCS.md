@@ -432,9 +432,11 @@ Sweeping cone in front of the player. Entities inside take damage and small knoc
 
 Cinematic single-target combo: speaks a line, plays a
 charge-up sound, then carves the victim with a volley of arc slashes rolled at different angles,
-and finishes by teleporting behind them for one heavy armor-ignoring hit. Needs a victim — the
+and finishes by teleporting behind them for one heavy armor-ignoring hit. The victim is the
 attacked entity on `on_attack`, or whatever is under the crosshair (up to `targetRange`) on
-right-click triggers; fires nothing (and burns no cooldown) without one.
+right-click triggers — mobs and players alike. With no victim it still fires, carving the air
+`frontDistance` blocks ahead (slashes hit anything that steps in); only the teleport finisher
+needs a locked target.
 
 | Param | Default | Description |
 |-------|---------|-------------|
@@ -442,6 +444,7 @@ right-click triggers; fires nothing (and burns no cooldown) without one.
 | `startDelay` | 8 | Ticks between the opening line and the first slash |
 | `slashInterval` | 3 | Ticks between slashes |
 | `targetRange` | 16.0 | Crosshair target search range (right-click triggers) |
+| `frontDistance` | 3.0 | Where slashes land when there is no victim: blocks ahead of the caster |
 | `damage` | 4.0 | Damage per slash |
 | `knockback` | 0.3 | Push per slash hit (0 = none) |
 | `width` | 6.0 | Slash size in blocks |
@@ -483,14 +486,15 @@ right-click triggers; fires nothing (and burns no cooldown) without one.
 ### `arc_slash_storm`
 
 The barrage engine as an area ultimate: after the opening line + charge-up, each slash fires at
-**every** matching player (default `affects: players`) within `radius` of the caster — 15 slashes
-fanning from flat to near-vertical. No finisher (the teleport/finisher params are ignored — there
-is no single victim). Takes every `arc_slash_barrage` param; different defaults:
+**every** matching entity — players and mobs alike (default `affects: all`) — within `radius` of
+the caster — 15 slashes fanning from flat to near-vertical. No finisher (the teleport/finisher
+params are ignored — there is no single victim). Takes every `arc_slash_barrage` param;
+different defaults:
 
 | Param | Default | Description |
 |-------|---------|-------------|
 | `radius` | 40.0 | Victim search radius around the caster, re-checked each slash |
-| `affects` | `players` | Set `all`/`hostiles`/`mobs` to storm non-players too |
+| `affects` | `all` | Narrow to `players`, `hostiles` or `mobs` to filter victims |
 | `rolls` | `[0, 18, -18, 36, -36, 54, -54, 72, -72, 90, -90, 108, -108, 126, -126]` | |
 | `startDelay` | 20 | |
 | `slashInterval` | 2 | |
@@ -499,7 +503,8 @@ is no single victim). Takes every `arc_slash_barrage` param; different defaults:
 | `slashParticles` | witch ×8, dragon_breath ×5, electric_spark ×3 | |
 | `particleMode` | `cycle` | One burst per slash, rotating through the list |
 
-Fires nothing (and burns no cooldown) when nobody is in radius at cast.
+With nobody in radius it still fires, slashing the air `frontDistance` blocks ahead of the
+caster (and hitting anything that walks in mid-storm).
 
 ```json
 { "type": "arc_slash_storm", "trigger": "on_shift_right_click", "cooldownTicks": 2400,

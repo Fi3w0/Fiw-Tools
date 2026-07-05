@@ -35,8 +35,8 @@ import kotlin.math.sin
  *  - [ArcSlashBarrageAbility] (`arc_slash_barrage`) — single target (hit target or the entity
  *    under the crosshair), defaults mirroring the original: 10 slashes rolled
  *    0/45/90/-45/30/-30/15/-15/60/-60, then "Behind you." teleport + 25 armor-ignoring damage.
- *  - [ArcSlashStormAbility] (`arc_slash_storm`) — every matching player in `radius` eats each
- *    slash; 15 rolls fanning 0..±126, no finisher.
+ *  - [ArcSlashStormAbility] (`arc_slash_storm`) — every matching entity in `radius` (players
+ *    and mobs alike) eats each slash; 15 rolls fanning 0..±126, no finisher.
  *
  * Everything is a param: rolls, delays, damage, arc shape, messages, sounds, every particle.
  */
@@ -88,6 +88,9 @@ internal object SlashBarrage {
         val owner: ServerPlayer,
         /** Locked victim for targeted mode; null in radius mode. */
         val target: LivingEntity?,
+        /** Radius mode re-collects victims each slash; otherwise a null target slashes in front. */
+        val radiusMode: Boolean,
+        val frontDistance: Double,
         val radius: Double,
         val affects: AffectScope,
         val rolls: List<Double>,
@@ -155,7 +158,11 @@ internal object SlashBarrage {
         }
     }
 
-    /** Reads params over [d] and starts a sequence. Returns false (no cooldown) when there is nothing to hit. */
+    /**
+     * Reads params over [d] and starts a sequence. Always fires: with no victim (or nobody in
+     * radius) the slashes carve the air in front of the caster instead, still hitting whatever
+     * wanders into them — only the teleport finisher needs a locked target.
+     */
     fun begin(ctx: AbilityContext, d: Defaults, radiusMode: Boolean): Boolean {
         val p = ctx.params
         val player = ctx.player
@@ -163,14 +170,8 @@ internal object SlashBarrage {
 
         val radius = p.optD("radius", 40.0)
         val affects = p.scope("affects", d.affects)
-
-        val target: LivingEntity?
-        if (radiusMode) {
-            target = null
-            if (victimsInRadius(world, player, radius, affects).isEmpty()) return false
-        } else {
-            target = ctx.target ?: findLookTarget(player, world, p.optD("targetRange", 16.0)) ?: return false
-        }
+        val target: LivingEntity? = if (radiusMode) null
+        else ctx.target ?: findLookTarget(player, world, p.optD("targetRange", 16.0))
 
         val startMessage = p.optS("startMessage", d.startMessage)
         val messageRadius = p.optD("startMessageRadius", 40.0)
@@ -182,7 +183,8 @@ internal object SlashBarrage {
         }
 
         val seq = Sequence(
-            world = world, owner = player, target = target, radius = radius, affects = affects,
+            world = world, owner = player, target = target, radiusMode = radiusMode,
+            frontDistance = p.optD("frontDistance", 3.0), radius = radius, affects = affects,
             rolls = parseRolls(p, d.rolls),
             interval = p.optI("slashInterval", d.interval).coerceAtLeast(1),
             width = p.optD("width", 6.0),
@@ -246,16 +248,18 @@ internal object SlashBarrage {
     }
 
     private fun stepSlashing(s: Sequence): Boolean {
-        val victims: List<LivingEntity> = if (s.target != null) {
-            if (s.target.isRemoved || !s.target.isAlive || s.target.level() !== s.world) return false
-            listOf(s.target)
-        } else {
-            victimsInRadius(s.world, s.owner, s.radius, s.affects)
+        val victims: List<LivingEntity> = when {
+            s.target != null -> {
+                if (s.target.isRemoved || !s.target.isAlive || s.target.level() !== s.world) return false
+                listOf(s.target)
+            }
+            s.radiusMode -> victimsInRadius(s.world, s.owner, s.radius, s.affects)
+            else -> emptyList()
         }
 
         val roll = s.rolls[s.slashIndex]
-        for (victim in victims) spawnSlash(s, victim, roll)
-        if (s.slashSound != null && victims.isNotEmpty()) {
+        if (victims.isEmpty()) spawnFrontSlash(s, roll) else for (victim in victims) spawnSlash(s, victim, roll)
+        if (s.slashSound != null) {
             val at = if (s.target != null) s.target.position() else s.owner.position()
             s.world.playSound(null, at.x, at.y, at.z, s.slashSound, SoundSource.PLAYERS, s.slashVolume, s.slashPitch)
         }
@@ -282,6 +286,19 @@ internal object SlashBarrage {
         val right = Vec3(-forward.z, 0.0, forward.x)
         // Put the arc's crest on the victim: points sit `width` blocks out from the origin.
         val origin = victim.position().subtract(forward.scale(s.width))
+        slashes.add(Slash(s.world, s.owner, origin, forward, right, s.arc, s.width, s.damage,
+            s.knockback, s.slashDuration, s.points, s.yOffset, s.height,
+            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects))
+    }
+
+    /** No victim to aim at: carve the air [Sequence.frontDistance] blocks ahead of the caster's live look. */
+    private fun spawnFrontSlash(s: Sequence, rollDeg: Double) {
+        val look = s.owner.lookAngle
+        val flat = Vec3(look.x, 0.0, look.z)
+        if (flat.length() < 0.01) return
+        val forward = flat.normalize()
+        val right = Vec3(-forward.z, 0.0, forward.x)
+        val origin = s.owner.position().add(forward.scale(s.frontDistance - s.width))
         slashes.add(Slash(s.world, s.owner, origin, forward, right, s.arc, s.width, s.damage,
             s.knockback, s.slashDuration, s.points, s.yOffset, s.height,
             Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects))
@@ -459,7 +476,8 @@ internal object SlashBarrage {
  * Targeted arc-slash barrage (`arc_slash_barrage`): opening line + charge sound, ten rolled
  * slashes carving the victim, then a teleport behind them and one heavy armor-ignoring hit.
  * Works from `on_attack` (uses the hit target) or right-click (entity under the crosshair,
- * `targetRange`). Suggested `cooldownTicks`: 400.
+ * `targetRange`); with no target it slashes the air in front instead (`frontDistance`), still
+ * hitting whatever steps in, and skips the finisher. Suggested `cooldownTicks`: 400.
  */
 object ArcSlashBarrageAbility : Ability {
     private val DEFAULTS = SlashBarrage.Defaults(
@@ -486,8 +504,9 @@ object ArcSlashBarrageAbility : Ability {
 
 /**
  * Radius arc-slash storm (`arc_slash_storm`): opening line + charge sound, then fifteen rolled
- * slashes each hitting every matching player (`affects`, default players) within `radius` of
- * the caster. No finisher by default. Suggested `cooldownTicks`: 2400.
+ * slashes each hitting every matching entity (`affects`, default all — players and mobs) within
+ * `radius` of the caster, or the air in front when nobody is around. No finisher by default.
+ * Suggested `cooldownTicks`: 2400.
  */
 object ArcSlashStormAbility : Ability {
     private val DEFAULTS = SlashBarrage.Defaults(
@@ -504,7 +523,7 @@ object ArcSlashStormAbility : Ability {
             SlashBarrage.Burst(ParticleTypes.ELECTRIC_SPARK, 3, 0.08, 0.08, 0.0)
         ),
         burstMode = SlashBarrage.BurstMode.CYCLE,
-        affects = AffectScope.PLAYERS,
+        affects = AffectScope.ALL,
         teleportBehind = false,
         finalDamage = 0f
     )

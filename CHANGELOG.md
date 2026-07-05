@@ -16,11 +16,12 @@ version header.
 
 - **`arc_slash_barrage`** — cinematic single-target combo: opening line + charge-up sound,
   a volley of arc slashes rolled at configurable angles carving a single victim, then a teleport
-  behind them and one heavy armor-ignoring finisher. Every message, sound, particle, roll, delay
-  and damage number is a param
+  behind them and one heavy armor-ignoring finisher. Targets mobs and players; with no victim it
+  slashes the air in front instead. Every message, sound, particle, roll, delay and damage number
+  is a param
 - **`arc_slash_storm`** — the same engine as an area ultimate: every slash fires at every
-  matching player in `radius` (default players within 40), 15 rolls fanning flat to near-vertical,
-  no finisher. Example item: `examples/items/dismantle_blade.json`
+  matching entity in `radius` (default: players and mobs within 40), 15 rolls fanning flat to
+  near-vertical, no finisher. Example item: `examples/items/dismantle_blade.json`
 
 ### Fixed
 
