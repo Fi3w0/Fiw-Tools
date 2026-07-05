@@ -39,11 +39,12 @@ object FiwToolsCommon {
         AbilityRegistry.init()
     }
 
-    fun serverStarting() {
+    fun serverStarting(server: MinecraftServer) {
         val report = ItemRegistry.loadAll()
         val recipes = RecipeRegistry.loadAll()
         logger.info("Fiw Tools loaded ${report.loaded} item(s); ${report.failed.size} failed. " +
             "${recipes.loaded} recipe(s); ${recipes.failed.size} failed.")
+        com.fiw.tools.recipe.RecipeInjector.inject(server)
     }
 
     fun serverTick(server: MinecraftServer) {
@@ -72,6 +73,7 @@ object FiwToolsCommon {
 
     fun playerJoin(player: ServerPlayer) {
         ItemSyncHandler.onJoin(player)
+        com.fiw.tools.recipe.RecipeInjector.unlock(player)
     }
 
     fun playerDisconnect(player: ServerPlayer) {

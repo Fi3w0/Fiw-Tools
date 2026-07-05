@@ -89,7 +89,7 @@ object FiwTools : ModInitializer {
             if (entity is ServerPlayer) AbilityDispatcher.onEquipmentChange(entity, slot.getName(), previous, current)
         }
         ServerTickEvents.END_SERVER_TICK.register(FiwToolsCommon::serverTick)
-        ServerLifecycleEvents.SERVER_STARTING.register { FiwToolsCommon.serverStarting() }
+        ServerLifecycleEvents.SERVER_STARTING.register { server -> FiwToolsCommon.serverStarting(server) }
         ServerLifecycleEvents.SERVER_STOPPED.register { FiwToolsCommon.serverStopped() }
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->

@@ -2343,6 +2343,13 @@ This is how you ship an OP weapon that can take 1–2 risky imbuements at most.
 
 Drop JSON files into **`config/fiw_tools/recipes/`** and run `/fiwtools reload`. Fully server-side: vanilla clients place ingredients in any crafting grid (2x2 inventory or 3x3 table) and the result appears — no client install, no datapacks.
 
+On 1.21.2+ versions the recipes are also published into the **vanilla recipe manager**, so they
+show up in the vanilla recipe book *and* in any recipe viewer that reads vanilla recipes —
+JEI, REI, EMI, client- or server-side — with the real custom items (names, lore, stats) in both
+ingredients and results. No viewer integration or dependency involved; it's plain vanilla
+display sync, so it can't break anything when no viewer is installed. (1.21.1 predates the
+recipe-display rework, so there the crafts stay grid-only.)
+
 One file can hold **as many recipes as you like**: a single recipe object, a bare array, or a `{ "recipes": [ ... ] }` wrapper.
 
 ```json

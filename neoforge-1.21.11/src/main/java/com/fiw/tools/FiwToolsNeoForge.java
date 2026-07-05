@@ -35,7 +35,7 @@ public final class FiwToolsNeoForge {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        FiwToolsCommon.INSTANCE.serverStarting();
+        FiwToolsCommon.INSTANCE.serverStarting(event.getServer());
     }
 
     @SubscribeEvent

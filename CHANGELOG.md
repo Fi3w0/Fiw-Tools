@@ -50,6 +50,11 @@ version header.
   `examples/items/stormcaller_lance.json`
 - **Stances** — `stances` list + sneak+swap-hands toggle; abilities gate on `stance`, `{stance}`
   lore placeholder; `examples/items/twinfang_blade.json`
+- **Recipe book & viewer display for custom crafts** (1.21.2+ versions) — custom recipes are
+  published into the vanilla recipe manager as real server-side recipes, so the vanilla recipe
+  book, JEI, REI and EMI all show them (custom names/lore included in ingredients and results)
+  through plain vanilla display sync — zero client-side code, zero viewer dependencies, vanilla
+  clients unaffected
 - **Friendlier attributes** — `type` accepts bare constant names (`ATTACK_DAMAGE`,
   `MOVEMENT_SPEED`, any case) alongside full ids, auto-prefixed per game version; `body` slot and
   legacy operation names (`addition`, `multiply_base`, `multiply_total`) accepted; docs now list

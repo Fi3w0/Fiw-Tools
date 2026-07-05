@@ -3,6 +3,7 @@ package com.fiw.tools.recipe
 import com.fiw.tools.build.FiwItems
 import com.fiw.tools.build.ItemBuilder
 import com.fiw.tools.config.ItemRegistry
+import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
@@ -99,6 +100,10 @@ object CraftingHandler {
         }
     }
 
+    /** Does [recipe] alone match this grid? Used by the injected vanilla recipe wrappers. */
+    fun matches(recipe: RecipeDefinition, grid: List<ItemStack>, width: Int, height: Int): Boolean =
+        if (recipe.shaped) matchShaped(recipe, grid, width, height) else matchShapeless(recipe, grid)
+
     /** First matching recipe for this grid, or null. */
     fun match(grid: List<ItemStack>, width: Int, height: Int): RecipeDefinition? {
         for (recipe in RecipeRegistry.all()) {
@@ -186,7 +191,10 @@ object CraftingHandler {
     }
 
     /** Build the recipe's result stack — a full custom item for `fiw:` results, plain otherwise. */
-    fun buildResult(recipe: RecipeDefinition, player: ServerPlayer): ItemStack? {
+    fun buildResult(recipe: RecipeDefinition, player: ServerPlayer): ItemStack? =
+        buildResult(recipe, player.level().registryAccess())
+
+    fun buildResult(recipe: RecipeDefinition, registries: HolderLookup.Provider): ItemStack? {
         val spec = recipe.resultItem
         if (spec.startsWith("fiw:")) {
             val fiwId = spec.removePrefix("fiw:")
@@ -194,7 +202,7 @@ object CraftingHandler {
                 logger.warn("Recipe '${recipe.id}': unknown Fiw item '$fiwId' in result")
                 return null
             }
-            return clampToMaxStack(ItemBuilder.build(def, recipe.resultCount, player.level().registryAccess()))
+            return clampToMaxStack(ItemBuilder.build(def, recipe.resultCount, registries))
         }
         val itemId = Identifier.tryParse(spec) ?: run {
             logger.warn("Recipe '${recipe.id}': invalid result id '$spec'"); return null

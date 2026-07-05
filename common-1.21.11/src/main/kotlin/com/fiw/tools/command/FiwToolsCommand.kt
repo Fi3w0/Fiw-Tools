@@ -295,6 +295,7 @@ object FiwToolsCommand {
     private fun reload(source: CommandSourceStack): Int {
         val report = ItemRegistry.loadAll()
         val recipes = RecipeRegistry.loadAll()
+        com.fiw.tools.recipe.RecipeInjector.inject(source.server)
         ItemSyncHandler.syncAll(source.server)
         source.sendSuccess({ Component.literal(
             "Reloaded: ${report.loaded} item(s), ${recipes.loaded} recipe(s), " +
