@@ -42,7 +42,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - [Custom Data](#custom-data)
 - [Abilities](#abilities)
   - [Targeting (`affects`)](#targeting-affects)
-  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
+  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [arc_slash_barrage](#arc_slash_barrage) · [arc_slash_storm](#arc_slash_storm) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
   - PvP: [grappling_pull](#grappling_pull) · [disarm](#disarm) · [parry_counter](#parry_counter) · [execute](#execute) · [leech](#leech) · [silence_sigil](#silence_sigil) · [tether](#tether)
   - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
   - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
@@ -424,6 +424,86 @@ Sweeping cone in front of the player. Entities inside take damage and small knoc
 
 ```json
 { "type": "arc_slash", "trigger": "on_right_click", "cooldownTicks": 50, "params": { "damage": 6, "range": 4 } }
+```
+
+---
+
+### `arc_slash_barrage`
+
+Cinematic single-target combo: speaks a line, plays a
+charge-up sound, then carves the victim with a volley of arc slashes rolled at different angles,
+and finishes by teleporting behind them for one heavy armor-ignoring hit. Needs a victim — the
+attacked entity on `on_attack`, or whatever is under the crosshair (up to `targetRange`) on
+right-click triggers; fires nothing (and burns no cooldown) without one.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `rolls` | `[0, 45, 90, -45, 30, -30, 15, -15, 60, -60]` | One slash per entry; slash-plane tilt in degrees (0 = flat, 90 = vertical) |
+| `startDelay` | 8 | Ticks between the opening line and the first slash |
+| `slashInterval` | 3 | Ticks between slashes |
+| `targetRange` | 16.0 | Crosshair target search range (right-click triggers) |
+| `damage` | 4.0 | Damage per slash |
+| `knockback` | 0.3 | Push per slash hit (0 = none) |
+| `width` | 6.0 | Slash size in blocks |
+| `arc` | 120.0 | Sweep angle in degrees |
+| `height` | 1.0 | Vertical bulge of the sweep |
+| `yOffset` | 1.5 | Slash height above the victim's feet |
+| `hitRadius` | 1.0 | Hit distance around each arc point |
+| `points` | 24 | Arc resolution |
+| `slashDuration` | 2 | Ticks each slash animates over |
+| `affects` | `all` | Who the slashes hurt (victim included) |
+| `startMessage` | `&d&lYou're in my way...` | Chat line at cast (`""` disables) |
+| `startMessageRadius` | 40.0 | Players within this radius see the line |
+| `startSound` | `minecraft:block.respawn_anchor.charge` | Charge-up sound (`""` disables) |
+| `startSoundVolume` / `startSoundPitch` | 2.0 / 0.5 | |
+| `slashSound` | `minecraft:entity.player.attack.sweep` | Per-slash sound (`""` disables) |
+| `slashSoundVolume` / `slashSoundPitch` | 1.0 / 1.2 | |
+| `arcParticle` | `minecraft:sweep_attack` | Particle traced along each arc |
+| `slashParticles` | witch ×10, dragon_breath ×5, electric_spark ×2 | Bursts fired per slash: `[{ "particle", "amount", "hSpread", "vSpread", "speed" }]` |
+| `particleMode` | `all` | `all` = every burst each slash, `cycle` = one per slash in rotation |
+| `burstAt` | `self` | Where bursts appear: `self` (caster) or `target` |
+| `teleportBehind` | true | Teleport behind the victim before the finisher |
+| `behindDistance` | 2.0 | Blocks behind the victim's back |
+| `teleportSound` | `minecraft:entity.enderman.teleport` | |
+| `teleportSoundVolume` / `teleportSoundPitch` | 1.0 / 0.5 | |
+| `teleportParticles` | dragon_breath ×50 | Same burst format |
+| `finalMessage` | `&c&lBehind you.` | Line before the finisher hit (`""` disables) |
+| `finalMessageRadius` | 20.0 | |
+| `finalDelay` | 5 | Ticks between teleport and finisher hit |
+| `finalDamage` | 25.0 | Finisher damage (0 disables) |
+| `ignoreArmor` | true | Finisher bypasses armor (magic damage) |
+
+```json
+{ "type": "arc_slash_barrage", "trigger": "on_right_click", "cooldownTicks": 400,
+  "params": { "finalDamage": 20, "startMessage": "&d&lYou're in my way..." } }
+```
+
+---
+
+### `arc_slash_storm`
+
+The barrage engine as an area ultimate: after the opening line + charge-up, each slash fires at
+**every** matching player (default `affects: players`) within `radius` of the caster — 15 slashes
+fanning from flat to near-vertical. No finisher (the teleport/finisher params are ignored — there
+is no single victim). Takes every `arc_slash_barrage` param; different defaults:
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 40.0 | Victim search radius around the caster, re-checked each slash |
+| `affects` | `players` | Set `all`/`hostiles`/`mobs` to storm non-players too |
+| `rolls` | `[0, 18, -18, 36, -36, 54, -54, 72, -72, 90, -90, 108, -108, 126, -126]` | |
+| `startDelay` | 20 | |
+| `slashInterval` | 2 | |
+| `startMessage` | `&d&lIm tired of you` | |
+| `startSoundVolume` / `startSoundPitch` | 1.8 / 0.6 | |
+| `slashParticles` | witch ×8, dragon_breath ×5, electric_spark ×3 | |
+| `particleMode` | `cycle` | One burst per slash, rotating through the list |
+
+Fires nothing (and burns no cooldown) when nobody is in radius at cast.
+
+```json
+{ "type": "arc_slash_storm", "trigger": "on_shift_right_click", "cooldownTicks": 2400,
+  "params": { "radius": 20, "damage": 4 } }
 ```
 
 ---

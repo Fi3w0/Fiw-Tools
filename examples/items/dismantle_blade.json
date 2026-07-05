@@ -1,0 +1,37 @@
+{
+  "id": "dismantle_blade",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&5&lDismantle Blade",
+  "lore": [
+    "&7A blade that ends arguments.",
+    "",
+    "&dRight-click &8- &7Dismantle: slash barrage,",
+    "&8  then reappear behind your victim.",
+    "&dSneak + right-click &8- &7Slash Storm: carve",
+    "&8  every player around you."
+  ],
+  "rarity": "epic",
+  "abilities": [
+    {
+      "type": "arc_slash_barrage",
+      "trigger": "on_right_click",
+      "cooldownTicks": 400,
+      "params": {
+        "startMessage": "&d&lYou're in my way...",
+        "finalMessage": "&c&lBehind you.",
+        "damage": 4,
+        "finalDamage": 25
+      }
+    },
+    {
+      "type": "arc_slash_storm",
+      "trigger": "on_shift_right_click",
+      "cooldownTicks": 2400,
+      "params": {
+        "startMessage": "&d&lIm tired of you",
+        "radius": 40,
+        "damage": 4
+      }
+    }
+  ]
+}
