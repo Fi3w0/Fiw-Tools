@@ -474,7 +474,8 @@ needs a locked target.
 | `finalMessageRadius` | 20.0 | |
 | `finalDelay` | 5 | Ticks between teleport and finisher hit |
 | `finalDamage` | 25.0 | Finisher damage (0 disables) |
-| `ignoreArmor` | true | Finisher bypasses armor (magic damage) |
+| `ignoreArmor` | true | How much of the finisher bypasses armor: `true`/`false`, or a number — `0.4` (fraction) and `40` (percent) both mean 40% pierces, the rest is reduced by armor normally |
+| `slashIgnoreArmor` | false | Same format, applied to every slash hit |
 
 ```json
 { "type": "arc_slash_barrage", "trigger": "on_right_click", "cooldownTicks": 400,

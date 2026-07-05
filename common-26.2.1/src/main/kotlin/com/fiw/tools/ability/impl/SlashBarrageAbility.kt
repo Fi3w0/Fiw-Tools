@@ -81,6 +81,7 @@ internal object SlashBarrage {
         val hitRadius: Double,
         val arcParticle: ParticleOptions,
         val affects: AffectScope,
+        val armorPierce: Double,
         var tick: Int = 0,
         val alreadyHit: MutableSet<UUID> = HashSet()
     )
@@ -119,7 +120,8 @@ internal object SlashBarrage {
         val behindDistance: Double,
         val finalDelay: Int,
         val finalDamage: Float,
-        val ignoreArmor: Boolean,
+        val armorPierce: Double,
+        val slashArmorPierce: Double,
         val finalMessage: String,
         val finalMessageRadius: Double,
         val teleportSound: SoundEvent?,
@@ -209,7 +211,8 @@ internal object SlashBarrage {
             behindDistance = p.optD("behindDistance", 2.0),
             finalDelay = p.optI("finalDelay", 5).coerceAtLeast(0),
             finalDamage = p.optF("finalDamage", d.finalDamage),
-            ignoreArmor = p.optB("ignoreArmor", true),
+            armorPierce = pierceFraction(p, "ignoreArmor", 1.0),
+            slashArmorPierce = pierceFraction(p, "slashIgnoreArmor", 0.0),
             finalMessage = p.optS("finalMessage", "&c&lBehind you."),
             finalMessageRadius = p.optD("finalMessageRadius", 20.0),
             teleportSound = soundById(p.optS("teleportSound", "minecraft:entity.enderman.teleport")),
@@ -290,7 +293,7 @@ internal object SlashBarrage {
         val origin = victim.position().subtract(forward.scale(s.width))
         slashes.add(Slash(s.world, s.owner, origin, forward, right, s.arc, s.width, s.damage,
             s.knockback, s.slashDuration, s.points, s.yOffset, s.height,
-            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects))
+            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects, s.slashArmorPierce))
     }
 
     /** No victim to aim at: carve the air [Sequence.frontDistance] blocks ahead of the caster's live look. */
@@ -303,7 +306,7 @@ internal object SlashBarrage {
         val origin = s.owner.position().add(forward.scale(s.frontDistance - s.width))
         slashes.add(Slash(s.world, s.owner, origin, forward, right, s.arc, s.width, s.damage,
             s.knockback, s.slashDuration, s.points, s.yOffset, s.height,
-            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects))
+            Math.toRadians(rollDeg), s.hitRadius, s.arcParticle, s.affects, s.slashArmorPierce))
     }
 
     private fun fireBursts(s: Sequence) {
@@ -340,9 +343,7 @@ internal object SlashBarrage {
     private fun finalHit(s: Sequence) {
         val target = s.target ?: return
         if (s.finalDamage <= 0f || target.isRemoved || !target.isAlive || target.level() !== s.world) return
-        val src = if (s.ignoreArmor) s.world.damageSources().indirectMagic(s.owner, s.owner)
-        else s.world.damageSources().playerAttack(s.owner)
-        target.hurtServer(s.world, src, s.finalDamage)
+        dealDamage(s.world, s.owner, target, s.finalDamage, s.armorPierce)
         s.world.sendParticles(ParticleTypes.CRIT, target.x, target.y + target.bbHeight / 2.0, target.z,
             20, 0.4, 0.5, 0.4, 0.25)
     }
@@ -368,7 +369,7 @@ internal object SlashBarrage {
                 it !== f.owner && it.isAlive && !f.alreadyHit.contains(it.uuid) && f.affects.matches(f.owner, it)
             }
             for (victim in victims) {
-                victim.hurtServer(f.world, f.world.damageSources().playerAttack(f.owner), f.damage)
+                dealDamage(f.world, f.owner, victim, f.damage, f.armorPierce)
                 f.alreadyHit.add(victim.uuid)
                 if (f.knockback > 0.0) {
                     val knock = victim.position().subtract(f.owner.position()).normalize()
@@ -401,6 +402,34 @@ internal object SlashBarrage {
     }
 
     // ---------------------------------------------------------------- helpers
+
+    /** Deals [damage], routing [pierce] (0..1) of it through an armor-bypassing magic source. */
+    private fun dealDamage(world: ServerLevel, owner: ServerPlayer, target: LivingEntity, damage: Float, pierce: Double) {
+        if (damage <= 0f) return
+        val normalSrc = world.damageSources().playerAttack(owner)
+        val magicSrc = world.damageSources().indirectMagic(owner, owner)
+        when {
+            pierce >= 1.0 -> target.hurtServer(world, magicSrc, damage)
+            pierce <= 0.0 -> target.hurtServer(world, normalSrc, damage)
+            else -> {
+                val pierced = (damage * pierce).toFloat()
+                target.hurtServer(world, normalSrc, damage - pierced)
+                // Second source lands inside the invulnerability window; reopen it.
+                target.invulnerableTime = 0
+                target.hurtServer(world, magicSrc, pierced)
+            }
+        }
+    }
+
+    /** Bool-or-number param: true = 1.0, false = 0.0, 0..1 = fraction, >1 = percent. */
+    private fun pierceFraction(p: JsonObject?, key: String, default: Double): Double {
+        val prim = p?.get(key)?.takeIf { it.isJsonPrimitive }?.asJsonPrimitive ?: return default
+        return when {
+            prim.isBoolean -> if (prim.asBoolean) 1.0 else 0.0
+            prim.isNumber -> prim.asDouble.let { if (it > 1.0) it / 100.0 else it }.coerceIn(0.0, 1.0)
+            else -> default
+        }
+    }
 
     private fun victimsInRadius(world: ServerLevel, owner: ServerPlayer, radius: Double, affects: AffectScope): List<LivingEntity> {
         val box = AABB.ofSize(owner.position(), radius * 2, radius * 2, radius * 2)
