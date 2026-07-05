@@ -50,6 +50,10 @@ version header.
   `examples/items/stormcaller_lance.json`
 - **Stances** — `stances` list + sneak+swap-hands toggle; abilities gate on `stance`, `{stance}`
   lore placeholder; `examples/items/twinfang_blade.json`
+- **Friendlier attributes** — `type` accepts bare constant names (`ATTACK_DAMAGE`,
+  `MOVEMENT_SPEED`, any case) alongside full ids, auto-prefixed per game version; `body` slot and
+  legacy operation names (`addition`, `multiply_base`, `multiply_total`) accepted; docs now list
+  every vanilla attribute
 
 ### Fixed
 

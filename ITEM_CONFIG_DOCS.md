@@ -220,23 +220,39 @@ Set `unbreakable: true` *or* a bigger `maxDamage` — combining them works but t
 
 ## Attribute Modifiers
 
+Two equivalent formats — full ids and bare constant-style names both work, in any case:
+
 ```json
 "attributes": [
   { "type": "minecraft:generic.attack_damage", "slot": "mainhand", "amount": 12.0, "operation": "add_value" },
-  { "type": "minecraft:generic.attack_speed",  "slot": "mainhand", "amount": -2.4, "operation": "add_value" },
-  { "type": "minecraft:generic.movement_speed","slot": "mainhand", "amount": 0.05, "operation": "add_multiplied_total" }
+  { "type": "ATTACK_DAMAGE",  "slot": "MAINHAND", "amount": 6.0,  "operation": "ADD_VALUE" },
+  { "type": "movement_speed", "slot": "mainhand", "amount": 0.05, "operation": "add_multiplied_total" }
 ]
 ```
 
+Bare names are normalised automatically (`ATTACK_DAMAGE`, `GENERIC_ATTACK_DAMAGE`,
+`generic.attack_damage` and `attack_damage` are all the same attribute), and the right
+per-version id prefix is applied for you — the same config works on 1.21.1 and newer.
+
 | Field | Default | Description |
 |-------|---------|-------------|
-| `type` | **required** | Attribute id |
-| `slot` | `any` | `mainhand` / `offhand` / `head` / `chest` / `legs` / `feet` / `hand` / `armor` / `any` |
+| `type` | **required** | Attribute id or bare name, any case |
+| `slot` | `any` | `mainhand` / `offhand` / `head` / `chest` / `legs` / `feet` / `hand` / `armor` / `body` / `any` (any case) |
 | `amount` | 0.0 | Numeric value (sign matters for attack_speed) |
-| `operation` | `add_value` | `add_value` (flat) / `add_multiplied_base` / `add_multiplied_total` |
+| `operation` | `add_value` | `add_value` (flat) / `add_multiplied_base` / `add_multiplied_total`; legacy `addition` / `multiply_base` / `multiply_total` also accepted |
 | `id` | auto | Optional unique modifier id; auto-generated if omitted |
 
-**Common attributes:** `attack_damage`, `attack_speed`, `max_health`, `armor`, `armor_toughness`, `knockback_resistance`, `movement_speed`, `attack_knockback`, `luck`.
+**All vanilla attributes** (usable on every supported version):
+`armor`, `armor_toughness`, `attack_damage`, `attack_knockback`, `attack_speed`,
+`block_break_speed`, `block_interaction_range`, `burning_time`, `entity_interaction_range`,
+`explosion_knockback_resistance`, `fall_damage_multiplier`, `flying_speed`, `follow_range`,
+`gravity`, `jump_strength`, `knockback_resistance`, `luck`, `max_absorption`, `max_health`,
+`mining_efficiency`, `movement_efficiency`, `movement_speed`, `oxygen_bonus`,
+`safe_fall_distance`, `scale`, `sneaking_speed`, `spawn_reinforcements`, `step_height`,
+`submerged_mining_speed`, `sweeping_damage_ratio`, `water_movement_efficiency`.
+
+Newer versions only: `tempt_range`, `camera_distance`, `waypoint_transmit_range`,
+`waypoint_receive_range` (26.x). Unknown names log a warning and are skipped.
 
 > Vanilla weapons set their own attack_damage when held — your `mainhand` modifier replaces that, it doesn't add to it. To get a +5 sword that adds on top of base 6, set `amount: 11`.
 

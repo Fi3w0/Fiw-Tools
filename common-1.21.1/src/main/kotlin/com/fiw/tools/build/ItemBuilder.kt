@@ -241,10 +241,7 @@ object ItemBuilder {
         if (def.attributes.isEmpty()) return
         val builder = ItemAttributeModifiers.builder()
         def.attributes.forEachIndexed { index, attr ->
-            val typeId = ResourceLocation.tryParse(attr.type) ?: run {
-                logger.warn("Item '${def.id}': invalid attribute id '${attr.type}'"); return@forEachIndexed
-            }
-            val holder: Holder<Attribute>? = BuiltInRegistries.ATTRIBUTE.getHolder(typeId).orElse(null)
+            val holder: Holder<Attribute>? = resolveAttribute(attr.type)
             if (holder == null) {
                 logger.warn("Item '${def.id}': unknown attribute '${attr.type}'"); return@forEachIndexed
             }
@@ -334,6 +331,29 @@ object ItemBuilder {
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
     }
 
+    /**
+     * Attribute lookup accepting both formats: a full id (`minecraft:attack_damage`) and a bare
+     * constant-style name (`ATTACK_DAMAGE`, `GENERIC_ATTACK_DAMAGE`, `max_health`, ...). Bare
+     * names are normalised and retried with the legacy `generic.`/`player.`/`zombie.` prefixes,
+     * so every vanilla attribute resolves by the same name on every game version.
+     */
+    private fun resolveAttribute(raw: String): Holder<Attribute>? {
+        val candidates = ArrayList<ResourceLocation>()
+        ResourceLocation.tryParse(raw)?.let { candidates.add(it) }
+        var flat = raw.lowercase().substringAfter(':')
+        for (prefix in listOf("generic.", "player.", "zombie.", "horse.", "generic_", "player_")) {
+            flat = flat.removePrefix(prefix)
+        }
+        for (path in listOf(flat, "generic.$flat", "player.$flat", "zombie.$flat", "horse.$flat")) {
+            ResourceLocation.tryParse("minecraft:$path")?.let { candidates.add(it) }
+        }
+        for (id in candidates) {
+            val holder: Holder<Attribute>? = BuiltInRegistries.ATTRIBUTE.getHolder(id).orElse(null)
+            if (holder != null) return holder
+        }
+        return null
+    }
+
     private fun modifierPath(itemId: String, type: String, index: Int): String =
         "${itemId}.${type.lowercase().replace(":", ".")}.$index".replace(Regex("[^a-z0-9._/-]"), "_")
 
@@ -341,6 +361,10 @@ object ItemBuilder {
         "add_value" -> Operation.ADD_VALUE
         "add_multiplied_base" -> Operation.ADD_MULTIPLIED_BASE
         "add_multiplied_total" -> Operation.ADD_MULTIPLIED_TOTAL
+        // Legacy pre-1.20.5 names, so configs written for old tutorials still work.
+        "addition" -> Operation.ADD_VALUE
+        "multiply_base" -> Operation.ADD_MULTIPLIED_BASE
+        "multiply_total" -> Operation.ADD_MULTIPLIED_TOTAL
         else -> Operation.ADD_VALUE
     }
 
@@ -353,6 +377,7 @@ object ItemBuilder {
         "legs" -> EquipmentSlotGroup.LEGS
         "feet" -> EquipmentSlotGroup.FEET
         "armor" -> EquipmentSlotGroup.ARMOR
+        "body" -> EquipmentSlotGroup.BODY
         else -> EquipmentSlotGroup.ANY
     }
 
