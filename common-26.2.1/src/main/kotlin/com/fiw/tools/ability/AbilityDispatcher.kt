@@ -41,14 +41,27 @@ object AbilityDispatcher {
     fun onKill(entity: LivingEntity, source: DamageSource) {
         val attacker = source.entity
         if (attacker is ServerPlayer) {
-            fire(AbilityTrigger.ON_KILL, attacker, attacker.mainHandItem, attacker.level(), entity, entity.position())
+            val weapon = killingWeapon(attacker, source)
+            fire(AbilityTrigger.ON_KILL, attacker, weapon, attacker.level(), entity, entity.position())
             val victimId = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entity.type).toString()
-            fire(AbilityTrigger.ON_BOSS_KILL, attacker, attacker.mainHandItem, attacker.level(), entity, entity.position(),
+            fire(AbilityTrigger.ON_BOSS_KILL, attacker, weapon, attacker.level(), entity, entity.position(),
                 abilityFilter = { ab -> bossMatches(ab, victimId) })
-            com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, attacker.mainHandItem, entity)
-            com.fiw.tools.streak.KillstreakHandler.onKill(attacker, attacker.mainHandItem)
+            com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, weapon, entity)
+            com.fiw.tools.streak.KillstreakHandler.onKill(attacker, weapon)
             com.fiw.tools.recharge.RechargeOnKillHandler.onKill(attacker, entity)
         }
+    }
+
+    /**
+     * The stack that actually scored a kill: a projectile kill resolves to the weapon that fired
+     * the arrow (swapping items mid-flight can't credit the wrong one), else the main hand.
+     */
+    private fun killingWeapon(attacker: ServerPlayer, source: DamageSource): ItemStack {
+        val direct = source.directEntity
+        if (direct is net.minecraft.world.entity.projectile.arrow.AbstractArrow) {
+            direct.weaponItem?.takeIf { !it.isEmpty }?.let { return liveStackFor(attacker, it) }
+        }
+        return attacker.mainHandItem
     }
 
     /** Vanilla bosses recognised by `on_boss_kill` when the ability lists no explicit `bosses`. */
@@ -68,7 +81,18 @@ object AbilityDispatcher {
     }
 
     fun onPickup(player: ServerPlayer, stack: ItemStack) {
-        fire(AbilityTrigger.ON_PICKUP, player, stack, player.level(), null, null)
+        // The pickup hook hands us a snapshot copy; abilities must mutate the real inventory stack.
+        fire(AbilityTrigger.ON_PICKUP, player, liveInventoryStack(player, stack), player.level(), null, null)
+    }
+
+    private fun liveInventoryStack(player: ServerPlayer, copy: ItemStack): ItemStack {
+        val id = com.fiw.tools.build.FiwItems.fiwId(copy) ?: return copy
+        val inv = player.inventory
+        for (slot in 0 until inv.containerSize) {
+            val s = inv.getItem(slot)
+            if (!s.isEmpty && com.fiw.tools.build.FiwItems.fiwId(s) == id) return s
+        }
+        return copy
     }
 
     fun onDrop(player: ServerPlayer, stack: ItemStack) {
@@ -146,8 +170,13 @@ object AbilityDispatcher {
         fire(AbilityTrigger.ON_ARROW_HIT, player, liveStackFor(player, weapon), player.level(), target, target.position())
     }
 
-    fun onShieldBlock(player: ServerPlayer, attacker: LivingEntity?, blocked: Float) {
+    fun onShieldBlock(player: ServerPlayer, attacker: LivingEntity?, blocked: Float, blocking: ItemStack?) {
         val world = player.level()
+        // The item that actually blocked owns the trigger; both hands only as a fallback.
+        if (blocking != null && !blocking.isEmpty) {
+            fire(AbilityTrigger.ON_SHIELD_BLOCK, player, blocking, world, attacker, attacker?.position(), damageAmount = blocked)
+            return
+        }
         val stack = player.mainHandItem
         fire(AbilityTrigger.ON_SHIELD_BLOCK, player, stack, world, attacker, attacker?.position(), damageAmount = blocked)
         val off = player.offhandItem

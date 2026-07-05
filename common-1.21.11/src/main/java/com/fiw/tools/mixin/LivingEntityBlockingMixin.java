@@ -20,7 +20,7 @@ public abstract class LivingEntityBlockingMixin {
         LivingEntity self = (LivingEntity) (Object) this;
         if (self instanceof ServerPlayer serverPlayer) {
             LivingEntity attacker = source.getEntity() instanceof LivingEntity living ? living : null;
-            AbilityDispatcher.INSTANCE.onShieldBlock(serverPlayer, attacker, cir.getReturnValue());
+            AbilityDispatcher.INSTANCE.onShieldBlock(serverPlayer, attacker, cir.getReturnValue(), self.getItemBlockingWith());
         }
     }
 }

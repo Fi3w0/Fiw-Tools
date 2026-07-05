@@ -38,7 +38,7 @@ public abstract class PlayerCombatHooksMixin {
     private void fiwTools$onShieldBlock(float amount, CallbackInfo ci) {
         Player self = (Player) (Object) this;
         if (amount > 0 && self instanceof ServerPlayer serverPlayer) {
-            AbilityDispatcher.INSTANCE.onShieldBlock(serverPlayer, self.getLastHurtByMob(), amount);
+            AbilityDispatcher.INSTANCE.onShieldBlock(serverPlayer, self.getLastHurtByMob(), amount, self.getUseItem());
         }
     }
 }

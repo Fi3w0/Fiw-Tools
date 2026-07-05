@@ -85,7 +85,7 @@ processResources {
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from project(':core').sourceSets.main.output
+    from { project(':core').sourceSets.main.output }
     from {
         configurations.shadedKotlin.collect { zipTree(it) }
     }

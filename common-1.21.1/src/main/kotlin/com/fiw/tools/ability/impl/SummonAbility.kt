@@ -103,9 +103,14 @@ object SummonAbility : Ability {
             mob.addTag(TAG)
             (mob as? TamableAnimal)?.tame(player)
             if (initialTarget != null) mob.setTarget(initialTarget)
-            world.addFreshEntity(mob)
-            world.sendParticles(particle, x, player.y + 0.8, z, 12, 0.3, 0.5, 0.3, 0.02)
+            // Register before spawning: the entity-load hook fires inside addFreshEntity and
+            // culls tagged mobs it doesn't know about.
             synchronized(summons) { summons.add(Summon(world, mob, player.uuid, duration)) }
+            if (!world.addFreshEntity(mob)) {
+                synchronized(summons) { summons.removeIf { it.mob === mob } }
+                continue
+            }
+            world.sendParticles(particle, x, player.y + 0.8, z, 12, 0.3, 0.5, 0.3, 0.02)
             spawned++
         }
         if (spawned == 0) return false

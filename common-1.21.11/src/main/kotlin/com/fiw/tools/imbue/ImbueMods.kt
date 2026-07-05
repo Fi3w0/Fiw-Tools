@@ -190,6 +190,9 @@ object ImbueMods {
         trigger = obj.get("trigger")?.asString ?: "on_right_click",
         cooldownTicks = obj.get("cooldownTicks")?.asInt ?: 0,
         chance = obj.get("chance")?.asFloat ?: 1f,
+        cooldownGroup = obj.get("cooldownGroup")?.takeIf { it.isJsonPrimitive }?.asString,
+        cost = com.fiw.tools.config.ItemConfigParser.parseCost(obj.getAsJsonObject("cost")),
+        stance = obj.get("stance")?.takeIf { it.isJsonPrimitive }?.asString,
         params = obj.getAsJsonObject("params") ?: JsonObject()
     )
 }

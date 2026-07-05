@@ -72,3 +72,14 @@ version header.
 - `infinite.replaceCount` above the item's max stack size is clamped, closing the same oversized-
   stack hole as recipe `count`
 - `beam` with `windup: 0` now plays its fire sound
+- Summons no longer risk being culled by their own stray-cleanup during spawn
+- Kills are credited to the weapon that actually scored them — a projectile kill resolves to the
+  bow that fired the arrow even if you swapped items mid-flight (on_kill, boss kills, awakening,
+  killstreak)
+- `on_shield_block` fires for the item that actually blocked, not both hands
+- Imbued abilities now keep their `cost`, `stance` and `cooldownGroup` (previously silently dropped)
+- `on_pickup` abilities act on the real inventory stack instead of a snapshot copy
+- `soul_surge` no longer burns its souls when nothing was in range
+- `/fiwtools reload` rebuilds preserve killstreak and stance state alongside awakening/binding/charges
+- `uncurse` with `scope: main_hand` targets the selected hotbar slot (was always slot 0)
+- Builds with `--configure-on-demand` no longer fail on the core source-set reference

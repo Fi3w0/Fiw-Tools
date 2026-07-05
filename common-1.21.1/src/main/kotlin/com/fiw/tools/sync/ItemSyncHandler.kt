@@ -131,7 +131,11 @@ object ItemSyncHandler {
             oldTag.getInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY)
         } else -1
         val keepCharges = oldCharges >= 0 && def.charges != null
-        if (progress == null && boundOwner == null && !keepCharges) return
+        val oldStreak = oldTag.getInt(com.fiw.tools.streak.KillstreakHandler.STREAK_KEY)
+        val keepStreak = oldStreak > 0 && def.killstreak != null
+        val oldStance = oldTag.getString(com.fiw.tools.stance.StanceHandler.STANCE_KEY).takeIf { it.isNotEmpty() }
+        val keepStance = oldStance != null && def.stances.isNotEmpty()
+        if (progress == null && boundOwner == null && !keepCharges && !keepStreak && !keepStance) return
         val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
         val tag = data.copyTag()
         progress?.let { tag.putDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY, it) }
@@ -140,6 +144,8 @@ object ItemSyncHandler {
         if (keepCharges) {
             tag.putInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY, oldCharges.coerceAtMost(def.charges!!.max))
         }
+        if (keepStreak) tag.putInt(com.fiw.tools.streak.KillstreakHandler.STREAK_KEY, oldStreak)
+        if (keepStance) tag.putString(com.fiw.tools.stance.StanceHandler.STANCE_KEY, oldStance!!)
         rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
     }
 

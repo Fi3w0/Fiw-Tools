@@ -31,7 +31,7 @@ object UncurseAbility : Ability {
         val consumeSelf = params.optB("consumeSelf", true)
 
         val inv = ctx.player.inventory
-        val candidates = slotsFor(scope, inv.containerSize)
+        val candidates = slotsFor(scope, inv.containerSize, ctx.player.inventory.selected)
 
         var uncursed = 0
         for (slot in candidates) {
@@ -65,11 +65,9 @@ object UncurseAbility : Ability {
         return true
     }
 
-    private fun slotsFor(scope: String, size: Int): IntRange = when (scope) {
+    private fun slotsFor(scope: String, size: Int, selectedSlot: Int): IntRange = when (scope) {
         // 0..8 = hotbar, 9..35 = main grid, 36..39 = armor (head/chest/legs/feet), 40 = offhand.
-        "main_hand" -> 0..0  // current selected hotbar slot is the held item; player API has selected, but
-        // the dispatcher already passed ctx.stack — for "main_hand" scope we just hit the held stack.
-        // Skipped in execute() by `stack === ctx.stack`, so we fall back to all_inventory below.
+        "main_hand" -> selectedSlot..selectedSlot
         "off_hand" -> 40..40
         "armor" -> 36..39
         else -> 0 until size

@@ -308,7 +308,8 @@ object ItemConfigParser {
         )
     }
 
-    private fun parseCost(o: JsonObject?): ItemDefinition.CostDef? {
+    /** Public so imbued `addAbilities` blocks parse costs identically to normal abilities. */
+    fun parseCost(o: JsonObject?): ItemDefinition.CostDef? {
         if (o == null) return null
         val cost = ItemDefinition.CostDef(
             charges = o.optInt("charges", 0),

@@ -51,19 +51,20 @@ object SoulSurgeAbility : Ability {
     override fun execute(ctx: AbilityContext): Boolean {
         val souls = SoulHandler.getSouls(ctx.stack)
         if (souls == 0) return false
-        val drained = SoulHandler.drainAll(ctx.stack)
         val damagePerSoul = ctx.params.optF("damagePerSoul", 2f)
         val radius = ctx.params.optD("radius", 6.0)
         val scope = ctx.params.scope("affects", AffectScope.ALL)
         val world = ctx.world
         val player = ctx.player
+        // Confirm there is something to hit before draining — a whiffed nuke keeps its souls.
+        val targets = collectTargets(world, player.position(), radius, player, scope)
+        if (targets.isEmpty()) return false
+        val drained = SoulHandler.drainAll(ctx.stack)
         val totalDamage = drained * damagePerSoul
         val src = world.damageSources().magic()
-        var hit = false
-        for (e in collectTargets(world, player.position(), radius, player, scope)) {
+        for (e in targets) {
             e.hurtServer(world, src, totalDamage)
             world.sendParticles(ParticleTypes.SOUL, e.x, e.y + 1.0, e.z, 8, 0.3, 0.4, 0.3, 0.03)
-            hit = true
         }
         world.sendParticles(ParticleTypes.SOUL, player.x, player.y + 1.0, player.z, 30, 1.5, 1.0, 1.5, 0.05)
         world.playSound(null, player.x, player.y, player.z,
@@ -71,6 +72,6 @@ object SoulSurgeAbility : Ability {
         player.sendSystemMessage(
             net.minecraft.network.chat.Component.literal("§5Released §d${drained}§5 souls for §d${totalDamage.toInt()}§5 damage.")
         )
-        return hit
+        return true
     }
 }
