@@ -88,11 +88,15 @@ object AbilityDispatcher {
     private fun liveInventoryStack(player: ServerPlayer, copy: ItemStack): ItemStack {
         val id = com.fiw.tools.build.FiwItems.fiwId(copy) ?: return copy
         val inv = player.inventory
+        var sameId: ItemStack? = null
         for (slot in 0 until inv.containerSize) {
             val s = inv.getItem(slot)
-            if (!s.isEmpty && com.fiw.tools.build.FiwItems.fiwId(s) == id) return s
+            if (s.isEmpty || com.fiw.tools.build.FiwItems.fiwId(s) != id) continue
+            // Exact per-stack state wins — two copies of one item can differ in charges/streak.
+            if (ItemStack.isSameItemSameComponents(s, copy)) return s
+            if (sameId == null) sameId = s
         }
-        return copy
+        return sameId ?: copy
     }
 
     fun onDrop(player: ServerPlayer, stack: ItemStack) {
@@ -144,9 +148,13 @@ object AbilityDispatcher {
         return configured.equals(value, ignoreCase = true)
     }
 
-    /** Damage the player dealt to something else — feeds `deal_damage` awakening progress. */
-    fun onDamageDealt(attacker: ServerPlayer, amount: Float) {
-        com.fiw.tools.awaken.AwakeningHandler.onDamageDealt(attacker, attacker.mainHandItem, amount)
+    /**
+     * Damage the player dealt to something else — feeds `deal_damage` awakening progress.
+     * The credited item resolves through the damage source (arrow damage credits the bow);
+     * non-projectile delayed damage still falls back to the current main hand.
+     */
+    fun onDamageDealt(attacker: ServerPlayer, source: DamageSource, amount: Float) {
+        com.fiw.tools.awaken.AwakeningHandler.onDamageDealt(attacker, killingWeapon(attacker, source), amount)
     }
 
     fun onHurt(player: ServerPlayer, source: DamageSource, amount: Float) {

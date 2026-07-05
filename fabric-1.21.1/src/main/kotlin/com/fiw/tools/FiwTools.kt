@@ -64,7 +64,7 @@ object FiwTools : ModInitializer {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, amount ->
             if (entity is ServerPlayer) AbilityDispatcher.onHurt(entity, source, amount)
             val attacker = source.entity
-            if (attacker is ServerPlayer && attacker !== entity) AbilityDispatcher.onDamageDealt(attacker, amount)
+            if (attacker is ServerPlayer && attacker !== entity) AbilityDispatcher.onDamageDealt(attacker, source, amount)
             true
         }
         PlayerBlockBreakEvents.AFTER.register { world, player, pos, _, _ ->

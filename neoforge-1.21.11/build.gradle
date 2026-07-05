@@ -6,6 +6,8 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
+evaluationDependsOn(':core')
+
 version = project.mod_version
 group = project.maven_group
 

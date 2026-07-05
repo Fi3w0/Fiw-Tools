@@ -87,4 +87,11 @@ version header.
 - `soul_surge` no longer burns its souls when nothing was in range
 - `/fiwtools reload` rebuilds preserve killstreak and stance state alongside awakening/binding/charges
 - `uncurse` with `scope: main_hand` targets the selected hotbar slot (was always slot 0)
-- Builds with `--configure-on-demand` no longer fail on the core source-set reference
+- Builds with `--configure-on-demand` no longer fail on the core source-set reference (all
+  loader modules now declare the core evaluation dependency)
+- The stale-result marker is stored as a defensive copy so slot mutations can't break the
+  reload-race protection
+- `on_pickup` resolves the exact picked-up stack when the player carries multiple copies of the
+  same item (component match first, id match as fallback)
+- `deal_damage` awakening progress resolves the credited item through the damage source, so
+  projectile damage credits the bow even after an item swap

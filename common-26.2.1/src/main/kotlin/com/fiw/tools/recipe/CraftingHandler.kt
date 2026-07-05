@@ -84,7 +84,9 @@ object CraftingHandler {
             if (!ItemStack.isSameItemSameComponents(existing, result) || existing.count != result.count) {
                 resultSlot.set(result)
             }
-            customResults[player.uuid] = result
+            // Defensive copy: the slot stack can be mutated (split) by take handling; an aliased
+            // marker would mutate with it and break the stale-take comparison.
+            customResults[player.uuid] = result.copy()
             return
         }
         val stale = customResults.remove(player.uuid)
