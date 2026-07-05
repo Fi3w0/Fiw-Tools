@@ -42,7 +42,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - [Custom Data](#custom-data)
 - [Abilities](#abilities)
   - [Targeting (`affects`)](#targeting-affects)
-  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [arc_slash_barrage](#arc_slash_barrage) · [arc_slash_storm](#arc_slash_storm) · [beam](#beam) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
+  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [arc_slash_barrage](#arc_slash_barrage) · [arc_slash_storm](#arc_slash_storm) · [beam](#beam) · [slash_wave](#slash_wave) · [arrow_rain](#arrow_rain) · [sonic_boom](#sonic_boom) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
   - PvP: [grappling_pull](#grappling_pull) · [disarm](#disarm) · [parry_counter](#parry_counter) · [execute](#execute) · [leech](#leech) · [silence_sigil](#silence_sigil) · [tether](#tether)
   - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
   - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
@@ -545,6 +545,100 @@ first wall it hits.
 ```json
 { "type": "beam", "trigger": "on_right_click", "cooldownTicks": 300,
   "params": { "damage": 3, "duration": 50, "range": 30 } }
+```
+
+---
+
+### `slash_wave`
+
+Flying crescent slash — a ranged cut launched from the weapon. A curved blade of particles
+(purple by default, matching the arc-slash family) travels along your crosshair, cutting every
+entity it passes through once. Fire a fan of them with `waves` + `spreadAngle`; `roll` tilts
+each crescent (0 flat, 90 vertical).
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `damage` | 6.0 | Damage per entity hit (once per wave) |
+| `speed` | 1.2 | Blocks per tick |
+| `range` | 24.0 | Distance before the wave fizzles |
+| `width` | 2.5 | Crescent size in blocks |
+| `arc` | 150.0 | Crescent curvature in degrees |
+| `roll` | 0.0 | Crescent tilt (0 flat, 90 vertical) |
+| `waves` | 1 | Crescents per cast, fanned horizontally |
+| `spreadAngle` | 15.0 | Degrees between fanned waves |
+| `piercing` | true | `false` stops at the first entity hit |
+| `throughBlocks` | false | `true` flies through walls |
+| `knockback` | 0.4 | Push along the flight direction |
+| `hitRadius` | 1.2 | Hit distance around each crescent point |
+| `points` | 16 | Crescent resolution |
+| `ignoreArmor` | false | `true`/`false` or a percent, like the slash abilities |
+| `affects` | `all` | Who the wave hurts |
+| `waveParticles` | witch ×2, dragon_breath ×1, electric_spark ×1 | Trail (same burst format as `slashParticles`) |
+| `launchSound` | `minecraft:entity.player.attack.sweep` | Volume 1.0 / pitch 0.7 |
+| `hitSound` | `minecraft:entity.player.attack.crit` | Volume 1.0 / pitch 0.9 |
+
+```json
+{ "type": "slash_wave", "trigger": "on_right_click", "cooldownTicks": 60,
+  "params": { "damage": 7, "waves": 3, "spreadAngle": 20 } }
+```
+
+---
+
+### `arrow_rain`
+
+Mark a zone at your crosshair (up to `targetRange`, or the surface you're looking at), telegraph
+it with a shrinking particle ring, then real arrows pour from the sky over it in waves. Arrows
+carry your kill credit and can't be picked up (no free ammo); like any arrow, they hit whatever
+is under them — friend or foe.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `targetRange` | 40.0 | How far the zone can be placed |
+| `radius` | 4.0 | Zone radius |
+| `delay` | 10 | Telegraph ticks before the first wave |
+| `count` | 20 | Total arrows |
+| `waves` | 4 | Groups the arrows arrive in |
+| `waveInterval` | 3 | Ticks between waves |
+| `height` | 12.0 | Spawn height above the zone |
+| `arrowSpeed` | 1.5 | Downward launch speed |
+| `damage` | 4.0 | Arrow base damage (scales with speed like vanilla) |
+| `flaming` | false | Arrows set targets on fire |
+| `critical` | false | Crit trail + bonus roll |
+| `markerParticle` | `minecraft:cloud` | Telegraph ring |
+| `castSound` | `minecraft:entity.arrow.shoot` | At cast; volume 1.0 / pitch 0.8 |
+| `rainSound` | `minecraft:entity.arrow.shoot` | Per wave; volume 0.8 / pitch ~1.1 |
+
+```json
+{ "type": "arrow_rain", "trigger": "on_right_click", "cooldownTicks": 200,
+  "params": { "count": 30, "radius": 5, "flaming": true } }
+```
+
+---
+
+### `sonic_boom`
+
+Warden-style concussive shot: a short sculk-crackle charge, then one instant shockwave ray
+along your crosshair that travels **through walls** by default, hits everything in its path
+with armor-ignoring damage and hurls victims away. The anti-turtle answer to shields and cover.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `windup` | 10 | Charge ticks before the shot |
+| `damage` | 12.0 | Damage to everything on the ray |
+| `range` | 24.0 | Ray length |
+| `width` | 1.2 | Ray hitbox half-width |
+| `knockback` | 1.5 | Launch strength along the ray |
+| `throughBlocks` | true | `false` stops at the first wall |
+| `ignoreArmor` | true | `true`/`false` or a percent |
+| `affects` | `all` | Who it hurts |
+| `boomParticle` | `minecraft:sonic_boom` | One per `particleSpacing` (1.0) blocks |
+| `chargeParticle` | `minecraft:sculk_charge_pop` | Windup crackle |
+| `chargeSound` | `minecraft:entity.warden.sonic_charge` | Volume 2.0 / pitch 1.0 |
+| `fireSound` | `minecraft:entity.warden.sonic_boom` | Volume 2.0 / pitch 1.0 |
+
+```json
+{ "type": "sonic_boom", "trigger": "on_right_click", "cooldownTicks": 400,
+  "params": { "damage": 10, "range": 20 } }
 ```
 
 ---

@@ -1,0 +1,33 @@
+{
+  "id": "crescent_edge",
+  "base": "minecraft:iron_sword",
+  "displayName": "&d&lCrescent Edge",
+  "lore": [
+    "&7The cut that leaves the blade.",
+    "",
+    "&dRight-click &8- &7launch a flying slash.",
+    "&dSneak + right-click &8- &7a fan of three."
+  ],
+  "rarity": "rare",
+  "abilities": [
+    {
+      "type": "slash_wave",
+      "trigger": "on_right_click",
+      "cooldownTicks": 40,
+      "params": {
+        "damage": 7
+      }
+    },
+    {
+      "type": "slash_wave",
+      "trigger": "on_shift_right_click",
+      "cooldownTicks": 120,
+      "params": {
+        "damage": 6,
+        "waves": 3,
+        "spreadAngle": 20,
+        "roll": 90
+      }
+    }
+  ]
+}

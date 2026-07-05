@@ -29,6 +29,14 @@ version header.
   sweeps with your aim (or locks direction), stops at walls unless `throughBlocks`. All sounds,
   particles, windup/duration/damage/width/range configurable. Example:
   `examples/items/beam_staff.json`
+- **`slash_wave`** — flying crescent slash (purple, matching the arc-slash family) that travels
+  along the crosshair cutting everything it passes; `waves`+`spreadAngle` fires a fan, `roll`
+  tilts it vertical. Example: `examples/items/crescent_edge.json`
+- **`arrow_rain`** — mark a zone at the crosshair, telegraph ring, then real arrows (kill credit,
+  not collectable) pour down in waves; `flaming`/`critical` options. Example:
+  `examples/items/tempest_bow.json`
+- **`sonic_boom`** — warden-style charge then an instant shockwave ray that pierces walls,
+  armor-ignoring damage plus heavy knockback. Example: `examples/items/warden_horn.json`
 
 ### Fixed
 

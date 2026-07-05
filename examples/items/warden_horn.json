@@ -1,0 +1,23 @@
+{
+  "id": "warden_horn",
+  "base": "minecraft:echo_shard",
+  "displayName": "&3&lResonant Horn",
+  "lore": [
+    "&7It remembers the deep dark.",
+    "",
+    "&3Right-click &8- &7charge, then a sonic",
+    "&8  boom that rips through walls."
+  ],
+  "rarity": "epic",
+  "abilities": [
+    {
+      "type": "sonic_boom",
+      "trigger": "on_right_click",
+      "cooldownTicks": 400,
+      "params": {
+        "damage": 12,
+        "range": 24
+      }
+    }
+  ]
+}

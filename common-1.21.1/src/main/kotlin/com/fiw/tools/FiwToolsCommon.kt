@@ -8,7 +8,10 @@ import com.fiw.tools.elemental.ElementalStatusTracker
 import com.fiw.tools.ability.ZoneEffects
 import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.ProjectileBurstAbility
+import com.fiw.tools.ability.impl.ArrowRainAbility
 import com.fiw.tools.ability.impl.BeamAbility
+import com.fiw.tools.ability.impl.SlashWaveAbility
+import com.fiw.tools.ability.impl.SonicBoomAbility
 import com.fiw.tools.ability.impl.SlashBarrage
 import com.fiw.tools.awaken.AwakeningHandler
 import com.fiw.tools.bind.BindingHandler
@@ -54,6 +57,9 @@ object FiwToolsCommon {
         ArcSlashAbility.tick()
         SlashBarrage.tick()
         BeamAbility.tick()
+        SlashWaveAbility.tick()
+        ArrowRainAbility.tick()
+        SonicBoomAbility.tick()
         AbilityState.processBleeds(server)
         ElementalStatusTracker.processTick(server)
     }
@@ -72,6 +78,9 @@ object FiwToolsCommon {
         ArcSlashAbility.clear()
         SlashBarrage.clear()
         BeamAbility.clear()
+        SlashWaveAbility.clear()
+        ArrowRainAbility.clear()
+        SonicBoomAbility.clear()
         ZoneEffects.clear()
         AbilityState.clear()
         ElementalStatusTracker.reset()

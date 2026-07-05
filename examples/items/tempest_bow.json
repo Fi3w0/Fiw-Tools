@@ -1,0 +1,24 @@
+{
+  "id": "tempest_bow",
+  "base": "minecraft:bow",
+  "displayName": "&e&lTempest Bow",
+  "lore": [
+    "&7The sky fights for its bearer.",
+    "",
+    "&eRight-click &8- &7mark a zone; arrows",
+    "&8  rain from above."
+  ],
+  "rarity": "rare",
+  "abilities": [
+    {
+      "type": "arrow_rain",
+      "trigger": "on_right_click",
+      "cooldownTicks": 200,
+      "params": {
+        "count": 24,
+        "radius": 4,
+        "waves": 4
+      }
+    }
+  ]
+}
