@@ -46,7 +46,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
   - PvP: [grappling_pull](#grappling_pull) · [disarm](#disarm) · [parry_counter](#parry_counter) · [execute](#execute) · [leech](#leech) · [silence_sigil](#silence_sigil) · [tether](#tether)
   - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
   - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
-  - Utility: [phase_dash](#phase_dash) · [feather_fall](#feather_fall) · [second_wind](#second_wind) · [ender_recall](#ender_recall) · [levitate_self](#levitate_self)
+  - Utility: [phase_dash](#phase_dash) · [grapple](#grapple) · [feather_fall](#feather_fall) · [second_wind](#second_wind) · [ender_recall](#ender_recall) · [levitate_self](#levitate_self)
   - Support / social: [rally_banner](#rally_banner) · [taunt](#taunt) · [healing_totem](#healing_totem) · [beacon_ping](#beacon_ping) · [firework_burst](#firework_burst) · [glow_mark](#glow_mark) · [prank_swap](#prank_swap)
   - [Passives (`while_held` / `while_sneaking`)](#passives-while_held)
     - Held self-buffs: [passive_buff](#passive_buff) · [featherweight](#featherweight) · [aqua_kit](#aqua_kit) · [thermal_ward](#thermal_ward) · [saturation_aura](#saturation_aura) · [magnet](#magnet) · [berserker](#berserker) · [combat_focus](#combat_focus) · [lifeline](#lifeline)
@@ -1042,6 +1042,29 @@ Best trigger: `on_right_click`. Blink in your look direction (clamped to safe bl
 
 ```json
 { "type": "phase_dash", "trigger": "on_right_click", "cooldownTicks": 80 }
+```
+
+---
+
+### `grapple`
+
+Best trigger: `on_right_click`. Grappling hook: latch onto the **block** under your crosshair and
+get reeled toward it, rope drawn in particles. Sneak mid-flight to let go; no fall damage while
+reeling. (For pulling *entities* to you, see `grappling_pull`.)
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 24.0 | Max block distance |
+| `pullSpeed` | 0.9 | Reel speed in blocks per tick |
+| `launchBoost` | 0.35 | Initial upward hop |
+| `releaseDistance` | 1.5 | Arrival distance that ends the pull |
+| `maxTicks` | 60 | Reel timeout |
+| `ropeParticle` | `minecraft:crit` | Rope trail |
+| `fireSound` | `minecraft:entity.fishing_bobber.throw` | + volume 1.0 / pitch 0.8 |
+| `latchSound` | `minecraft:block.chain.place` | + volume 1.0 / pitch 0.8 |
+
+```json
+{ "type": "grapple", "trigger": "on_right_click", "cooldownTicks": 60, "params": { "range": 30 } }
 ```
 
 ---

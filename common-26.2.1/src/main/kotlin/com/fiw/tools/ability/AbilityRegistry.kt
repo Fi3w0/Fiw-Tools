@@ -29,6 +29,7 @@ import com.fiw.tools.ability.impl.ArcSlashBarrageAbility
 import com.fiw.tools.ability.impl.ArcSlashStormAbility
 import com.fiw.tools.ability.impl.ArrowRainAbility
 import com.fiw.tools.ability.impl.BeamAbility
+import com.fiw.tools.ability.impl.GrappleAbility
 import com.fiw.tools.ability.impl.SlashWaveAbility
 import com.fiw.tools.ability.impl.SonicBoomAbility
 import com.fiw.tools.ability.impl.BeaconAuraAbility
@@ -129,6 +130,7 @@ object AbilityRegistry {
 
         // Utility
         register("phase_dash") { PhaseDashAbility }
+        register("grapple") { GrappleAbility }
         register("feather_fall") { FeatherFallAbility }
         register("second_wind") { SecondWindAbility }
         register("ender_recall") { EnderRecallAbility }

@@ -10,6 +10,7 @@ import com.fiw.tools.ability.impl.ArcSlashAbility
 import com.fiw.tools.ability.impl.ProjectileBurstAbility
 import com.fiw.tools.ability.impl.ArrowRainAbility
 import com.fiw.tools.ability.impl.BeamAbility
+import com.fiw.tools.ability.impl.GrappleAbility
 import com.fiw.tools.ability.impl.SlashWaveAbility
 import com.fiw.tools.ability.impl.SonicBoomAbility
 import com.fiw.tools.ability.impl.SlashBarrage
@@ -57,6 +58,7 @@ object FiwToolsCommon {
         ArcSlashAbility.tick()
         SlashBarrage.tick()
         BeamAbility.tick()
+        GrappleAbility.tick()
         SlashWaveAbility.tick()
         ArrowRainAbility.tick()
         SonicBoomAbility.tick()
@@ -79,6 +81,7 @@ object FiwToolsCommon {
         ArcSlashAbility.clear()
         SlashBarrage.clear()
         BeamAbility.clear()
+        GrappleAbility.clear()
         SlashWaveAbility.clear()
         ArrowRainAbility.clear()
         SonicBoomAbility.clear()

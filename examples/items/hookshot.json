@@ -1,0 +1,22 @@
+{
+  "id": "hookshot",
+  "base": "minecraft:fishing_rod",
+  "displayName": "&7&lHookshot",
+  "lore": [
+    "&7Where the eye lands, the body follows.",
+    "",
+    "&fRight-click &8- &7hook a block and reel in.",
+    "&8  Sneak mid-flight to let go."
+  ],
+  "rarity": "uncommon",
+  "abilities": [
+    {
+      "type": "grapple",
+      "trigger": "on_right_click",
+      "cooldownTicks": 40,
+      "params": {
+        "range": 28
+      }
+    }
+  ]
+}
