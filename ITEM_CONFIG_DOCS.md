@@ -47,7 +47,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
   - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
   - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
   - Utility: [phase_dash](#phase_dash) · [grapple](#grapple) · [feather_fall](#feather_fall) · [second_wind](#second_wind) · [ender_recall](#ender_recall) · [levitate_self](#levitate_self)
-  - Support / social: [rally_banner](#rally_banner) · [taunt](#taunt) · [healing_totem](#healing_totem) · [beacon_ping](#beacon_ping) · [firework_burst](#firework_burst) · [glow_mark](#glow_mark) · [prank_swap](#prank_swap)
+  - Support / social: [rally_banner](#rally_banner) · [taunt](#taunt) · [healing_totem](#healing_totem) · [summon](#summon) · [beacon_ping](#beacon_ping) · [firework_burst](#firework_burst) · [glow_mark](#glow_mark) · [prank_swap](#prank_swap)
   - [Passives (`while_held` / `while_sneaking`)](#passives-while_held)
     - Held self-buffs: [passive_buff](#passive_buff) · [featherweight](#featherweight) · [aqua_kit](#aqua_kit) · [thermal_ward](#thermal_ward) · [saturation_aura](#saturation_aura) · [magnet](#magnet) · [berserker](#berserker) · [combat_focus](#combat_focus) · [lifeline](#lifeline)
     - Holder debuffs (balance): [holder_debuff](#holder_debuff)
@@ -1065,6 +1065,29 @@ reeling. (For pulling *entities* to you, see `grappling_pull`.)
 
 ```json
 { "type": "grapple", "trigger": "on_right_click", "cooldownTicks": 60, "params": { "range": 30 } }
+```
+
+---
+
+### `summon`
+
+Best trigger: `on_right_click`. Summons temporary allies around you: tamables come out tamed to
+you, and every summon is aimed at whoever last hurt you, then re-aimed at nearby hostiles while
+it lives. Summons vanish in a poof when their time runs out (strays from a crash are culled on
+world load). Works best with tamable or neutral mobs — a summoned zombie is still a zombie.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `entity` | `minecraft:wolf` | Entity type to summon |
+| `count` | 2 | How many |
+| `duration` | 600 | Lifetime in ticks |
+| `spawnRadius` | 1.8 | Ring around the caster they appear in |
+| `particle` | `minecraft:cloud` | Spawn/poof burst |
+| `sound` | `minecraft:entity.evoker.cast_spell` | + `soundVolume` 1.0 / `soundPitch` 1.0 |
+
+```json
+{ "type": "summon", "trigger": "on_right_click", "cooldownTicks": 600,
+  "params": { "entity": "minecraft:wolf", "count": 3, "duration": 900 } }
 ```
 
 ---

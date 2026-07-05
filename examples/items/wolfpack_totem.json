@@ -1,0 +1,24 @@
+{
+  "id": "wolfpack_totem",
+  "base": "minecraft:bone",
+  "displayName": "&f&lWolfpack Totem",
+  "lore": [
+    "&7You never hunt alone.",
+    "",
+    "&fRight-click &8- &7call three spectral",
+    "&8  wolves to fight beside you."
+  ],
+  "rarity": "rare",
+  "abilities": [
+    {
+      "type": "summon",
+      "trigger": "on_right_click",
+      "cooldownTicks": 600,
+      "params": {
+        "entity": "minecraft:wolf",
+        "count": 3,
+        "duration": 900
+      }
+    }
+  ]
+}

@@ -74,7 +74,10 @@ object FiwTools : ModInitializer {
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> FiwToolsCommon.playerJoin(handler.player) }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> FiwToolsCommon.playerDisconnect(handler.player) }
         ServerPlayerEvents.COPY_FROM.register { _, newPlayer, alive -> KeepOnDeathHandler.onClone(newPlayer, alive) }
-        ServerEntityEvents.ENTITY_LOAD.register { entity, _ -> InfiniteItems.onEntityLoad(entity) }
+        ServerEntityEvents.ENTITY_LOAD.register { entity, _ ->
+            InfiniteItems.onEntityLoad(entity)
+            com.fiw.tools.ability.impl.SummonAbility.onEntityLoad(entity)
+        }
         ServerPlayerEvents.AFTER_RESPAWN.register { _, newPlayer, _ -> AbilityDispatcher.onRespawn(newPlayer) }
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register { player, origin, destination ->
             AbilityDispatcher.onDimensionChange(

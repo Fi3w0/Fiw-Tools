@@ -12,6 +12,7 @@ import com.fiw.tools.ability.impl.ArrowRainAbility
 import com.fiw.tools.ability.impl.BeamAbility
 import com.fiw.tools.ability.impl.GrappleAbility
 import com.fiw.tools.ability.impl.SlashWaveAbility
+import com.fiw.tools.ability.impl.SummonAbility
 import com.fiw.tools.ability.impl.SonicBoomAbility
 import com.fiw.tools.ability.impl.SlashBarrage
 import com.fiw.tools.awaken.AwakeningHandler
@@ -59,6 +60,7 @@ object FiwToolsCommon {
         SlashBarrage.tick()
         BeamAbility.tick()
         GrappleAbility.tick()
+        SummonAbility.tick()
         SlashWaveAbility.tick()
         ArrowRainAbility.tick()
         SonicBoomAbility.tick()
@@ -82,6 +84,7 @@ object FiwToolsCommon {
         SlashBarrage.clear()
         BeamAbility.clear()
         GrappleAbility.clear()
+        SummonAbility.clear()
         SlashWaveAbility.clear()
         ArrowRainAbility.clear()
         SonicBoomAbility.clear()

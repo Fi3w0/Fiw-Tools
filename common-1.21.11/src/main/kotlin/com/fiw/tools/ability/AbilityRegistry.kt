@@ -30,6 +30,7 @@ import com.fiw.tools.ability.impl.ArcSlashStormAbility
 import com.fiw.tools.ability.impl.ArrowRainAbility
 import com.fiw.tools.ability.impl.BeamAbility
 import com.fiw.tools.ability.impl.GrappleAbility
+import com.fiw.tools.ability.impl.SummonAbility
 import com.fiw.tools.ability.impl.SlashWaveAbility
 import com.fiw.tools.ability.impl.SonicBoomAbility
 import com.fiw.tools.ability.impl.BeaconAuraAbility
@@ -140,6 +141,7 @@ object AbilityRegistry {
         register("rally_banner") { RallyBannerAbility }
         register("taunt") { TauntAbility }
         register("healing_totem") { HealingTotemAbility }
+        register("summon") { SummonAbility }
         register("beacon_ping") { BeaconPingAbility }
         register("firework_burst") { FireworkBurstAbility }
         register("glow_mark") { GlowMarkAbility }
