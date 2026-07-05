@@ -1,6 +1,6 @@
 {
   "id": "stormcaller_lance",
-  "base": "minecraft:trident",
+  "base": "minecraft:breeze_rod",
   "displayName": "&9&lStormcaller Lance",
   "lore": [
     "&7The longer you hold, the louder it answers.",

@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.CraftingBookCategory
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.CraftingRecipe
+import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.crafting.PlacementInfo
 import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.item.crafting.display.RecipeDisplay
@@ -50,8 +51,58 @@ class FiwCraftingRecipe(
 
     override fun showNotification(): Boolean = false
 
-    /** No recipe-book autofill: `fiw:` ingredients can't be expressed as vanilla placements. */
-    override fun placementInfo(): PlacementInfo = PlacementInfo.NOT_PLACEABLE
+    private var placement: PlacementInfo? = null
+
+    /**
+     * Real placements where expressible — recipe viewers (JEI) build their entries from these,
+     * not from [display]. `fiw:` ingredients stand in as their base item here; actual matching
+     * stays component-aware server-side, so a plain base item still can't be spent.
+     */
+    override fun placementInfo(): PlacementInfo {
+        placement?.let { return it }
+        val built = buildPlacement()
+        placement = built
+        return built
+    }
+
+    private fun buildPlacement(): PlacementInfo {
+        if (definition.shaped) {
+            val slots = ArrayList<java.util.Optional<Ingredient>>(definition.width * definition.height)
+            for (y in 0 until definition.height) {
+                for (x in 0 until definition.width) {
+                    val spec = definition.ingredientAt(x, y)
+                    if (spec == null) {
+                        slots.add(java.util.Optional.empty())
+                        continue
+                    }
+                    val ingredient = ingredientFor(spec) ?: return PlacementInfo.NOT_PLACEABLE
+                    slots.add(java.util.Optional.of(ingredient))
+                }
+            }
+            return PlacementInfo.createFromOptionals(slots)
+        }
+        val ingredients = definition.ingredients.map { ingredientFor(it) ?: return PlacementInfo.NOT_PLACEABLE }
+        return PlacementInfo.create(ingredients)
+    }
+
+    private fun ingredientFor(spec: String): Ingredient? {
+        if (spec.startsWith("fiw:")) {
+            val def = ItemRegistry.byId(spec.removePrefix("fiw:")) ?: return null
+            return itemIngredient(def.base)
+        }
+        if (spec.startsWith("#")) {
+            val tagId = Identifier.tryParse(spec.substring(1)) ?: return null
+            val tag = BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM, tagId)).orElse(null) ?: return null
+            return Ingredient.of(tag)
+        }
+        return itemIngredient(spec)
+    }
+
+    private fun itemIngredient(id: String): Ingredient? {
+        val itemId = Identifier.tryParse(id) ?: return null
+        val holder = BuiltInRegistries.ITEM.get(itemId).orElse(null) ?: return null
+        return Ingredient.of(HolderAccess.value(holder))
+    }
 
     override fun display(): List<RecipeDisplay> {
         val result = CraftingHandler.buildResult(definition, registries) ?: return emptyList()

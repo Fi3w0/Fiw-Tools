@@ -2673,6 +2673,10 @@ hold: the player charges as long as the button is held, and releasing fires the 
 Chargeable items shouldn't also carry `on_right_click` abilities (the click starts the charge),
 and `chargeable` overrides the `food` block's use behaviour.
 
+**Pick an inert base item** (rod, gem, sword, tool...). Bases with their own right-click use —
+bow, crossbow, trident, shield, food — override the charge behaviour with their vanilla action,
+and vanilla clients predict that action locally, so charging won't work on them.
+
 ---
 
 ## Stances

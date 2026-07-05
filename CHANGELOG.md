@@ -54,7 +54,8 @@ version header.
   published into the vanilla recipe manager as real server-side recipes, so the vanilla recipe
   book, JEI, REI and EMI all show them (custom names/lore included in ingredients and results)
   through plain vanilla display sync — zero client-side code, zero viewer dependencies, vanilla
-  clients unaffected
+  clients unaffected; recipes carry real placements (base item standing in for `fiw:`
+  ingredients) so JEI lists them too
 - **Friendlier attributes** — `type` accepts bare constant names (`ATTACK_DAMAGE`,
   `MOVEMENT_SPEED`, any case) alongside full ids, auto-prefixed per game version; `body` slot and
   legacy operation names (`addition`, `multiply_base`, `multiply_total`) accepted; docs now list
