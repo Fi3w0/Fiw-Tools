@@ -148,6 +148,7 @@ object ItemBuilder {
         applyEnchantments(stack, def, registries)
         applyAttributes(stack, def)
         applyFood(stack, def)
+        applyChargeable(stack, def)
         applyTool(stack, def, registries)
         applyHideFlags(stack, def)
         applyCurseLocks(stack, def)
@@ -253,6 +254,14 @@ object ItemBuilder {
             builder.add(holder, modifier, parseSlot(attr.slot))
         }
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build())
+    }
+
+    private fun applyChargeable(stack: ItemStack, def: ItemDefinition) {
+        val cfg = def.chargeable ?: return
+        // 1.21.1 has no consumable component; a never-finishing food gives the hold-to-use
+        // behaviour (eat animation) that on_charge_release needs.
+        stack.set(DataComponents.FOOD, FoodProperties(0, 0f, true, cfg.maxSeconds,
+            java.util.Optional.empty(), emptyList()))
     }
 
     private fun applyFood(stack: ItemStack, def: ItemDefinition) {

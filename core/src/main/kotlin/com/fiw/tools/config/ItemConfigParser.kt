@@ -290,7 +290,21 @@ object ItemConfigParser {
             charges = charges,
             dynamicLore = dynamicLore,
             killstreak = killstreak,
-            stances = root.getAsJsonArray("stances")?.map { it.asString } ?: emptyList()
+            stances = root.getAsJsonArray("stances")?.map { it.asString } ?: emptyList(),
+            chargeable = root.get("chargeable")?.takeIf { !it.isJsonNull }?.let { el ->
+                when {
+                    el.isJsonPrimitive && el.asJsonPrimitive.isBoolean ->
+                        if (el.asBoolean) ItemDefinition.ChargeableDef() else null
+                    el.isJsonObject -> {
+                        val o = el.asJsonObject
+                        ItemDefinition.ChargeableDef(
+                            animation = o.optString("animation", "bow"),
+                            maxSeconds = o.optFloat("maxSeconds", 3600f)
+                        )
+                    }
+                    else -> throw IllegalArgumentException("'chargeable' must be true or an object")
+                }
+            }
         )
     }
 

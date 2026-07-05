@@ -37,6 +37,19 @@ version header.
   `examples/items/tempest_bow.json`
 - **`sonic_boom`** — warden-style charge then an instant shockwave ray that pierces walls,
   armor-ignoring damage plus heavy knockback. Example: `examples/items/warden_horn.json`
+- **`grapple`** — hook onto a block and get reeled in (sneak lets go); `examples/items/hookshot.json`
+- **`summon`** — temporary allied mobs that fight for you and poof after a duration;
+  `examples/items/wolfpack_totem.json`
+- **Killstreak momentum** — per-stack `killstreak` block: consecutive kills build buff tiers,
+  death resets, `{streak}`/`{streak_tier}` lore placeholders; `examples/items/bloodthirst_axe.json`
+- **`maxHealth` sacrifice cost** — abilities can permanently (until death) cut the payer's max health
+- **Seven new triggers** — `on_shoot`, `on_arrow_hit`, `on_shield_block`, `on_crit`,
+  `on_block_place`, `on_fall` (with `minDistance`), and `on_charge_release`
+- **Hold-to-charge items** — `chargeable` block gives bow-style charging; release fires
+  `on_charge_release` abilities tiered by `minChargeTicks`/`maxChargeTicks`;
+  `examples/items/stormcaller_lance.json`
+- **Stances** — `stances` list + sneak+swap-hands toggle; abilities gate on `stance`, `{stance}`
+  lore placeholder; `examples/items/twinfang_blade.json`
 
 ### Fixed
 

@@ -1,0 +1,20 @@
+{
+  "id": "stormcaller_lance",
+  "base": "minecraft:trident",
+  "displayName": "&9&lStormcaller Lance",
+  "lore": [
+    "&7The longer you hold, the louder it answers.",
+    "",
+    "&9Hold right-click &8- &7charge it up:",
+    "&8  quick release - arc slash",
+    "&8  1s - shockwave",
+    "&8  3s - sonic boom"
+  ],
+  "rarity": "epic",
+  "chargeable": { "animation": "spear" },
+  "abilities": [
+    { "type": "arc_slash",  "trigger": "on_charge_release", "cooldownTicks": 20,  "params": { "maxChargeTicks": 19, "damage": 5 } },
+    { "type": "shockwave",  "trigger": "on_charge_release", "cooldownTicks": 60,  "params": { "minChargeTicks": 20, "maxChargeTicks": 59 } },
+    { "type": "sonic_boom", "trigger": "on_charge_release", "cooldownTicks": 200, "params": { "minChargeTicks": 60, "damage": 12 } }
+  ]
+}

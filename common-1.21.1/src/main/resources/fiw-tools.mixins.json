@@ -6,6 +6,7 @@
 		"AnvilProtectMixin",
 		"ArrowHitMixin",
 		"BlockItemPlaceMixin",
+		"ChargeReleaseMixin",
 		"PlayerCombatHooksMixin",
 		"BlockItemPlacePreventMixin",
 		"GrindstoneProtectMixin",

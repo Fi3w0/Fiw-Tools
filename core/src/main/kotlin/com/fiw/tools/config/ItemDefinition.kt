@@ -95,8 +95,20 @@ data class ItemDefinition(
      * while that stance is active (stored per stack; first entry is the default). Needs >= 2
      * entries to enable the toggle.
      */
-    val stances: List<String> = emptyList()
+    val stances: List<String> = emptyList(),
+    /**
+     * Hold-to-charge: the item becomes usable like a bow; releasing fires `on_charge_release`
+     * abilities gated by their `minChargeTicks`/`maxChargeTicks` params. `null` = not chargeable.
+     */
+    val chargeable: ChargeableDef? = null
 ) {
+    data class ChargeableDef(
+        /** Use animation while charging: bow, spear, block, eat, drink, ... (1.21.1 always eats). */
+        val animation: String = "bow",
+        /** Safety cap in seconds before vanilla would "finish" the use; keep it huge. */
+        val maxSeconds: Float = 3600f
+    )
+
     data class KillstreakDef(
         /** Kills per tier — every N kills raises the buff amplifier by one. */
         val killsPerTier: Int = 3,

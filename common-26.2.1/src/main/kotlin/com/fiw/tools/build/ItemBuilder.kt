@@ -150,6 +150,7 @@ object ItemBuilder {
         applyEnchantments(stack, def, registries)
         applyAttributes(stack, def)
         applyFood(stack, def)
+        applyChargeable(stack, def)
         applyTool(stack, def, registries)
         applyHideFlags(stack, def)
         applyCurseLocks(stack, def)
@@ -257,6 +258,20 @@ object ItemBuilder {
             builder.add(holder, modifier, parseSlot(attr.slot))
         }
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build())
+    }
+
+    private fun applyChargeable(stack: ItemStack, def: ItemDefinition) {
+        val cfg = def.chargeable ?: return
+        val animation = try {
+            net.minecraft.world.item.ItemUseAnimation.valueOf(cfg.animation.uppercase())
+        } catch (e: IllegalArgumentException) {
+            net.minecraft.world.item.ItemUseAnimation.BOW
+        }
+        stack.set(DataComponents.CONSUMABLE, net.minecraft.world.item.component.Consumable.builder()
+            .consumeSeconds(cfg.maxSeconds)
+            .animation(animation)
+            .hasConsumeParticles(false)
+            .build())
     }
 
     private fun applyFood(stack: ItemStack, def: ItemDefinition) {

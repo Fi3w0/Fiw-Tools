@@ -182,6 +182,20 @@ object AbilityDispatcher {
             damageAmount = distance.toFloat(), abilityFilter = filter)
     }
 
+    /**
+     * A hold-to-charge item was released after [chargeTicks] ticks. Abilities gate on
+     * `minChargeTicks`/`maxChargeTicks` params; the tick count arrives as the damage amount.
+     */
+    fun onChargeRelease(player: ServerPlayer, stack: ItemStack, chargeTicks: Int) {
+        val filter = { ab: ItemDefinition.AbilityDef ->
+            val min = ab.params.get("minChargeTicks")?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asInt ?: 0
+            val max = ab.params.get("maxChargeTicks")?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asInt ?: Int.MAX_VALUE
+            chargeTicks in min..max
+        }
+        fire(AbilityTrigger.ON_CHARGE_RELEASE, player, stack, player.level(), null, null,
+            damageAmount = chargeTicks.toFloat(), abilityFilter = filter)
+    }
+
     /** Copies (an arrow's weapon snapshot) resolve back to the live held stack when possible. */
     private fun liveStackFor(player: ServerPlayer, copy: ItemStack): ItemStack {
         val id = com.fiw.tools.build.FiwItems.fiwId(copy) ?: return copy

@@ -376,6 +376,7 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `on_crit` | The player lands a critical melee hit while holding this item |
 | `on_block_place` | The player places a block while holding this item (either hand) |
 | `on_fall` | The player takes fall damage. Gate with `"params": { "minDistance": 10 }` (blocks fallen; damage amount = distance) |
+| `on_charge_release` | The player releases a held charge on a `chargeable` item. Gate tiers with `"params": { "minChargeTicks": 20, "maxChargeTicks": 59 }` (charge ticks arrive as the damage amount) |
 | `while_held` | Periodic sweep (every 10 ticks ≈ 0.5 s) while the item is in your hand — see [Passives](#passives-while_held) |
 | `while_worn` | Same sweep but for armor slots — see [Worn passives](#worn-passives-while_worn) |
 | `while_sneaking` | Same as `while_held` / `while_worn` but **only fires when the player is crouching** — use for sneak-activated passives |
@@ -2622,6 +2623,32 @@ Give any item a **universal charge pool** and make abilities spend resources per
 | `item` + `itemCount` | Consume items from the inventory: `fiw:<id>`, a vanilla id, or `#tag` |
 
 Refills: natural regen, or grant `"charges": N` inside [`rechargeOnKill`](#recharge-on-kill). Show the pool on the item with [Dynamic Lore](#dynamic-lore).
+
+---
+
+## Hold-to-Charge Items
+
+Give an item a `chargeable` block (or `"chargeable": true`) and right-click becomes a bow-style
+hold: the player charges as long as the button is held, and releasing fires the item's
+`on_charge_release` abilities. Each ability can gate on the held time with `minChargeTicks` /
+`maxChargeTicks` params, so one item can have weak / strong / overcharged tiers.
+
+```json
+"chargeable": { "animation": "bow" },
+"abilities": [
+  { "type": "arc_slash",  "trigger": "on_charge_release", "params": { "maxChargeTicks": 19 } },
+  { "type": "shockwave",  "trigger": "on_charge_release", "params": { "minChargeTicks": 20, "maxChargeTicks": 59 } },
+  { "type": "sonic_boom", "trigger": "on_charge_release", "params": { "minChargeTicks": 60 } }
+]
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `animation` | `bow` | Charge pose: `bow`, `spear`, `block`, `eat`, `drink`, `crossbow`, ... (1.21.1 always shows the eating pose) |
+| `maxSeconds` | 3600 | Safety cap on a single hold |
+
+Chargeable items shouldn't also carry `on_right_click` abilities (the click starts the charge),
+and `chargeable` overrides the `food` block's use behaviour.
 
 ---
 
