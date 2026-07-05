@@ -89,7 +89,13 @@ data class ItemDefinition(
      * Killstreak momentum: consecutive kills with this item raise a buff tier; dying resets it.
      * `{streak}` / `{streak_tier}` work in `dynamicLore`. `null` = no killstreak.
      */
-    val killstreak: KillstreakDef? = null
+    val killstreak: KillstreakDef? = null,
+    /**
+     * Stance names for the sneak+swap-hands toggle. Abilities carrying a `stance` only fire
+     * while that stance is active (stored per stack; first entry is the default). Needs >= 2
+     * entries to enable the toggle.
+     */
+    val stances: List<String> = emptyList()
 ) {
     data class KillstreakDef(
         /** Kills per tier — every N kills raises the buff amplifier by one. */
@@ -280,6 +286,8 @@ data class ItemDefinition(
         val cooldownGroup: String? = null,
         /** Resources consumed per successful fire. Checked before execution; unpaid = no fire. */
         val cost: CostDef? = null,
+        /** Only fire while this stance (from the item's `stances` list) is active. */
+        val stance: String? = null,
         val params: JsonObject = JsonObject()
     )
 

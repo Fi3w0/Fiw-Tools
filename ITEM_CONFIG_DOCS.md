@@ -2625,6 +2625,24 @@ Refills: natural regen, or grant `"charges": N` inside [`rechargeOnKill`](#recha
 
 ---
 
+## Stances
+
+Give an item a `stances` list (2+ names) and **sneak + swap-hands** (default F while sneaking)
+cycles its active stance instead of swapping — with an action-bar note and page-turn sound. The
+active stance lives in the stack's custom data (first entry is the default). Any ability can
+declare a `stance`: it only fires while that stance is active; abilities without one always
+fire. `{stance}` works in `dynamicLore`.
+
+```json
+"stances": ["flame", "frost"],
+"abilities": [
+  { "type": "ignite", "trigger": "on_attack", "stance": "flame", "params": { "duration": 80 } },
+  { "type": "freeze", "trigger": "on_attack", "stance": "frost", "params": { "duration": 80 } }
+]
+```
+
+---
+
 ## Killstreak Momentum
 
 Give an item a `killstreak` block and consecutive kills scored with it build a per-stack streak.
@@ -2719,6 +2737,7 @@ Every ability — active or passive, any trigger — accepts optional condition 
 | `{awakening_progress}` / `{awakening_count}` | Raw awakening numbers |
 | `{durability}` / `{max_durability}` | Remaining / max durability |
 | `{streak}` / `{streak_tier}` | Killstreak count and current tier |
+| `{stance}` | Active stance name |
 
 The lore component is only rewritten when the text actually changes, so idle items cost nothing to keep fresh.
 

@@ -1,0 +1,21 @@
+{
+  "id": "twinfang_blade",
+  "base": "minecraft:golden_sword",
+  "displayName": "&6&lTwinfang Blade",
+  "lore": [
+    "&7Two tempers share one edge.",
+    "",
+    "&6Sneak + swap hands &8- &7switch stance.",
+    "&cFlame&8: burns on hit. &bFrost&8: freezes on hit."
+  ],
+  "rarity": "epic",
+  "dynamicLore": [
+    "",
+    "&8Stance: &f{stance}"
+  ],
+  "stances": ["flame", "frost"],
+  "abilities": [
+    { "type": "ignite", "trigger": "on_attack", "stance": "flame", "cooldownTicks": 20, "params": { "duration": 100 } },
+    { "type": "freeze", "trigger": "on_attack", "stance": "frost", "cooldownTicks": 20, "params": { "duration": 100 } }
+  ]
+}

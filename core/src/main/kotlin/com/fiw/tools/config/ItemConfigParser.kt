@@ -67,6 +67,7 @@ object ItemConfigParser {
                 chance = o.optFloat("chance", 1f),
                 cooldownGroup = o.optStringOrNull("cooldownGroup"),
                 cost = parseCost(o.getAsJsonObject("cost")),
+                stance = o.optStringOrNull("stance"),
                 params = o.getAsJsonObject("params") ?: JsonObject()
             )
         } ?: emptyList()
@@ -288,7 +289,8 @@ object ItemConfigParser {
             binding = binding,
             charges = charges,
             dynamicLore = dynamicLore,
-            killstreak = killstreak
+            killstreak = killstreak,
+            stances = root.getAsJsonArray("stances")?.map { it.asString } ?: emptyList()
         )
     }
 

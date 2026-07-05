@@ -78,6 +78,9 @@ object DynamicLoreHandler {
                 .replace("{awakening_progress}", progress.toString())
                 .replace("{awakening_count}", (aw?.count ?: 0.0).toLong().toString())
         }
+        if (out.contains("{stance}")) {
+            out = out.replace("{stance}", com.fiw.tools.stance.StanceHandler.activeStance(stack, def) ?: "-")
+        }
         if (out.contains("{streak}") || out.contains("{streak_tier}")) {
             out = out
                 .replace("{streak}", com.fiw.tools.streak.KillstreakHandler.streak(stack).toString())

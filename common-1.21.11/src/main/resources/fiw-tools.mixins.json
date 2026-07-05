@@ -14,7 +14,8 @@
 		"LivingEntityConsumeMixin",
 		"PlayerInventoryDropAllMixin",
 		"ResultSlotCraftMixin",
-		"ServerPlayerDropMixin"
+		"ServerPlayerDropMixin",
+		"StanceSwapMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

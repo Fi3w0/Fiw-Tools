@@ -225,6 +225,9 @@ object AbilityDispatcher {
         var any = false
         abilities.forEachIndexed { idx, abilityDef ->
             if (AbilityTrigger.parse(abilityDef.trigger) != trigger) return@forEachIndexed
+            val stanceGate = abilityDef.stance
+            if (stanceGate != null &&
+                !stanceGate.equals(com.fiw.tools.stance.StanceHandler.activeStance(stack, def), ignoreCase = true)) return@forEachIndexed
             if (abilityFilter != null && !abilityFilter(abilityDef)) return@forEachIndexed
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed

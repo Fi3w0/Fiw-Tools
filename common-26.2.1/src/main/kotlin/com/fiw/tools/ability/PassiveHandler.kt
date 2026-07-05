@@ -121,6 +121,9 @@ object PassiveHandler {
         if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) return
         ImbueMods.effectiveAbilities(stack, def).forEachIndexed { idx, ab ->
             if (AbilityTrigger.parse(ab.trigger) != trigger) return@forEachIndexed
+            val stanceGate = ab.stance
+            if (stanceGate != null &&
+                !stanceGate.equals(com.fiw.tools.stance.StanceHandler.activeStance(stack, def), ignoreCase = true)) return@forEachIndexed
             val filterValue = ab.params.get(filterKey)?.takeIf { !it.isJsonNull }?.asString?.lowercase() ?: filterDefault
             if (filterValue != filterDefault && filterValue != actualSlot) return@forEachIndexed
             val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
