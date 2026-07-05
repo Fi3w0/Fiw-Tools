@@ -54,7 +54,7 @@ object CraftingHandler {
      */
     fun wasCustomResult(player: Player, taken: ItemStack): Boolean {
         val marker = customResults[player.uuid] ?: return false
-        return ItemStack.isSameItemSameComponents(marker, taken)
+        return marker.count == taken.count && ItemStack.isSameItemSameComponents(marker, taken)
     }
 
     fun clear(player: Player) {
@@ -70,7 +70,12 @@ object CraftingHandler {
 
         val recipe = match(grid, width, height)
         if (recipe != null) {
-            val result = buildResult(recipe, player) ?: return
+            val result = buildResult(recipe, player)
+            if (result == null) {
+                customResults.remove(player.uuid)
+                if (!resultSlot.item.isEmpty) resultSlot.set(ItemStack.EMPTY)
+                return
+            }
             val existing = resultSlot.item
             if (!ItemStack.isSameItemSameComponents(existing, result) || existing.count != result.count) {
                 resultSlot.set(result)
@@ -82,7 +87,7 @@ object CraftingHandler {
         if (grid.any { FiwItems.isFiwItem(it) }) {
             if (!resultSlot.item.isEmpty) resultSlot.set(ItemStack.EMPTY)
         } else if (stale != null && !resultSlot.item.isEmpty &&
-            ItemStack.isSameItemSameComponents(resultSlot.item, stale)
+            resultSlot.item.count == stale.count && ItemStack.isSameItemSameComponents(resultSlot.item, stale)
         ) {
             // Recipes changed under an open grid (reload): wipe our stale result and let
             // vanilla recompute its own result for this grid.

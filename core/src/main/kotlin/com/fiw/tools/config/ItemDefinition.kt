@@ -125,6 +125,11 @@ data class ItemDefinition(
         val durability: Int = 0,
         /** Health paid. Never lethal — the use is refused when it would drop the player to 0. */
         val health: Float = 0f,
+        /**
+         * Max health sacrificed **permanently until death** (an attribute cut that respawn
+         * resets). Refused when it would leave less than one heart of max health.
+         */
+        val maxHealth: Float = 0f,
         /** Hunger points consumed. */
         val hunger: Int = 0,
         /** XP levels consumed. */
@@ -134,7 +139,7 @@ data class ItemDefinition(
         val itemCount: Int = 1
     ) {
         val isFree: Boolean
-            get() = charges == 0 && durability == 0 && health == 0f && hunger == 0 && xpLevels == 0 && item == null
+            get() = charges == 0 && durability == 0 && health == 0f && maxHealth == 0f && hunger == 0 && xpLevels == 0 && item == null
     }
 
     data class RechargeOnKillDef(

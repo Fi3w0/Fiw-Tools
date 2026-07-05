@@ -120,13 +120,18 @@ object AwakeningHandler {
             logger.warn("Item '${def.id}': awakening upgradeTo '${aw.upgradeTo}' is not a loaded item")
             return
         }
-        val upgraded = ItemBuilder.build(upgradeDef, stack.count, player.level().registryAccess()) ?: return
+        val upgraded = ItemBuilder.build(upgradeDef, 1, player.level().registryAccess()) ?: return
 
         val inv = player.inventory
         var replaced = false
         for (slot in 0 until inv.containerSize) {
             if (inv.getItem(slot) === stack) {
-                inv.setItem(slot, upgraded)
+                if (stack.count <= 1) {
+                    inv.setItem(slot, upgraded)
+                } else {
+                    stack.shrink(1)
+                    if (!inv.add(upgraded)) com.fiw.tools.util.InternalDrops.drop(player, upgraded)
+                }
                 replaced = true
                 break
             }

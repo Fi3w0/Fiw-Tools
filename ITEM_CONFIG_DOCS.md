@@ -2610,6 +2610,7 @@ Give any item a **universal charge pool** and make abilities spend resources per
 | `charges` | Charges from the item's pool |
 | `durability` | Durability points — the item is never broken by a cost; the use is refused instead |
 | `health` | Half-hearts — never lethal; the use is refused instead |
+| `maxHealth` | Half-hearts of **max** health, sacrificed permanently until death (respawn restores them); refused below one remaining heart |
 | `hunger` | Hunger points |
 | `xpLevels` | XP levels |
 | `item` + `itemCount` | Consume items from the inventory: `fiw:<id>`, a vanilla id, or `#tag` |

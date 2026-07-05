@@ -40,5 +40,11 @@ class InfiniteDefParsingTest {
     fun rejectsBadConfigs() {
         assertFailsWith<IllegalArgumentException> { item(""", "infinite": "forever"""") }
         assertFailsWith<IllegalArgumentException> { item(""", "infinite": { "mode": "replace" }""") }
+        assertFailsWith<IllegalArgumentException> {
+            item(""", "infinite": { "mode": "replace", "replaceWith": "minecraft:bowl", "replaceCount": 0 }""")
+        }
+        assertFailsWith<IllegalArgumentException> {
+            item(""", "infinite": { "mode": "damage", "damagePerUse": 0 }""")
+        }
     }
 }

@@ -132,6 +132,15 @@ class ItemConfigParserTest {
     }
 
     @Test
+    fun rejectsInvalidStackStateFields() {
+        assertIllegal("""{ "id": "bad", "base": "minecraft:stick", "stackSize": 0 }""")
+        assertIllegal("""{ "id": "bad", "base": "minecraft:stick", "stackSize": 100 }""")
+        assertIllegal("""{ "id": "bad", "base": "minecraft:stick", "imbueLimit": -2 }""")
+        assertIllegal("""{ "id": "bad", "base": "minecraft:stick", "soulCapacity": 0 }""")
+        assertIllegal("""{ "id": "bad", "base": "minecraft:stick", "resonanceRequires": 0 }""")
+    }
+
+    @Test
     fun parsesAllRootExampleItems() {
         val root = repoRoot().resolve("examples/items")
         val files = Files.walk(root)
@@ -148,5 +157,11 @@ class ItemConfigParserTest {
     private fun repoRoot(): Path {
         val userDir = Path.of(System.getProperty("user.dir"))
         return if (userDir.fileName.toString() == "core") userDir.parent else userDir
+    }
+
+    private fun assertIllegal(json: String) {
+        val error = runCatching { ItemConfigParser.parse(json) }.exceptionOrNull()
+        assertNotNull(error)
+        assertTrue(error is IllegalArgumentException)
     }
 }

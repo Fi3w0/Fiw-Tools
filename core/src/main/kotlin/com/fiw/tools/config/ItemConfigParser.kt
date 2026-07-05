@@ -104,6 +104,12 @@ object ItemConfigParser {
         }
         if (infinite != null && infinite.mode == "replace" && infinite.replaceWith == null)
             throw IllegalArgumentException("infinite mode 'replace' needs 'replaceWith'")
+        if (infinite != null && infinite.mode == "damage") {
+            if (infinite.damagePerUse < 1) throw IllegalArgumentException("infinite damagePerUse must be >= 1")
+        }
+        if (infinite != null && infinite.mode == "replace") {
+            if (infinite.replaceCount < 1) throw IllegalArgumentException("infinite replaceCount must be >= 1")
+        }
 
         val rechargeObj = root.getAsJsonObject("rechargeOnKill")
         val rechargeOnKill = if (rechargeObj != null) {
@@ -237,13 +243,22 @@ object ItemConfigParser {
             )
         } else null
 
+        val stackSize = root.optIntOrNull("stackSize")
+        if (stackSize != null && stackSize !in 1..99) throw IllegalArgumentException("stackSize must be between 1 and 99")
+        val imbueLimit = root.optIntOrNull("imbueLimit")
+        if (imbueLimit != null && imbueLimit < -1) throw IllegalArgumentException("imbueLimit must be -1 or greater")
+        val soulCapacity = root.optIntOrNull("soulCapacity")
+        if (soulCapacity != null && soulCapacity < 1) throw IllegalArgumentException("soulCapacity must be >= 1")
+        val resonanceRequires = root.optInt("resonanceRequires", 2)
+        if (resonanceRequires < 1) throw IllegalArgumentException("resonanceRequires must be >= 1")
+
         return ItemDefinition(
             id = id,
             base = base,
             displayName = root.optStringOrNull("displayName"),
             lore = lore,
             rarity = root.optStringOrNull("rarity"),
-            stackSize = root.optIntOrNull("stackSize"),
+            stackSize = stackSize,
             unbreakable = root.optBoolOrNull("unbreakable"),
             maxDamage = root.optIntOrNull("maxDamage"),
             damage = root.optIntOrNull("damage"),
@@ -263,10 +278,10 @@ object ItemConfigParser {
             cursed = root.optBool("cursed", false),
             curseWhitelist = curseWhitelist,
             curseSettings = curseSettings,
-            imbueLimit = root.optIntOrNull("imbueLimit"),
-            soulCapacity = root.optIntOrNull("soulCapacity"),
+            imbueLimit = imbueLimit,
+            soulCapacity = soulCapacity,
             resonanceId = root.get("resonanceId")?.takeIf { !it.isJsonNull }?.asString,
-            resonanceRequires = root.optInt("resonanceRequires", 2),
+            resonanceRequires = resonanceRequires,
             infinite = infinite,
             rechargeOnKill = rechargeOnKill,
             awakening = awakening,
@@ -283,12 +298,13 @@ object ItemConfigParser {
             charges = o.optInt("charges", 0),
             durability = o.optInt("durability", 0),
             health = o.optFloat("health", 0f),
+            maxHealth = o.optFloat("maxHealth", 0f),
             hunger = o.optInt("hunger", 0),
             xpLevels = o.optInt("xpLevels", o.optInt("levels", 0)),
             item = o.optStringOrNull("item"),
             itemCount = o.optInt("itemCount", o.optInt("count", 1))
         )
-        if (cost.charges < 0 || cost.durability < 0 || cost.health < 0f || cost.hunger < 0 || cost.xpLevels < 0 || cost.itemCount < 1)
+        if (cost.charges < 0 || cost.durability < 0 || cost.health < 0f || cost.maxHealth < 0f || cost.hunger < 0 || cost.xpLevels < 0 || cost.itemCount < 1)
             throw IllegalArgumentException("ability cost values must be >= 0 (itemCount >= 1)")
         return if (cost.isFree) null else cost
     }
