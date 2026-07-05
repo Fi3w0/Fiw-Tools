@@ -9,6 +9,7 @@
 		"ItemEntityPickupMixin",
 		"LivingEntityConsumeMixin",
 		"PlayerInventoryDropAllMixin",
+		"ResultSlotCraftMixin",
 		"ServerPlayerDropMixin"
 	],
 	"injectors": {

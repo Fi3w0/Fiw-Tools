@@ -152,7 +152,7 @@ object CraftingHandler {
                 logger.warn("Recipe '${recipe.id}': unknown Fiw item '$fiwId' in result")
                 return null
             }
-            return ItemBuilder.build(def, recipe.resultCount, player.level().registryAccess())
+            return clampToMaxStack(ItemBuilder.build(def, recipe.resultCount, player.level().registryAccess()))
         }
         val itemId = Identifier.tryParse(spec) ?: run {
             logger.warn("Recipe '${recipe.id}': invalid result id '$spec'"); return null
@@ -162,6 +162,12 @@ object CraftingHandler {
         }
         val item = com.fiw.tools.util.HolderAccess.value(holder)
         val stack = ItemStack(item, recipe.resultCount)
-        return if (stack.isEmpty) null else stack
+        return if (stack.isEmpty) null else clampToMaxStack(stack)
+    }
+
+    /** Config `count` may exceed the item's stack cap; oversized stacks corrupt saves. */
+    private fun clampToMaxStack(stack: ItemStack?): ItemStack? {
+        if (stack != null && stack.count > stack.maxStackSize) stack.count = stack.maxStackSize
+        return stack
     }
 }
