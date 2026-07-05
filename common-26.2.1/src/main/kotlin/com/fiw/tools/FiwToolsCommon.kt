@@ -37,6 +37,7 @@ object FiwToolsCommon {
         FiwToolsPlatform.init(configDir)
         logger.info("Fiw Tools starting up.")
         AbilityRegistry.init()
+        com.fiw.tools.recipe.FiwCraftingRecipe.register()
     }
 
     fun serverStarting(server: MinecraftServer) {
@@ -44,6 +45,9 @@ object FiwToolsCommon {
         val recipes = RecipeRegistry.loadAll()
         logger.info("Fiw Tools loaded ${report.loaded} item(s); ${report.failed.size} failed. " +
             "${recipes.loaded} recipe(s); ${recipes.failed.size} failed.")
+    }
+
+    fun serverStarted(server: MinecraftServer) {
         com.fiw.tools.recipe.RecipeInjector.inject(server)
     }
 

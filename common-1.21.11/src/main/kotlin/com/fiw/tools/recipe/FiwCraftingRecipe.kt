@@ -43,7 +43,7 @@ class FiwCraftingRecipe(
     override fun assemble(input: CraftingInput, registries: HolderLookup.Provider): ItemStack =
         CraftingHandler.buildResult(definition, registries)?.copy() ?: ItemStack.EMPTY
 
-    override fun getSerializer(): RecipeSerializer<out CraftingRecipe> = Serializer
+    override fun getSerializer(): RecipeSerializer<out CraftingRecipe> = SERIALIZER
 
     override fun category(): CraftingBookCategory = CraftingBookCategory.MISC
 
@@ -137,12 +137,56 @@ class FiwCraftingRecipe(
         return SlotDisplay.ItemSlotDisplay(HolderAccess.value(holder))
     }
 
-    /** Runtime recipes are never read from JSON or written anywhere; the codecs must never run. */
-    private object Serializer : RecipeSerializer<FiwCraftingRecipe> {
-        override fun codec(): MapCodec<FiwCraftingRecipe> =
-            throw UnsupportedOperationException("Fiw recipes are runtime-injected and never serialized")
+    companion object {
+        /**
+         * A real, registered serializer — required for Fabric's recipe-sync module (which is what
+         * feeds JEI/REI/EMI's `SynchronizedRecipes`) to include these recipes at all: it only
+         * syncs recipes whose serializer the connecting client has declared support for, which in
+         * turn only happens for serializers registered in [Registries.RECIPE_SERIALIZER]. The
+         * vanilla recipe book doesn't need this — it reads display data through a separate,
+         * always-on path — which is why the book worked before this serializer existed and a
+         * pure-viewer mod like JEI didn't.
+         *
+         * `codec()` (JSON) is never invoked: these recipes are runtime-injected, never loaded
+         * from or written to a datapack file.
+         */
+        val SERIALIZER: RecipeSerializer<FiwCraftingRecipe> = object : RecipeSerializer<FiwCraftingRecipe> {
+            override fun codec(): MapCodec<FiwCraftingRecipe> =
+                MapCodec.unit { throw UnsupportedOperationException("Fiw recipes are runtime-injected and never loaded from JSON") }
 
-        override fun streamCodec(): StreamCodec<RegistryFriendlyByteBuf, FiwCraftingRecipe> =
-            throw UnsupportedOperationException("Fiw recipes are runtime-injected and never synced as logic")
+            override fun streamCodec(): StreamCodec<RegistryFriendlyByteBuf, FiwCraftingRecipe> = StreamCodec.of(
+                { buf, recipe -> RecipeDefinitionStreamCodec.encode(buf, recipe.definition) },
+                { buf -> FiwCraftingRecipe(RecipeDefinitionStreamCodec.decode(buf), buf.registryAccess()) }
+            )
+        }
+
+        fun register() {
+            net.minecraft.core.Registry.register(BuiltInRegistries.RECIPE_SERIALIZER,
+                Identifier.fromNamespaceAndPath("fiw_tools", "custom_recipe"), SERIALIZER)
+        }
+    }
+}
+
+/** Wire format for [RecipeDefinition]: everything needed to rebuild it client-side for display. */
+private object RecipeDefinitionStreamCodec {
+    fun encode(buf: RegistryFriendlyByteBuf, def: RecipeDefinition) {
+        buf.writeUtf(def.id)
+        buf.writeBoolean(def.shaped)
+        buf.writeCollection(def.pattern) { b, line -> b.writeUtf(line) }
+        buf.writeCollection(def.key.entries) { b, e -> b.writeUtf(e.key.toString()); b.writeUtf(e.value) }
+        buf.writeCollection(def.ingredients) { b, i -> b.writeUtf(i) }
+        buf.writeUtf(def.resultItem)
+        buf.writeVarInt(def.resultCount)
+    }
+
+    fun decode(buf: RegistryFriendlyByteBuf): RecipeDefinition {
+        val id = buf.readUtf()
+        val shaped = buf.readBoolean()
+        val pattern = buf.readList { it.readUtf() }
+        val key = buf.readList { b -> b.readUtf()[0] to b.readUtf() }.toMap()
+        val ingredients = buf.readList { it.readUtf() }
+        val resultItem = buf.readUtf()
+        val resultCount = buf.readVarInt()
+        return RecipeDefinition(id, shaped, pattern, key, ingredients, resultItem, resultCount)
     }
 }

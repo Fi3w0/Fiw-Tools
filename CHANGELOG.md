@@ -55,7 +55,11 @@ version header.
   book, JEI, REI and EMI all show them (custom names/lore included in ingredients and results)
   through plain vanilla display sync — zero client-side code, zero viewer dependencies, vanilla
   clients unaffected; recipes carry real placements (base item standing in for `fiw:`
-  ingredients) so JEI lists them too
+  ingredients) so JEI lists them too. A registered recipe serializer (with a real stream codec
+  rebuilding the recipe client-side) is required for this: JEI/REI/EMI read Fabric's own
+  recipe-sync module, which only syncs recipes whose serializer a client has declared support
+  for — the vanilla recipe book uses a separate always-on display path and doesn't need this,
+  which is why it worked first and viewers didn't
 - **Friendlier attributes** — `type` accepts bare constant names (`ATTACK_DAMAGE`,
   `MOVEMENT_SPEED`, any case) alongside full ids, auto-prefixed per game version; `body` slot and
   legacy operation names (`addition`, `multiply_base`, `multiply_total`) accepted; docs now list
