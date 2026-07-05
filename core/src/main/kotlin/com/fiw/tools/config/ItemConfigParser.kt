@@ -205,6 +205,24 @@ object ItemConfigParser {
 
         val dynamicLore = root.getAsJsonArray("dynamicLore")?.map { it.asString } ?: emptyList()
 
+        val killstreakObj = root.get("killstreak")?.takeIf { !it.isJsonNull }?.let {
+            if (!it.isJsonObject) throw IllegalArgumentException("'killstreak' must be an object")
+            it.asJsonObject
+        }
+        val killstreak = killstreakObj?.let { o ->
+            val def = ItemDefinition.KillstreakDef(
+                killsPerTier = o.optInt("killsPerTier", 3),
+                maxTier = o.optInt("maxTier", 2),
+                buffs = o.getAsJsonArray("buffs")?.map { it.asString } ?: listOf("strength"),
+                buffDuration = o.optInt("buffDuration", 200),
+                resetOnDeath = o.optBool("resetOnDeath", true),
+                tierMessage = o.optStringOrNull("tierMessage")
+            )
+            if (def.killsPerTier < 1) throw IllegalArgumentException("killstreak killsPerTier must be >= 1")
+            if (def.maxTier < 1) throw IllegalArgumentException("killstreak maxTier must be >= 1")
+            def
+        }
+
         val bindingObj = root.getAsJsonObject("binding")
         val binding = if (bindingObj != null) {
             val mode = bindingObj.requireString("mode").lowercase()
@@ -254,7 +272,8 @@ object ItemConfigParser {
             awakening = awakening,
             binding = binding,
             charges = charges,
-            dynamicLore = dynamicLore
+            dynamicLore = dynamicLore,
+            killstreak = killstreak
         )
     }
 

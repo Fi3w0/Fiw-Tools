@@ -78,6 +78,11 @@ object DynamicLoreHandler {
                 .replace("{awakening_progress}", progress.toString())
                 .replace("{awakening_count}", (aw?.count ?: 0.0).toLong().toString())
         }
+        if (out.contains("{streak}") || out.contains("{streak_tier}")) {
+            out = out
+                .replace("{streak}", com.fiw.tools.streak.KillstreakHandler.streak(stack).toString())
+                .replace("{streak_tier}", com.fiw.tools.streak.KillstreakHandler.tier(stack, def).toString())
+        }
         if (out.contains("{durability}") || out.contains("{max_durability}")) {
             out = out
                 .replace("{durability}", (stack.maxDamage - stack.damageValue).coerceAtLeast(0).toString())

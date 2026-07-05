@@ -2618,6 +2618,37 @@ Refills: natural regen, or grant `"charges": N` inside [`rechargeOnKill`](#recha
 
 ---
 
+## Killstreak Momentum
+
+Give an item a `killstreak` block and consecutive kills scored with it build a per-stack streak.
+Every `killsPerTier` kills raises the tier (up to `maxTier`); each kill applies the listed buffs
+at amplifier tier-1 for `buffDuration` ticks. Dying wipes the streak (unless `resetOnDeath` is
+false). The counter lives in the stack's custom data, so it survives logouts and chests.
+
+```json
+"killstreak": {
+  "killsPerTier": 3,
+  "maxTier": 3,
+  "buffs": ["strength", "speed"],
+  "buffDuration": 200,
+  "resetOnDeath": true,
+  "tierMessage": "&c&lBloodlust {tier} &7({streak} kills)"
+}
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `killsPerTier` | 3 | Kills per buff tier |
+| `maxTier` | 2 | Amplifier cap (tier N = amplifier N-1) |
+| `buffs` | `["strength"]` | Effect names, same set as `passive_buff` |
+| `buffDuration` | 200 | Ticks, refreshed on every kill |
+| `resetOnDeath` | true | Wipe the streak on death |
+| `tierMessage` | *(none)* | Action-bar line on tier-up; `{streak}` / `{tier}` placeholders |
+
+`{streak}` and `{streak_tier}` also work in `dynamicLore`.
+
+---
+
 ## Cooldown Groups
 
 Give abilities a `cooldownGroup` name and they **share one cooldown per player — across items too**. This is the anti-combo dial: without it, carrying three blink items means three separate blink cooldowns.
@@ -2680,6 +2711,7 @@ Every ability — active or passive, any trigger — accepts optional condition 
 | `{awakening_stage}` | `progress/target` while dormant, `Awakened` when the item has no awakening left |
 | `{awakening_progress}` / `{awakening_count}` | Raw awakening numbers |
 | `{durability}` / `{max_durability}` | Remaining / max durability |
+| `{streak}` / `{streak_tier}` | Killstreak count and current tier |
 
 The lore component is only rewritten when the text actually changes, so idle items cost nothing to keep fresh.
 

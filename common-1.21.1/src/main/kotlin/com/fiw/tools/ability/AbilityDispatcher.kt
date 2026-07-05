@@ -46,6 +46,7 @@ object AbilityDispatcher {
             fire(AbilityTrigger.ON_BOSS_KILL, attacker, attacker.mainHandItem, attacker.serverLevel(), entity, entity.position(),
                 abilityFilter = { ab -> bossMatches(ab, victimId) })
             com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, attacker.mainHandItem, entity)
+            com.fiw.tools.streak.KillstreakHandler.onKill(attacker, attacker.mainHandItem)
             com.fiw.tools.recharge.RechargeOnKillHandler.onKill(attacker, entity)
         }
     }
@@ -74,7 +75,10 @@ object AbilityDispatcher {
         fire(AbilityTrigger.ON_DROP, player, stack, player.serverLevel(), null, null)
     }
 
-    fun onDeath(player: ServerPlayer) = fireInventory(AbilityTrigger.ON_DEATH, player, null)
+    fun onDeath(player: ServerPlayer) {
+        com.fiw.tools.streak.KillstreakHandler.onDeath(player)
+        fireInventory(AbilityTrigger.ON_DEATH, player, null)
+    }
 
     fun onRespawn(player: ServerPlayer) = fireInventory(AbilityTrigger.ON_RESPAWN, player, null)
 

@@ -1,0 +1,23 @@
+{
+  "id": "bloodthirst_axe",
+  "base": "minecraft:iron_axe",
+  "displayName": "&c&lBloodthirst Axe",
+  "lore": [
+    "&7It remembers every kill.",
+    "",
+    "&cEach kill feeds the frenzy;",
+    "&cdeath starves it."
+  ],
+  "rarity": "rare",
+  "dynamicLore": [
+    "",
+    "&8Streak: &c{streak} &8(tier &c{streak_tier}&8)"
+  ],
+  "killstreak": {
+    "killsPerTier": 3,
+    "maxTier": 3,
+    "buffs": ["strength", "speed"],
+    "buffDuration": 200,
+    "tierMessage": "&c&lBloodlust {tier} &7({streak} kills)"
+  }
+}

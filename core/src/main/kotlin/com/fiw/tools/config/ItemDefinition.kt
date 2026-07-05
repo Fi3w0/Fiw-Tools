@@ -84,8 +84,28 @@ data class ItemDefinition(
      * Extra lore lines refreshed live with placeholders: `{owner}`, `{charges}`, `{max_charges}`,
      * `{souls}`, `{soul_capacity}`, `{awakening_stage}`, `{awakening_progress}`, `{awakening_count}`.
      */
-    val dynamicLore: List<String> = emptyList()
+    val dynamicLore: List<String> = emptyList(),
+    /**
+     * Killstreak momentum: consecutive kills with this item raise a buff tier; dying resets it.
+     * `{streak}` / `{streak_tier}` work in `dynamicLore`. `null` = no killstreak.
+     */
+    val killstreak: KillstreakDef? = null
 ) {
+    data class KillstreakDef(
+        /** Kills per tier — every N kills raises the buff amplifier by one. */
+        val killsPerTier: Int = 3,
+        /** Amplifier cap: highest tier the streak can reach. */
+        val maxTier: Int = 2,
+        /** Effect names applied on each kill once tier >= 1, at amplifier tier-1. */
+        val buffs: List<String> = listOf("strength"),
+        /** Ticks the buffs last, refreshed on every kill. */
+        val buffDuration: Int = 200,
+        /** Wipe the streak when the player dies. */
+        val resetOnDeath: Boolean = true,
+        /** Action-bar line on reaching a new tier; `{streak}` and `{tier}` placeholders. */
+        val tierMessage: String? = null
+    )
+
     data class ChargesDef(
         val max: Int,
         /** Charges a freshly built stack starts with. -1 (default) = full. */
