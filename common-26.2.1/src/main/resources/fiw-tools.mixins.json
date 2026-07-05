@@ -4,6 +4,10 @@
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
 		"AnvilProtectMixin",
+		"ArrowHitMixin",
+		"BlockItemPlaceMixin",
+		"LivingEntityBlockingMixin",
+		"PlayerCombatHooksMixin",
 		"BlockItemPlacePreventMixin",
 		"GrindstoneProtectMixin",
 		"ItemEntityPickupMixin",

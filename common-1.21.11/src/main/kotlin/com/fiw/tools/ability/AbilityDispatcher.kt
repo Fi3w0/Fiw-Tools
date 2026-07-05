@@ -136,6 +136,60 @@ object AbilityDispatcher {
         if (off !== stack) fire(AbilityTrigger.ON_HURT, player, off, world, attacker, attackerPos, source, amount)
     }
 
+    /** A projectile left the bow/crossbow; [weapon] may be the arrow's snapshot of it. */
+    fun onShoot(player: ServerPlayer, weapon: ItemStack) {
+        fire(AbilityTrigger.ON_SHOOT, player, liveStackFor(player, weapon), player.level(), null, null)
+    }
+
+    /** The player's arrow connected. Fired with the weapon that shot it. */
+    fun onArrowHit(player: ServerPlayer, weapon: ItemStack, target: LivingEntity) {
+        fire(AbilityTrigger.ON_ARROW_HIT, player, liveStackFor(player, weapon), player.level(), target, target.position())
+    }
+
+    fun onShieldBlock(player: ServerPlayer, attacker: LivingEntity?, blocked: Float) {
+        val world = player.level()
+        val stack = player.mainHandItem
+        fire(AbilityTrigger.ON_SHIELD_BLOCK, player, stack, world, attacker, attacker?.position(), damageAmount = blocked)
+        val off = player.offhandItem
+        if (off !== stack) fire(AbilityTrigger.ON_SHIELD_BLOCK, player, off, world, attacker, attacker?.position(), damageAmount = blocked)
+    }
+
+    fun onCrit(player: ServerPlayer, target: LivingEntity) {
+        fire(AbilityTrigger.ON_CRIT, player, player.mainHandItem, player.level(), target, target.position())
+    }
+
+    fun onBlockPlace(player: ServerPlayer, pos: net.minecraft.core.BlockPos) {
+        val world = player.level()
+        val center = Vec3.atCenterOf(pos)
+        val stack = player.mainHandItem
+        fire(AbilityTrigger.ON_BLOCK_PLACE, player, stack, world, null, center)
+        val off = player.offhandItem
+        if (off !== stack) fire(AbilityTrigger.ON_BLOCK_PLACE, player, off, world, null, center)
+    }
+
+    /** Fall damage landed; abilities may gate on a `minDistance` param (blocks fallen). */
+    fun onFall(player: ServerPlayer, distance: Double) {
+        val world = player.level()
+        val filter = { ab: ItemDefinition.AbilityDef ->
+            val min = ab.params.get("minDistance")?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asDouble ?: 0.0
+            distance >= min
+        }
+        val stack = player.mainHandItem
+        fire(AbilityTrigger.ON_FALL, player, stack, world, null, null,
+            damageAmount = distance.toFloat(), abilityFilter = filter)
+        val off = player.offhandItem
+        if (off !== stack) fire(AbilityTrigger.ON_FALL, player, off, world, null, null,
+            damageAmount = distance.toFloat(), abilityFilter = filter)
+    }
+
+    /** Copies (an arrow's weapon snapshot) resolve back to the live held stack when possible. */
+    private fun liveStackFor(player: ServerPlayer, copy: ItemStack): ItemStack {
+        val id = com.fiw.tools.build.FiwItems.fiwId(copy) ?: return copy
+        if (com.fiw.tools.build.FiwItems.fiwId(player.mainHandItem) == id) return player.mainHandItem
+        if (com.fiw.tools.build.FiwItems.fiwId(player.offhandItem) == id) return player.offhandItem
+        return copy
+    }
+
     fun onBlockBreak(player: ServerPlayer, world: ServerLevel, pos: net.minecraft.core.BlockPos) {
         fire(AbilityTrigger.ON_BLOCK_BREAK, player, player.mainHandItem, world, null, Vec3.atCenterOf(pos))
     }

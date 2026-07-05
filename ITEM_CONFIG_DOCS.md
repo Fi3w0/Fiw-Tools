@@ -370,6 +370,12 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `on_leave_dimension` | Player leaves a dimension. Same `dimension` param filter |
 | `on_equip` | The item is equipped (armor or hand). Filter with `"params": { "slot": "head" }` |
 | `on_unequip` | The item is unequipped. Same `slot` param filter |
+| `on_shoot` | An arrow leaves the player's Fiw bow/crossbow |
+| `on_arrow_hit` | The player's arrow (shot from a Fiw weapon) hits a living entity — target is the victim |
+| `on_shield_block` | The player blocks damage with a blocking item while holding this item; target is the attacker, damage amount = blocked amount |
+| `on_crit` | The player lands a critical melee hit while holding this item |
+| `on_block_place` | The player places a block while holding this item (either hand) |
+| `on_fall` | The player takes fall damage. Gate with `"params": { "minDistance": 10 }` (blocks fallen; damage amount = distance) |
 | `while_held` | Periodic sweep (every 10 ticks ≈ 0.5 s) while the item is in your hand — see [Passives](#passives-while_held) |
 | `while_worn` | Same sweep but for armor slots — see [Worn passives](#worn-passives-while_worn) |
 | `while_sneaking` | Same as `while_held` / `while_worn` but **only fires when the player is crouching** — use for sneak-activated passives |

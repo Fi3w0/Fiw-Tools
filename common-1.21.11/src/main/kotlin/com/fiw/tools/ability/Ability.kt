@@ -16,7 +16,8 @@ import net.minecraft.world.phys.Vec3
 enum class AbilityTrigger {
     ON_RIGHT_CLICK, ON_SHIFT_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_BOSS_KILL, ON_HURT, ON_BLOCK_BREAK,
     ON_CONSUME, ON_PICKUP, ON_DROP, ON_DEATH, ON_RESPAWN, ON_ENTER_DIMENSION, ON_LEAVE_DIMENSION,
-    ON_EQUIP, ON_UNEQUIP, WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
+    ON_EQUIP, ON_UNEQUIP, ON_SHOOT, ON_ARROW_HIT, ON_SHIELD_BLOCK, ON_CRIT, ON_BLOCK_PLACE, ON_FALL,
+    WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
 
     companion object {
         fun parse(s: String): AbilityTrigger? = when (s.lowercase()) {
@@ -36,6 +37,12 @@ enum class AbilityTrigger {
             "on_leave_dimension", "leave_dimension" -> ON_LEAVE_DIMENSION
             "on_equip", "equip" -> ON_EQUIP
             "on_unequip", "unequip" -> ON_UNEQUIP
+            "on_shoot", "shoot" -> ON_SHOOT
+            "on_arrow_hit", "arrow_hit" -> ON_ARROW_HIT
+            "on_shield_block", "shield_block" -> ON_SHIELD_BLOCK
+            "on_crit", "crit" -> ON_CRIT
+            "on_block_place", "block_place" -> ON_BLOCK_PLACE
+            "on_fall", "fall" -> ON_FALL
             "while_held", "passive", "held" -> WHILE_HELD
             "while_worn", "worn", "armor" -> WHILE_WORN
             "while_sneaking", "sneaking", "sneak" -> WHILE_SNEAKING

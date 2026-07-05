@@ -161,6 +161,7 @@ public final class FiwToolsNeoForge {
     public void onEntityJoin(EntityJoinLevelEvent event) {
         com.fiw.tools.infinite.InfiniteItems.INSTANCE.onEntityLoad(event.getEntity());
         com.fiw.tools.ability.impl.SummonAbility.INSTANCE.onEntityLoad(event.getEntity());
+        com.fiw.tools.projectile.ProjectileHooks.INSTANCE.onEntityLoad(event.getEntity());
     }
 
     @SubscribeEvent

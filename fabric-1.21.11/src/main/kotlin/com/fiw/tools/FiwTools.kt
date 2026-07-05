@@ -75,6 +75,7 @@ object FiwTools : ModInitializer {
         ServerEntityEvents.ENTITY_LOAD.register { entity, _ ->
             InfiniteItems.onEntityLoad(entity)
             com.fiw.tools.ability.impl.SummonAbility.onEntityLoad(entity)
+            com.fiw.tools.projectile.ProjectileHooks.onEntityLoad(entity)
         }
         ServerPlayerEvents.AFTER_RESPAWN.register { _, newPlayer, _ -> AbilityDispatcher.onRespawn(newPlayer) }
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register { player, origin, destination ->
