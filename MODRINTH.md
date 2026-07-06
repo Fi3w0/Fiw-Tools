@@ -79,7 +79,7 @@ Tweak the file, reload, try again.
 
 **Imbuements** - catalyst-based upgrades with weighted outcomes, charges, target caps, stat changes, new abilities, and history that survives reloads.
 
-**Custom crafting** - JSON recipes in `config/fiw_tools/recipes/`, many per file, shaped or shapeless. Craft custom items from vanilla, vanilla from custom, or custom from custom — in any crafting grid, fully server-side. Recipes can transfer the ingredients' enchantments onto the result (merge/keep-old/keep-new, conflict policies, filters, level caps) so upgrade crafts keep players' enchantments.
+**Custom crafting** - JSON recipes in `config/fiw_tools/recipes/`, many per file, shaped or shapeless. Craft custom items from vanilla, vanilla from custom, or custom from custom — in any crafting grid, fully server-side. Recipes can transfer the ingredients' enchantments onto the result (merge/keep-old/keep-new, conflict policies, filters, level caps) so upgrade crafts keep players' enchantments. Per-item `enchanting` permissions decide which stations accept each item (table/anvil/grindstone/smithing) and can lock the name against anvil renames.
 
 **Infinite items** - food that never runs out, arrows that return the instant they're fired, items that spend durability instead of being consumed, or transform into something else on use (`keep` / `damage` / `replace` modes). On Minecraft 1.21.1, infinite support is limited to food and arrows because that version predates the generic vanilla `use_remainder` component.
 

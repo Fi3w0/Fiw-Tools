@@ -71,6 +71,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - **[Cooldown Groups](#cooldown-groups):** shared cooldowns across abilities and items
 - **[Ability Conditions](#ability-conditions):** `whenBelowHealth`, `whenDimension`, `whenNight`, … on any trigger
 - **[Dynamic Lore](#dynamic-lore):** live lore placeholders (`{owner}`, `{charges}`, `{souls}`, …)
+- **[Enchanting Control](#enchanting-control):** `enchanting` field — per-item table/anvil/grindstone/smithing permissions + name lock
 - [Bind with Fiw Bosses](#bind-with-fiw-bosses)
 - [Behavior Notes](#behavior-notes)
 
@@ -121,6 +122,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `food` | object | null | Make any item edible |
 | `tool` | object | null | Make any item a custom tool |
 | `repairCost` | int | 0 | XP cost added when this item is used in an anvil |
+| `enchanting` | object | null | Per-station enchanting permissions — see [Enchanting Control](#enchanting-control) |
 | `customData` | object | null | Free-form NBT passthrough — survives in `custom_data` |
 | `abilities` | array | [] | Custom triggered effects (see below) |
 | `infinite` | string/object | null | Infinite-use behaviour — see [Infinite Use Items](#infinite-use-items) |
@@ -215,6 +217,45 @@ Set `unbreakable: true` *or* a bigger `maxDamage` — combining them works but t
 - Levels are not capped at vanilla maximums.
 - Modded enchantments work too — use their full registry id.
 - `enchantmentGlint: true` forces the shimmer; `false` removes it (e.g. for an unenchanted-looking god item).
+
+---
+
+## Enchanting Control
+
+The `enchanting` root field decides what players may do with the item at each enchanting station.
+Every field is optional — omitted fields keep the long-standing defaults, so existing configs
+behave exactly as before.
+
+```json
+"enchanting": {
+  "table": true,
+  "anvil": false,
+  "grindstone": false,
+  "smithing": true,
+  "allowRename": false
+}
+```
+
+That example is armor players can enchant at the **enchanting table**, but can't touch at the
+**anvil** (no books, no repair, no combining) and can't strip at the **grindstone** — and even if
+the anvil were allowed, `allowRename: false` keeps its configured name forever.
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `table` | `true` (`false` if `cursed`) | Enchanting table. `false` strips the `enchantable` component (1.21.2+) and zeroes all three offers server-side. Alias: `enchantingTable` |
+| `anvil` | `true` (`false` if `cursed`) | Anvil use with this item in **either** slot: rename, repair, book-enchant, combine. `false` force-clears the result |
+| `grindstone` | `false` | Disenchanting at the grindstone. Fiw items are blocked by default so their configured enchantments are permanent; `true` allows the single-item disenchant. A two-item grindstone merge involving any Fiw item stays blocked regardless — two customs can never be ground into one |
+| `smithing` | `true` | Smithing table (netherite upgrades, armor trims) with this item in any input slot |
+| `allowRename` | `true` | Whether an anvil rename sticks. `false` still lets players use the anvil for enchantments/repair, but the configured name is forced back onto the result; a rename-only operation yields nothing. Renames are also wiped on `/fiwtools reload` re-sync. Alias: `rename` |
+
+Notes:
+
+- Non-Fiw items are never affected — vanilla stays vanilla.
+- Explicit values override the curse defaults: a cursed item with `"anvil": true` is repairable.
+- Player-added enchantments survive `/fiwtools reload` (config enchantments always come back at
+  their configured level); see [Curse System](#curse-system) for how cursed items interact.
+- To transfer enchantments through a **crafting** upgrade instead, see
+  [Keeping Enchantments When Crafting](#keeping-enchantments-when-crafting).
 
 ---
 
@@ -2157,7 +2198,7 @@ A cursed Fiw item kills anyone who carries it unless they are on its whitelist. 
 - For every cursed stack on a non-whitelisted player, `perTick` HP is drained using a custom `fiw_tools:curse` damage source tagged `bypasses_armor` / `bypasses_resistance` / `bypasses_enchantments` / `bypasses_effects` / `no_knockback`. Default 1 HP/sec kills a healthy player in 20 s — short enough to be punishing, long enough to realise and drop it.
 - Stacking two cursed items doubles the drain per sweep.
 - Cursed items **always drop on death**, even if `keepOnDeath: true` was set. The curse can't be cheesed by suicide.
-- Cursed items can't be put through anvils (rename, repair, book-enchant), enchanting tables (the `enchantable` component is stripped), or grindstones. The grindstone block is a feature of every Fiw item; the anvil block is curse-specific.
+- Cursed items can't be put through anvils (rename, repair, book-enchant), enchanting tables (the `enchantable` component is stripped), or grindstones. The grindstone block is a feature of every Fiw item; the anvil block is curse-specific. All of these are just the *defaults* of the [`enchanting`](#enchanting-control) block — an explicit `"anvil": true` etc. overrides the curse lock.
 - A specific stack can be marked safe forever with the `fiw_uncursed` custom_data flag (set by the uncurse ability or `/fiwtools uncurse_held`). The flag is preserved across `/fiwtools reload`.
 
 ### Uncurse ability (`uncurse`)
@@ -2464,7 +2505,8 @@ Safety notes, all automatic:
   enchantments from whatever the player really placed in the grid.
 
 Custom items themselves stay enchantable the normal way: players can use the enchanting table and
-anvil on them like any vanilla item (only [cursed](#cursed-items) items refuse the table).
+anvil on them like any vanilla item — and the [`enchanting`](#enchanting-control) block controls
+exactly which stations each item accepts.
 
 ---
 

@@ -105,6 +105,45 @@ class ItemConfigParserTest {
     }
 
     @Test
+    fun parsesEnchantingPolicy() {
+        val def = ItemConfigParser.parse(
+            """
+            {
+              "id": "table_only_helm",
+              "base": "minecraft:diamond_helmet",
+              "enchanting": {
+                "table": true,
+                "anvil": false,
+                "grindstone": false,
+                "smithing": false,
+                "allowRename": false
+              }
+            }
+            """.trimIndent()
+        )
+        val e = def.enchanting
+        assertNotNull(e)
+        assertEquals(true, e.table)
+        assertEquals(false, e.anvil)
+        assertEquals(false, e.grindstone)
+        assertEquals(false, e.smithing)
+        assertEquals(false, e.allowRename)
+
+        // Aliases + partial blocks leave the rest null (resolved to defaults later).
+        val partial = ItemConfigParser.parse(
+            """
+            { "id": "p", "base": "minecraft:iron_sword",
+              "enchanting": { "enchantingTable": false, "rename": true } }
+            """.trimIndent()
+        ).enchanting
+        assertNotNull(partial)
+        assertEquals(false, partial.table)
+        assertEquals(true, partial.allowRename)
+        assertEquals(null, partial.anvil)
+        assertEquals(null, partial.grindstone)
+    }
+
+    @Test
     fun rejectsRechargeMobsTargetWithPlayersFilter() {
         val error = runCatching {
             ItemConfigParser.parse(

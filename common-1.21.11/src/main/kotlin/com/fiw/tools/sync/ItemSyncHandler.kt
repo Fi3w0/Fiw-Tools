@@ -85,7 +85,7 @@ object ItemSyncHandler {
             rebuilt.damageValue = stack.damageValue.coerceIn(0, (maxDamage - 1).coerceAtLeast(0))
         }
         preservePlayerEnchantments(stack, rebuilt, def)
-        preservePlayerName(stack, rebuilt, tag.getString(ItemBuilder.CONFIG_NAME_KEY).orElse(""))
+        preservePlayerName(stack, rebuilt, tag.getString(ItemBuilder.CONFIG_NAME_KEY).orElse(""), def)
         preserveUncursed(tag, rebuilt)
         preserveImbueState(tag, rebuilt, registries)
         preserveStackState(tag, rebuilt, def)
@@ -202,8 +202,11 @@ object ItemSyncHandler {
     /**
      * Keeps a player's anvil rename. [appliedConfigName] is the raw config name the item last carried;
      * if the live name still equals that, the player never renamed it and the fresh config name wins.
+     * With `enchanting.allowRename: false` the config name always wins — any rename that slipped
+     * through (e.g. from before a config change) is wiped by the rebuild.
      */
-    private fun preservePlayerName(old: ItemStack, rebuilt: ItemStack, appliedConfigName: String) {
+    private fun preservePlayerName(old: ItemStack, rebuilt: ItemStack, appliedConfigName: String, def: ItemDefinition) {
+        if (def.enchanting?.allowRename == false) return
         val currentName = old.get(DataComponents.CUSTOM_NAME) ?: return
         val lastConfigName = if (appliedConfigName.isEmpty()) null else TextParser.parse(appliedConfigName)
         if (currentName != lastConfigName) rebuilt.set(DataComponents.CUSTOM_NAME, currentName)

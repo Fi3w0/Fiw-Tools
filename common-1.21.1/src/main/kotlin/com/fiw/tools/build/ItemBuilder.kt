@@ -165,9 +165,9 @@ object ItemBuilder {
         if (stack.count > stack.maxStackSize) stack.count = stack.maxStackSize
     }
 
-    /** For cursed items: remove the ENCHANTABLE component so enchanting tables refuse them. */
     private fun applyCurseLocks(stack: ItemStack, def: ItemDefinition) {
-        // DataComponents.ENCHANTABLE was added after 1.21.1.
+        // DataComponents.ENCHANTABLE was added after 1.21.1; table blocking is enforced by
+        // EnchantTableProtectMixin instead, reading EnchantingRules.allowsTable.
     }
 
     private fun applyIdentity(stack: ItemStack, def: ItemDefinition) {

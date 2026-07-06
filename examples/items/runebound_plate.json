@@ -1,0 +1,23 @@
+{
+  "id": "runebound_plate",
+  "base": "minecraft:diamond_chestplate",
+  "displayName": "&5&lRunebound Plate",
+  "lore": [
+    "&7Ancient runes accept new magic,",
+    "&7but the plate keeps its true name.",
+    "",
+    "&dEnchant it at the table or anvil.",
+    "&dIt cannot be renamed or ground down."
+  ],
+  "rarity": "epic",
+  "enchantments": {
+    "minecraft:protection": 2
+  },
+  "enchanting": {
+    "table": true,
+    "anvil": true,
+    "grindstone": false,
+    "smithing": false,
+    "allowRename": false
+  }
+}

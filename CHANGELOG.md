@@ -76,6 +76,15 @@ version header.
   impossible, enchanted books donate and receive via stored enchantments, and a `count > 1`
   result refuses to load without an explicit `allowMultiplied` opt-in so enchantments can't be
   silently multiplied across copies
+- **Enchanting control per item** — new `enchanting` root field decides what each station may do
+  with the item: `table` (enchanting table), `anvil` (books/repair/combine, blocked with the item
+  in either slot), `grindstone` (disenchanting — still blocked by default so configured
+  enchantments stay permanent; two-item grindstone merges involving a Fiw item stay blocked even
+  when enabled), `smithing` (netherite upgrade/trims), and `allowRename` (`false` keeps the anvil
+  usable for enchantments but forces the configured name back onto the result; rename-only
+  operations yield nothing, and renames are wiped on reload re-sync). Defaults match the old
+  behaviour exactly; explicit values override the curse locks, and the enchanting-table block now
+  also works on 1.21.1 (which previously had no way to refuse cursed items at the table)
 
 ### Fixed
 

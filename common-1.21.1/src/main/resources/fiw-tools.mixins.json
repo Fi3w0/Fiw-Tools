@@ -10,6 +10,8 @@
 		"PlayerCombatHooksMixin",
 		"BlockItemPlacePreventMixin",
 		"GrindstoneProtectMixin",
+		"SmithingProtectMixin",
+		"EnchantTableProtectMixin",
 		"ItemEntityPickupMixin",
 		"LivingEntityConsumeMixin",
 		"PlayerInventoryDropAllMixin",

@@ -304,6 +304,17 @@ object ItemConfigParser {
                     }
                     else -> throw IllegalArgumentException("'chargeable' must be true or an object")
                 }
+            },
+            enchanting = root.get("enchanting")?.takeIf { !it.isJsonNull }?.let { el ->
+                if (!el.isJsonObject) throw IllegalArgumentException("'enchanting' must be an object")
+                val o = el.asJsonObject
+                ItemDefinition.EnchantingDef(
+                    table = o.optBoolOrNull("table") ?: o.optBoolOrNull("enchantingTable"),
+                    anvil = o.optBoolOrNull("anvil"),
+                    grindstone = o.optBoolOrNull("grindstone"),
+                    smithing = o.optBoolOrNull("smithing"),
+                    allowRename = o.optBoolOrNull("allowRename") ?: o.optBoolOrNull("rename")
+                )
             }
         )
     }

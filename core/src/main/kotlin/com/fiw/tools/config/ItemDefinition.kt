@@ -100,8 +100,31 @@ data class ItemDefinition(
      * Hold-to-charge: the item becomes usable like a bow; releasing fires `on_charge_release`
      * abilities gated by their `minChargeTicks`/`maxChargeTicks` params. `null` = not chargeable.
      */
-    val chargeable: ChargeableDef? = null
+    val chargeable: ChargeableDef? = null,
+    /**
+     * Per-station enchanting permissions. `null` (or a null field) = the defaults: cursed items
+     * refuse the enchanting table and anvil, every Fiw item refuses the grindstone, smithing and
+     * anvil renaming are allowed.
+     */
+    val enchanting: EnchantingDef? = null
 ) {
+    data class EnchantingDef(
+        /** May players enchant this at the enchanting table? Default: `!cursed`. */
+        val table: Boolean? = null,
+        /** May players use this at the anvil (books, repair, combine)? Default: `!cursed`. */
+        val anvil: Boolean? = null,
+        /** May players strip enchantments at the grindstone? Default: false for Fiw items. */
+        val grindstone: Boolean? = null,
+        /** May this go through a smithing table (e.g. netherite upgrade)? Default: true. */
+        val smithing: Boolean? = null,
+        /**
+         * May an anvil rename stick? `false` still lets the anvil work, but the configured name
+         * is forced back onto the result — players can add enchantments, never change the name.
+         * Default: true.
+         */
+        val allowRename: Boolean? = null
+    )
+
     data class ChargeableDef(
         /** Use animation while charging: bow, spear, block, eat, drink, ... (1.21.1 always eats). */
         val animation: String = "bow",
