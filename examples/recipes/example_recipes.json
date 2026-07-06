@@ -22,6 +22,19 @@
       "result": { "item": "minecraft:nether_star", "count": 1 }
     },
     {
+      "id": "upgrade_blade_keep_enchants",
+      "type": "shapeless",
+      "ingredients": ["minecraft:netherite_sword", "minecraft:diamond_block"],
+      "result": { "item": "fiw:ancient_blade" },
+      "enchantments": {
+        "mode": "merge",
+        "conflict": "highest",
+        "from": ["minecraft:netherite_sword"],
+        "exclude": ["binding_curse", "vanishing_curse"],
+        "onlyCompatible": true
+      }
+    },
+    {
       "id": "planks_charm",
       "type": "shaped",
       "pattern": [

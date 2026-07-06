@@ -64,6 +64,18 @@ version header.
   `MOVEMENT_SPEED`, any case) alongside full ids, auto-prefixed per game version; `body` slot and
   legacy operation names (`addition`, `multiply_base`, `multiply_total`) accepted; docs now list
   every vanilla attribute
+- **Enchantment transfer in custom crafts** — an `enchantments` block on a recipe carries the
+  consumed ingredients' enchantments onto the result, so players upgrading enchanted gear into
+  custom gear keep their enchantments. Fully configurable: `mode` (`merge` / `keep_old` /
+  `keep_new`), per-enchant `conflict` policy when both sides have the same one (`highest`,
+  `lowest`, `old`, `new`, `add`, or anvil-style `combine`), donor filtering (`from`), id
+  whitelist/blacklist (`only`/`exclude`), `transferCurses`, `respectMaxLevel`, hard `maxLevel`
+  cap, `onlyCompatible` (result must be able to hold it), `checkConflicts` (drop vanilla-
+  incompatible pairs). Safe by construction: donors are always consumed by the craft (transfer
+  moves, never copies), final levels are clamped to the 1–255 storable range, duplicates are
+  impossible, enchanted books donate and receive via stored enchantments, and a `count > 1`
+  result refuses to load without an explicit `allowMultiplied` opt-in so enchantments can't be
+  silently multiplied across copies
 
 ### Fixed
 

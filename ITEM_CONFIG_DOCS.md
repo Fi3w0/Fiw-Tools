@@ -2389,6 +2389,7 @@ One file can hold **as many recipes as you like**: a single recipe object, a bar
 | `ingredients` | Shapeless: 1–9 ingredient specs, each consumes one item |
 | `result.item` | What you get — any ingredient spec form below |
 | `result.count` | Stack size of the result (default 1) |
+| `enchantments` | Optional [enchantment transfer](#keeping-enchantments-when-crafting) block — carry the ingredients' enchantments onto the result |
 
 **Ingredient / result specs:**
 
@@ -2403,6 +2404,67 @@ So you can craft **custom from vanilla**, **vanilla from custom**, and **custom 
 **Protection rule:** when Fiw items sit in the grid and no custom recipe matches, any vanilla-computed result is suppressed — two Fiw swords can never be melted into a plain item by the vanilla repair recipe.
 
 Commands: `/fiwtools recipes` lists everything loaded; `/fiwtools reload` reloads items **and** recipes.
+
+### Keeping Enchantments When Crafting
+
+By default a craft ignores whatever enchantments sit on the ingredients — the result is exactly
+the configured item. Add an `enchantments` block to the recipe and the enchantments on the
+**consumed** ingredients carry over to the result instead. Typical use: an upgrade recipe where a
+player feeds in their Protection IV chestplate and gets the custom chestplate back *with* their
+Protection IV.
+
+```json
+{
+  "id": "upgrade_chestplate",
+  "type": "shapeless",
+  "ingredients": ["minecraft:netherite_chestplate", "fiw:dragon_core"],
+  "result": { "item": "fiw:dragonscale_chestplate" },
+  "enchantments": {
+    "mode": "merge",
+    "conflict": "highest",
+    "from": ["minecraft:netherite_chestplate"],
+    "exclude": ["binding_curse"],
+    "respectMaxLevel": false,
+    "onlyCompatible": false,
+    "checkConflicts": false
+  }
+}
+```
+
+`"enchantments": true` is shorthand for the defaults (merge everything, highest level wins).
+Omit the block (or use `false`) for the old behavior.
+
+Everywhere below, **old** means enchantments already on the grid items; **new** means the
+enchantments the freshly built result has on its own (a `fiw:` item's configured `enchantments`,
+or none for a plain item result).
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `mode` | `merge` | `merge` — old and new combined. `keep_old` (alias `old`) — the ingredients' enchantments replace the result's own entirely. `keep_new` (alias `new`) — no transfer at all |
+| `conflict` | `highest` | When the same enchantment exists on both sides (or on two ingredients): `highest`, `lowest`, `old` (ingredient wins), `new` (result wins), `add` (levels are summed), `combine` (anvil rule: equal levels → level + 1, otherwise higher wins). Between two ingredients, `old`/`new` keep the earlier grid slot's level |
+| `from` | all | List of ingredient specs (same syntax as `ingredients`) allowed to donate. Anything not listed is consumed silently, enchantments and all |
+| `only` | all | Whitelist of enchantment ids that may transfer (`sharpness` or `minecraft:sharpness`) |
+| `exclude` | none | Blacklist of enchantment ids that never transfer |
+| `transferCurses` | `true` | Set `false` to leave Curse of Binding / Vanishing (and other `#minecraft:curse` enchantments) behind |
+| `respectMaxLevel` | `false` | Clamp each transferred level to the enchantment's vanilla maximum (a Sharpness 10 donor becomes Sharpness 5) |
+| `maxLevel` | `255` | Hard cap on every final level, 1–255. 255 is the storage format's limit, so nothing above it can ever be written |
+| `onlyCompatible` | `false` | Drop enchantments the result item can't normally hold (no Lure on a chestplate). Ignored when the result is an enchanted book |
+| `checkConflicts` | `false` | Drop an incoming enchantment that vanilla marks mutually exclusive with one already kept (Sharpness vs Smite). The result's own enchantments and earlier grid slots win |
+| `allowMultiplied` | `false` | Required opt-in before a `count > 1` result may transfer — otherwise every crafted copy would carry the donors' enchantments, which is enchantment duplication. The recipe refuses to load without it |
+
+Safety notes, all automatic:
+
+- Enchantments **move**, they never multiply: every grid item is consumed by the craft, so the
+  donor piece is gone the moment the enchanted result exists.
+- Final levels are clamped to 1–255; level-0 or negative entries are dropped, and the same
+  enchantment can never appear twice on the result.
+- Enchanted **book** ingredients donate their stored enchantments too; an enchanted book *result*
+  receives transfers as stored enchantments, like vanilla.
+- The recipe book / JEI preview shows the base result — the actual crafted item picks up the
+  enchantments from whatever the player really placed in the grid.
+
+Custom items themselves stay enchantable the normal way: players can use the enchanting table and
+anvil on them like any vanilla item (only [cursed](#cursed-items) items refuse the table).
 
 ---
 

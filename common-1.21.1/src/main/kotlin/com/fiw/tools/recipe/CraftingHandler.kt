@@ -70,7 +70,7 @@ object CraftingHandler {
 
         val recipe = match(grid, width, height)
         if (recipe != null) {
-            val result = buildResult(recipe, player)
+            val result = buildResult(recipe, player, grid)
             if (result == null) {
                 customResults.remove(player.uuid)
                 if (!resultSlot.item.isEmpty) resultSlot.set(ItemStack.EMPTY)
@@ -184,8 +184,17 @@ object CraftingHandler {
         return BuiltInRegistries.ITEM.getKey(stack.item) == id
     }
 
-    /** Build the recipe's result stack — a full custom item for `fiw:` results, plain otherwise. */
-    fun buildResult(recipe: RecipeDefinition, player: ServerPlayer): ItemStack? {
+    /**
+     * Build the recipe's result stack — a full custom item for `fiw:` results, plain otherwise.
+     * Pass the crafting [grid] so ingredient enchantments can transfer when the recipe asks for it.
+     */
+    fun buildResult(recipe: RecipeDefinition, player: ServerPlayer, grid: List<ItemStack>? = null): ItemStack? {
+        val stack = buildBaseResult(recipe, player) ?: return null
+        if (grid != null) EnchantTransfer.apply(recipe, stack, grid)
+        return stack
+    }
+
+    private fun buildBaseResult(recipe: RecipeDefinition, player: ServerPlayer): ItemStack? {
         val spec = recipe.resultItem
         if (spec.startsWith("fiw:")) {
             val fiwId = spec.removePrefix("fiw:")

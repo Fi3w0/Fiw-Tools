@@ -20,7 +20,9 @@ data class RecipeDefinition(
     val ingredients: List<String> = emptyList(),
     /** Result spec, same syntax as ingredients (`fiw:` or vanilla id). */
     val resultItem: String,
-    val resultCount: Int = 1
+    val resultCount: Int = 1,
+    /** When set, enchantments on consumed ingredients carry over to the result. */
+    val enchantments: RecipeEnchantmentsDef? = null
 ) {
     val width: Int get() = pattern.maxOfOrNull { it.length } ?: 0
     val height: Int get() = pattern.size
@@ -37,5 +39,55 @@ data class RecipeDefinition(
         append(if (shaped) "shaped ${width}x$height" else "shapeless ${ingredients.size}")
         append(" -> ").append(resultItem)
         if (resultCount != 1) append(" x").append(resultCount)
+        if (enchantments != null) append(" [enchants: ${enchantments.mode}]")
+    }
+}
+
+/**
+ * How enchantments move from consumed ingredients onto the crafted result. "Old" always means
+ * enchantments already sitting on the grid items; "new" means the enchantments the freshly built
+ * result carries by itself (a Fiw item's configured `enchantments`, or none for plain items).
+ */
+data class RecipeEnchantmentsDef(
+    /** [MODE_MERGE] (old + new), [MODE_KEEP_OLD] (ingredients win wholesale), [MODE_KEEP_NEW] (no transfer). */
+    val mode: String = MODE_MERGE,
+    /** Level to keep when the same enchantment exists on both sides — see CONFLICT_* constants. */
+    val conflict: String = CONFLICT_HIGHEST,
+    /** Ingredient specs allowed to donate enchantments; empty = every consumed ingredient. */
+    val from: List<String> = emptyList(),
+    /** Enchantment id whitelist (normalized `namespace:path`); empty = all. */
+    val only: List<String> = emptyList(),
+    /** Enchantment id blacklist (normalized `namespace:path`). */
+    val exclude: List<String> = emptyList(),
+    /** Transfer curse enchantments (binding/vanishing) too. */
+    val transferCurses: Boolean = true,
+    /** Clamp each level to the enchantment's own vanilla maximum. */
+    val respectMaxLevel: Boolean = false,
+    /** Hard level cap after all merging; 1..255 (255 is the component format's limit). */
+    val maxLevel: Int = 255,
+    /** Drop enchantments the result item can't normally hold (e.g. Lure on a chestplate). */
+    val onlyCompatible: Boolean = false,
+    /** Drop incoming enchantments that vanilla marks mutually exclusive with one already kept. */
+    val checkConflicts: Boolean = false,
+    /** Must be set to true before a `count > 1` result may copy enchantments onto every copy. */
+    val allowMultiplied: Boolean = false
+) {
+    companion object {
+        const val MODE_MERGE = "merge"
+        const val MODE_KEEP_OLD = "keep_old"
+        const val MODE_KEEP_NEW = "keep_new"
+
+        /** Higher level wins (default). */
+        const val CONFLICT_HIGHEST = "highest"
+        /** Lower level wins. */
+        const val CONFLICT_LOWEST = "lowest"
+        /** The ingredient's level wins; between two ingredients the earlier grid slot wins. */
+        const val CONFLICT_OLD = "old"
+        /** The result's own level wins; between two ingredients the earlier grid slot wins. */
+        const val CONFLICT_NEW = "new"
+        /** Levels are added together. */
+        const val CONFLICT_ADD = "add"
+        /** Anvil rule: equal levels combine into level + 1, otherwise the higher wins. */
+        const val CONFLICT_COMBINE = "combine"
     }
 }

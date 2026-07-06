@@ -41,7 +41,7 @@ class FiwCraftingRecipe(
         CraftingHandler.matches(definition, input.items(), input.width(), input.height())
 
     override fun assemble(input: CraftingInput): ItemStack =
-        CraftingHandler.buildResult(definition, registries)?.copy() ?: ItemStack.EMPTY
+        CraftingHandler.buildResult(definition, registries, input.items())?.copy() ?: ItemStack.EMPTY
 
     override fun getSerializer(): RecipeSerializer<out CraftingRecipe> = SERIALIZER
 

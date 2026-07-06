@@ -132,7 +132,7 @@ Catalyst items can upgrade targets with deterministic or weighted-random outcome
 
 ### Custom crafting recipes
 
-Drop JSON recipe files into `config/fiw_tools/recipes/` — shaped and shapeless, multiple recipes per file. Craft custom items from vanilla ingredients, vanilla items from custom ingredients, or custom from custom, in any crafting grid. Fully server-side; vanilla clients craft normally.
+Drop JSON recipe files into `config/fiw_tools/recipes/` — shaped and shapeless, multiple recipes per file. Craft custom items from vanilla ingredients, vanilla items from custom ingredients, or custom from custom, in any crafting grid. Fully server-side; vanilla clients craft normally. An optional `enchantments` block transfers the consumed ingredients' enchantments onto the result — merge, keep-old or keep-new, with per-enchantment conflict policies, filters and level caps — so players upgrading their enchanted gear keep what they earned.
 
 ### Infinite use items
 
