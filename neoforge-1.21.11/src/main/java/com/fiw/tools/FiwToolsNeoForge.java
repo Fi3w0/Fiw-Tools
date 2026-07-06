@@ -22,6 +22,7 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -36,6 +37,11 @@ public final class FiwToolsNeoForge {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         FiwToolsCommon.INSTANCE.serverStarting(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStarted(ServerStartedEvent event) {
+        FiwToolsCommon.INSTANCE.serverStarted(event.getServer());
     }
 
     @SubscribeEvent

@@ -90,6 +90,7 @@ object FiwTools : ModInitializer {
         }
         ServerTickEvents.END_SERVER_TICK.register(FiwToolsCommon::serverTick)
         ServerLifecycleEvents.SERVER_STARTING.register { server -> FiwToolsCommon.serverStarting(server) }
+        ServerLifecycleEvents.SERVER_STARTED.register { server -> FiwToolsCommon.serverStarted(server) }
         ServerLifecycleEvents.SERVER_STOPPED.register { FiwToolsCommon.serverStopped() }
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
