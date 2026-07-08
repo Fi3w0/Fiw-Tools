@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.ItemStack
 import org.slf4j.LoggerFactory
-import java.util.concurrent.ThreadLocalRandom
 
 /**
  * Drives `while_held` and `while_worn` passive abilities. Every [SWEEP_TICKS] it walks each online
@@ -121,7 +120,11 @@ object PassiveHandler {
         val id = FiwItems.fiwId(stack) ?: return
         val def = ItemRegistry.byId(id) ?: return
         if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) return
-        ImbueMods.effectiveAbilities(stack, def).forEachIndexed { idx, ab ->
+        val abilities = ImbueMods.effectiveAbilities(stack, def)
+        // Pass 1: keep abilities clearing every non-random gate (trigger, resonance tier, stance,
+        // slot filter, cooldown, conditions). Chance/proc groups are resolved together afterwards.
+        val eligible = ArrayList<Int>()
+        abilities.forEachIndexed { idx, ab ->
             if (AbilityTrigger.parse(ab.trigger) != trigger) return@forEachIndexed
             // Tiered resonance: an ability fires only once enough set pieces are worn. Its
             // `minPieces` defaults to the set's `resonanceRequires`, so untiered sets behave as before.
@@ -135,12 +138,24 @@ object PassiveHandler {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, ab.params)) return@forEachIndexed
-            if (ab.chance < 1f && ThreadLocalRandom.current().nextFloat() > ab.chance) return@forEachIndexed
+            eligible.add(idx)
+        }
+        if (eligible.isEmpty()) return
+
+        // Pass 2: resolve chance + proc groups, then fire the winners.
+        val winners = ProcGroups.resolve(eligible.map {
+            ProcGroups.Candidate(it, abilities[it].chance, abilities[it].procGroup)
+        })
+        for (idx in eligible) {
+            if (idx !in winners) continue
+            val ab = abilities[idx]
             val cost = ab.cost
-            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) return@forEachIndexed
-            val ability = AbilityRegistry.get(ab.type) ?: return@forEachIndexed
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) continue
+            val ability = AbilityRegistry.get(ab.type) ?: continue
+            val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
+            val params = AbilityScaling.resolve(player, stack, def, ab)
             try {
-                if (ability.execute(AbilityContext(player, stack, world, null, null, ab.params))) {
+                if (ability.execute(AbilityContext(player, stack, world, null, null, params))) {
                     AbilityCooldownTracker.arm(player, key, ab.cooldownTicks)
                     if (cost != null) AbilityCosts.pay(player, stack, cost)
                 }

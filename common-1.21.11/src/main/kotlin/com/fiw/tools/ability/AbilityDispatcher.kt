@@ -12,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import org.slf4j.LoggerFactory
-import java.util.concurrent.ThreadLocalRandom
 
 object AbilityDispatcher {
     private val logger = LoggerFactory.getLogger("fiw-tools/abilities")
@@ -273,7 +272,9 @@ object AbilityDispatcher {
         val abilities = ImbueMods.effectiveAbilities(stack, def)
         if (abilities.isEmpty()) return false
 
-        var any = false
+        // Pass 1: keep the abilities that clear every non-random gate (trigger, stance, filter,
+        // cooldown, conditions). Chance is resolved next so proc groups can pick a single winner.
+        val eligible = ArrayList<Int>()
         abilities.forEachIndexed { idx, abilityDef ->
             if (AbilityTrigger.parse(abilityDef.trigger) != trigger) return@forEachIndexed
             val stanceGate = abilityDef.stance
@@ -283,21 +284,35 @@ object AbilityDispatcher {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, abilityDef.params)) return@forEachIndexed
-            if (abilityDef.chance < 1f && ThreadLocalRandom.current().nextFloat() > abilityDef.chance) return@forEachIndexed
+            eligible.add(idx)
+        }
+        if (eligible.isEmpty()) return false
+
+        // Pass 2: resolve chance + proc groups into the winners that actually fire.
+        val winners = ProcGroups.resolve(eligible.map {
+            ProcGroups.Candidate(it, abilities[it].chance, abilities[it].procGroup)
+        })
+
+        var any = false
+        for (idx in eligible) {
+            if (idx !in winners) continue
+            val abilityDef = abilities[idx]
             val cost = abilityDef.cost
             if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) {
                 if (trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_SHIFT_RIGHT_CLICK ||
                     trigger == AbilityTrigger.ON_ATTACK) {
                     AbilityCosts.notifyInsufficient(player)
                 }
-                return@forEachIndexed
+                continue
             }
             val ability = AbilityRegistry.get(abilityDef.type) ?: run {
                 logger.warn("Unknown ability type '${abilityDef.type}' on '${def.id}'")
-                return@forEachIndexed
+                continue
             }
+            val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
+            val params = AbilityScaling.resolve(player, stack, def, abilityDef)
             try {
-                if (ability.execute(AbilityContext(player, stack, world, target, targetPos, abilityDef.params, damageSource, damageAmount))) {
+                if (ability.execute(AbilityContext(player, stack, world, target, targetPos, params, damageSource, damageAmount))) {
                     AbilityCooldownTracker.arm(player, key, abilityDef.cooldownTicks)
                     if (cost != null) AbilityCosts.pay(player, stack, cost)
                     any = true
