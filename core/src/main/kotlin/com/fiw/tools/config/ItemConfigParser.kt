@@ -66,8 +66,10 @@ object ItemConfigParser {
                 cooldownTicks = o.optInt("cooldownTicks", 0),
                 chance = o.optFloat("chance", 1f),
                 cooldownGroup = o.optStringOrNull("cooldownGroup"),
+                procGroup = o.optStringOrNull("procGroup"),
                 cost = parseCost(o.getAsJsonObject("cost")),
                 stance = o.optStringOrNull("stance"),
+                scaling = parseScaling(o.getAsJsonArray("scaling")),
                 params = o.getAsJsonObject("params") ?: JsonObject()
             )
         } ?: emptyList()
@@ -313,7 +315,8 @@ object ItemConfigParser {
                     anvil = o.optBoolOrNull("anvil"),
                     grindstone = o.optBoolOrNull("grindstone"),
                     smithing = o.optBoolOrNull("smithing"),
-                    allowRename = o.optBoolOrNull("allowRename") ?: o.optBoolOrNull("rename")
+                    allowRename = o.optBoolOrNull("allowRename") ?: o.optBoolOrNull("rename"),
+                    allowEnchant = o.optBoolOrNull("allowEnchant") ?: o.optBoolOrNull("enchant")
                 )
             }
         )
@@ -335,6 +338,26 @@ object ItemConfigParser {
         if (cost.charges < 0 || cost.durability < 0 || cost.health < 0f || cost.maxHealth < 0f || cost.hunger < 0 || cost.xpLevels < 0 || cost.itemCount < 1)
             throw IllegalArgumentException("ability cost values must be >= 0 (itemCount >= 1)")
         return if (cost.isFree) null else cost
+    }
+
+    /** Recognised scaling stats — validated at parse time so typos fail loud, not silently. */
+    private val SCALING_STATS = setOf("streak_tier", "imbue_count", "charges", "max_health")
+
+    /** Public so imbued `addAbilities` blocks parse scaling identically to normal abilities. */
+    fun parseScaling(arr: com.google.gson.JsonArray?): List<ItemDefinition.ScalingDef> {
+        if (arr == null) return emptyList()
+        return arr.map { el ->
+            val o = el.asJsonObject
+            val stat = o.requireString("stat").lowercase()
+            if (stat !in SCALING_STATS)
+                throw IllegalArgumentException("unknown scaling stat '$stat' (${SCALING_STATS.joinToString("/")})")
+            ItemDefinition.ScalingDef(
+                stat = stat,
+                param = o.requireString("param"),
+                perPoint = o.optDouble("perPoint", 0.0),
+                cap = o.optDoubleOrNull("cap")
+            )
+        }
     }
 
     /** `normal` is the everyday alias players expect; `keep` is the canonical name. */
@@ -387,6 +410,9 @@ object ItemConfigParser {
 
     private fun JsonObject.optDouble(key: String, default: Double): Double =
         if (has(key) && !get(key).isJsonNull) get(key).asDouble else default
+
+    private fun JsonObject.optDoubleOrNull(key: String): Double? =
+        if (has(key) && !get(key).isJsonNull) get(key).asDouble else null
 
     private fun JsonObject.optBool(key: String, default: Boolean): Boolean =
         if (has(key) && !get(key).isJsonNull) get(key).asBoolean else default

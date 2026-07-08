@@ -122,7 +122,13 @@ data class ItemDefinition(
          * is forced back onto the result — players can add enchantments, never change the name.
          * Default: true.
          */
-        val allowRename: Boolean? = null
+        val allowRename: Boolean? = null,
+        /**
+         * May players add enchantments to this at the anvil (books, combining two enchanted
+         * copies)? `false` still lets the anvil rename and repair the item, but any result that
+         * would add or change an enchantment is refused. Default: true.
+         */
+        val allowEnchant: Boolean? = null
     )
 
     data class ChargeableDef(
@@ -319,11 +325,34 @@ data class ItemDefinition(
          * cooldown — across items too — so stacking several burst items can't chain-cast them.
          */
         val cooldownGroup: String? = null,
+        /**
+         * Optional proc group. Among the eligible abilities that share this group name on the same
+         * trigger fire, exactly one is chosen (weighted by each ability's `chance`) instead of all
+         * of them firing independently. Null = the ability rolls its own `chance` alone, as before.
+         */
+        val procGroup: String? = null,
         /** Resources consumed per successful fire. Checked before execution; unpaid = no fire. */
         val cost: CostDef? = null,
         /** Only fire while this stance (from the item's `stances` list) is active. */
         val stance: String? = null,
+        /**
+         * Optional numeric scaling: each entry adds `perPoint * stat` to a base `params` value at
+         * fire time, so an ability's numbers grow with killstreak tier, imbue count, charges, or
+         * the holder's max health. Empty = fixed params (the common case, zero overhead).
+         */
+        val scaling: List<ScalingDef> = emptyList(),
         val params: JsonObject = JsonObject()
+    )
+
+    data class ScalingDef(
+        /** Stat that drives the bonus: `streak_tier`, `imbue_count`, `charges`, or `max_health`. */
+        val stat: String,
+        /** The `params` key whose numeric value the bonus is added to. */
+        val param: String,
+        /** Amount added to `param` per point of `stat`. */
+        val perPoint: Double,
+        /** Optional clamp on the total added bonus (before it is added to the base value). */
+        val cap: Double? = null
     )
 
     fun describeShort(): String = buildString {
