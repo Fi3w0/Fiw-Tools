@@ -93,6 +93,10 @@ import com.fiw.tools.ability.impl.TetherAbility
 import com.fiw.tools.ability.impl.LightningRainAbility
 import com.fiw.tools.ability.impl.LightningRayAbility
 import com.fiw.tools.ability.impl.RepairAbility
+import com.fiw.tools.ability.impl.HomingBoltAbility
+import com.fiw.tools.ability.impl.AegisShieldAbility
+import com.fiw.tools.ability.impl.StunStrikeAbility
+import com.fiw.tools.ability.impl.ApplyEffectAbility
 import com.fiw.tools.ability.impl.WhirlwindAbility
 
 object AbilityRegistry {
@@ -113,6 +117,10 @@ object AbilityRegistry {
         register("lightning_ray") { LightningRayAbility }
         register("teleport_behind") { TeleportBehindAbility }
         register("repair") { RepairAbility }
+        register("homing_bolt") { HomingBoltAbility }
+        register("aegis_shield") { AegisShieldAbility }
+        register("stun_strike") { StunStrikeAbility }
+        register("apply_effect") { ApplyEffectAbility }
         register("shockwave") { ShockwaveAbility }
         register("heal_on_hit") { HealOnHitAbility }
         register("blink") { BlinkAbility }

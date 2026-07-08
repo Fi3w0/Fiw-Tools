@@ -32,6 +32,60 @@ object AbilityState {
     }
     val bleeds: MutableMap<UUID, BleedEntry> = ConcurrentHashMap()
 
+    /** victim -> game-time their hard stun expires (see `stun_strike`). */
+    val stuns: MutableMap<UUID, Long> = ConcurrentHashMap()
+
+    /** player -> their active aegis barrier (remaining pool + expiry), see `aegis_shield`. */
+    class AegisEntry(var pool: Float, val expiry: Long)
+    val aegisShields: MutableMap<UUID, AegisEntry> = ConcurrentHashMap()
+
+    /** Hard-stun [victim] until at least [untilTick]; extends an existing stun, never shortens it. */
+    fun addStun(victim: UUID, untilTick: Long) {
+        stuns.merge(victim, untilTick) { a, b -> maxOf(a, b) }
+    }
+
+    /** Raise an aegis barrier on [player]: [pool] damage absorbed, expiring at [expiry]. */
+    fun addAegis(player: UUID, pool: Float, expiry: Long) {
+        aegisShields[player] = AegisEntry(pool, expiry)
+    }
+
+    /**
+     * Called when [player] is about to take [amount] damage. Returns true if an active aegis barrier
+     * swallowed the hit (the caller must then cancel the damage). Each hit is fully absorbed while the
+     * barrier holds; the hit that drains the pool shatters it (and is still absorbed).
+     */
+    fun aegisAbsorbs(player: ServerPlayer, amount: Float): Boolean {
+        val entry = aegisShields[player.uuid] ?: return false
+        if (player.level().gameTime >= entry.expiry) { aegisShields.remove(player.uuid); return false }
+        entry.pool -= amount
+        player.serverLevel().sendParticles(ParticleTypes.END_ROD, player.x, player.y + 1.0, player.z, 12, 0.4, 0.6, 0.4, 0.02)
+        if (entry.pool <= 0f) aegisShields.remove(player.uuid)
+        return true
+    }
+
+    /** Each tick: hold every stunned entity in place and keep its disabling effects topped up. */
+    fun processStuns(server: MinecraftServer) {
+        if (stuns.isEmpty()) return
+        val now = server.overworld().gameTime
+        val toRemove = mutableListOf<UUID>()
+        for ((uuid, until) in stuns) {
+            if (now >= until) { toRemove.add(uuid); continue }
+            var found = false
+            for (level in server.allLevels) {
+                val e = level.getEntity(uuid) as? LivingEntity ?: continue
+                e.deltaMovement = net.minecraft.world.phys.Vec3.ZERO
+                e.hurtMarked = true
+                e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 10, 250, false, false))
+                e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 10, 250, false, false))
+                e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DIG_SLOWDOWN, 10, 250, false, false))
+                found = true
+                break
+            }
+            if (!found) toRemove.add(uuid)
+        }
+        for (uuid in toRemove) stuns.remove(uuid)
+    }
+
     fun recordDamage(player: UUID, tick: Long) {
         lastDamageTick[player] = tick
     }
@@ -72,6 +126,8 @@ object AbilityState {
         recallAnchors.remove(id)
         tetherMarks.remove(id)
         lastDamageTick.remove(id)
+        stuns.remove(id)
+        aegisShields.remove(id)
     }
 
     fun clear() {
@@ -79,6 +135,8 @@ object AbilityState {
         tetherMarks.clear()
         lastDamageTick.clear()
         bleeds.clear()
+        stuns.clear()
+        aegisShields.clear()
     }
 
     /** Records a fresh tether mark and returns true if [victim] was already marked and unexpired. */

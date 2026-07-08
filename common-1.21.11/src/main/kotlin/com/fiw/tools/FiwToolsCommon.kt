@@ -73,6 +73,8 @@ object FiwToolsCommon {
         SonicBoomAbility.tick()
         com.fiw.tools.ability.impl.LightningRainAbility.tick()
         com.fiw.tools.ability.impl.LightningRayAbility.tick()
+        com.fiw.tools.ability.impl.HomingBoltAbility.tick()
+        AbilityState.processStuns(server)
         AbilityState.processBleeds(server)
         ElementalStatusTracker.processTick(server)
     }
@@ -100,6 +102,7 @@ object FiwToolsCommon {
         SonicBoomAbility.clear()
         com.fiw.tools.ability.impl.LightningRainAbility.clear()
         com.fiw.tools.ability.impl.LightningRayAbility.clear()
+        com.fiw.tools.ability.impl.HomingBoltAbility.clear()
         ZoneEffects.clear()
         AbilityState.clear()
         ElementalStatusTracker.reset()
