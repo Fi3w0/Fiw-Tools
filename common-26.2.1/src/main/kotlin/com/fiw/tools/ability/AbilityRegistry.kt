@@ -88,7 +88,11 @@ import com.fiw.tools.ability.impl.SilenceSigilAbility
 import com.fiw.tools.ability.impl.SlayingEdgeAbility
 import com.fiw.tools.ability.impl.SoulHarvestAbility
 import com.fiw.tools.ability.impl.TauntAbility
+import com.fiw.tools.ability.impl.TeleportBehindAbility
 import com.fiw.tools.ability.impl.TetherAbility
+import com.fiw.tools.ability.impl.LightningRainAbility
+import com.fiw.tools.ability.impl.LightningRayAbility
+import com.fiw.tools.ability.impl.RepairAbility
 import com.fiw.tools.ability.impl.WhirlwindAbility
 
 object AbilityRegistry {
@@ -105,6 +109,10 @@ object AbilityRegistry {
         register("arrow_rain") { ArrowRainAbility }
         register("sonic_boom") { SonicBoomAbility }
         register("lightning_strike") { LightningStrikeAbility }
+        register("lightning_rain") { LightningRainAbility }
+        register("lightning_ray") { LightningRayAbility }
+        register("teleport_behind") { TeleportBehindAbility }
+        register("repair") { RepairAbility }
         register("shockwave") { ShockwaveAbility }
         register("heal_on_hit") { HealOnHitAbility }
         register("blink") { BlinkAbility }

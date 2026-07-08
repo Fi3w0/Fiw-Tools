@@ -64,6 +64,8 @@ object FiwToolsCommon {
         SlashWaveAbility.tick()
         ArrowRainAbility.tick()
         SonicBoomAbility.tick()
+        com.fiw.tools.ability.impl.LightningRainAbility.tick()
+        com.fiw.tools.ability.impl.LightningRayAbility.tick()
         AbilityState.processBleeds(server)
         ElementalStatusTracker.processTick(server)
     }
@@ -88,6 +90,8 @@ object FiwToolsCommon {
         SlashWaveAbility.clear()
         ArrowRainAbility.clear()
         SonicBoomAbility.clear()
+        com.fiw.tools.ability.impl.LightningRainAbility.clear()
+        com.fiw.tools.ability.impl.LightningRayAbility.clear()
         ZoneEffects.clear()
         AbilityState.clear()
         ElementalStatusTracker.reset()
