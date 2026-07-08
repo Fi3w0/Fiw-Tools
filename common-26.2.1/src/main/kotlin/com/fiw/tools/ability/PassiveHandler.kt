@@ -73,10 +73,11 @@ object PassiveHandler {
     }
 
     /**
-     * Groups all equipped Fiw items by their resonanceId. For each set where the equipped count
-     * meets the item's `resonanceRequires` threshold, fires RESONANCE-trigger abilities from the
-     * first matching stack. Only one item in a set needs to define resonance abilities — if
-     * multiple do, each fires independently (so put set bonuses on only one piece).
+     * Groups all equipped Fiw items by their resonanceId, then fires RESONANCE-trigger abilities
+     * from the first matching stack, passing the equipped piece count so each ability's `minPieces`
+     * param (default = the set's `resonanceRequires`) decides whether it activates. This lets one
+     * set define several tiers — e.g. a 2-piece bonus and a stronger 4-piece bonus. Only one item in
+     * a set needs to define resonance abilities (put set bonuses on a single piece).
      */
     private fun sweepResonance(player: net.minecraft.server.level.ServerPlayer, world: net.minecraft.server.level.ServerLevel) {
         val allStacks = buildList {
@@ -94,9 +95,8 @@ object PassiveHandler {
             groups.getOrPut(rId) { mutableListOf() }.add(stack to def)
         }
         for ((_, entries) in groups) {
-            val (firstStack, firstDef) = entries.first()
-            if (entries.size < firstDef.resonanceRequires) continue
-            runSlot(player, world, firstStack, AbilityTrigger.RESONANCE, "slot", "any", "any")
+            val (firstStack, _) = entries.first()
+            runSlot(player, world, firstStack, AbilityTrigger.RESONANCE, "slot", "any", "any", entries.size)
         }
     }
 
@@ -113,7 +113,9 @@ object PassiveHandler {
         trigger: AbilityTrigger,
         filterKey: String,
         filterDefault: String,
-        actualSlot: String
+        actualSlot: String,
+        /** For RESONANCE: how many set pieces are equipped, so per-ability `minPieces` can tier. */
+        resonancePieces: Int? = null
     ) {
         if (stack.isEmpty) return
         val id = FiwItems.fiwId(stack) ?: return
@@ -121,6 +123,10 @@ object PassiveHandler {
         if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) return
         ImbueMods.effectiveAbilities(stack, def).forEachIndexed { idx, ab ->
             if (AbilityTrigger.parse(ab.trigger) != trigger) return@forEachIndexed
+            // Tiered resonance: an ability fires only once enough set pieces are worn. Its
+            // `minPieces` defaults to the set's `resonanceRequires`, so untiered sets behave as before.
+            if (trigger == AbilityTrigger.RESONANCE && resonancePieces != null &&
+                resonancePieces < ab.params.optI("minPieces", def.resonanceRequires)) return@forEachIndexed
             val stanceGate = ab.stance
             if (stanceGate != null &&
                 !stanceGate.equals(com.fiw.tools.stance.StanceHandler.activeStance(stack, def), ignoreCase = true)) return@forEachIndexed
