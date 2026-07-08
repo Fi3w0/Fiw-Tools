@@ -53,7 +53,7 @@ object ImbueAbility : Ability {
         val catalyst = ctx.stack
 
         // --- 1. Find target stack ---
-        val (target, source) = findTarget(player, params) ?: run {
+        val (target, source) = findTarget(player, params, catalyst) ?: run {
             tell(player, params, "noTarget"); return false
         }
 
@@ -97,15 +97,21 @@ object ImbueAbility : Ability {
 
     // ===== Target scanning =====
 
-    /** Returns the (stack, sourceLabel) of the first slot matching the catalyst's filter. */
-    private fun findTarget(player: ServerPlayer, params: JsonObject): Pair<ItemStack, String>? {
+    /**
+     * Returns the (stack, sourceLabel) of the first slot matching the catalyst's filter, scanning
+     * off hand → main hand → armor. The [catalyst] stack itself is always skipped, so a catalyst
+     * held in the off hand can imbue the item in the main hand (and never imbues itself).
+     */
+    private fun findTarget(player: ServerPlayer, params: JsonObject, catalyst: ItemStack): Pair<ItemStack, String>? {
         val targetsObj = params.getAsJsonObject("targets") ?: JsonObject()
         val off = player.offhandItem
-        if (matchesFilter(off, targetsObj)) return off to "off_hand"
+        if (off !== catalyst && matchesFilter(off, targetsObj)) return off to "off_hand"
+        val main = player.mainHandItem
+        if (main !== catalyst && matchesFilter(main, targetsObj)) return main to "main_hand"
         for (slot in EquipmentSlot.entries) {
             if (!slot.isArmor) continue
             val worn = player.getItemBySlot(slot)
-            if (matchesFilter(worn, targetsObj)) return worn to "armor/${slot.name.lowercase()}"
+            if (worn !== catalyst && matchesFilter(worn, targetsObj)) return worn to "armor/${slot.name.lowercase()}"
         }
         return null
     }
