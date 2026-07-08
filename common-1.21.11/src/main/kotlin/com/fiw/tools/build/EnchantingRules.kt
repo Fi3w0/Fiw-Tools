@@ -4,6 +4,7 @@ import com.fiw.tools.config.ItemDefinition
 import com.fiw.tools.config.ItemRegistry
 import net.minecraft.core.component.DataComponents
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.enchantment.ItemEnchantments
 
 /**
  * Resolves what a Fiw item may do at each enchanting station, per its `enchanting` config block.
@@ -34,6 +35,10 @@ object EnchantingRules {
     fun allowsRename(stack: ItemStack): Boolean =
         resolve(stack, { it.allowRename }, { _, _ -> true })
 
+    @JvmStatic
+    fun allowsEnchant(stack: ItemStack): Boolean =
+        resolve(stack, { it.allowEnchant }, { _, _ -> true })
+
     /** Build-time table permission for [def]; drives whether ENCHANTABLE is stripped. */
     @JvmStatic
     fun tableAllowed(def: ItemDefinition): Boolean = def.enchanting?.table ?: !def.cursed
@@ -49,6 +54,31 @@ object EnchantingRules {
         if (original == null) result.remove(DataComponents.CUSTOM_NAME)
         else result.set(DataComponents.CUSTOM_NAME, original)
         return true
+    }
+
+    /**
+     * Re-stamps the item's configured attribute modifiers onto [result], so an anvil/smithing
+     * operation can never leave a Fiw item with attributes other than the ones its config declares.
+     * No-op for non-Fiw stacks and for Fiw items that declare no attributes. Returns true if the
+     * attribute component actually changed (so the caller can re-sync the slot).
+     */
+    @JvmStatic
+    fun restoreAttributes(result: ItemStack): Boolean {
+        if (result.isEmpty) return false
+        val fiwId = FiwItems.fiwId(result) ?: return false
+        val def = ItemRegistry.byId(fiwId) ?: return false
+        if (def.attributes.isEmpty()) return false
+        val before = result.get(DataComponents.ATTRIBUTE_MODIFIERS)
+        ItemBuilder.applyAttributes(result, def)
+        return before != result.get(DataComponents.ATTRIBUTE_MODIFIERS)
+    }
+
+    /** True when [a] and [b] carry different enchantments — used to detect an anvil enchant op. */
+    @JvmStatic
+    fun enchantmentsDiffer(a: ItemStack, b: ItemStack): Boolean {
+        val ea = a.get(DataComponents.ENCHANTMENTS) ?: ItemEnchantments.EMPTY
+        val eb = b.get(DataComponents.ENCHANTMENTS) ?: ItemEnchantments.EMPTY
+        return ea != eb
     }
 
     private inline fun resolve(

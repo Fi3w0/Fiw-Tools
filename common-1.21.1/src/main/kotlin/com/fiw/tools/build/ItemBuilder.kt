@@ -237,7 +237,8 @@ object ItemBuilder {
         stack.set(DataComponents.ENCHANTMENTS, mutable.toImmutable())
     }
 
-    private fun applyAttributes(stack: ItemStack, def: ItemDefinition) {
+    /** Rebuilds the item's configured attribute modifiers onto [stack]. No-op when none configured. */
+    internal fun applyAttributes(stack: ItemStack, def: ItemDefinition) {
         if (def.attributes.isEmpty()) return
         val builder = ItemAttributeModifiers.builder()
         def.attributes.forEachIndexed { index, attr ->
