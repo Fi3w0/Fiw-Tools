@@ -248,14 +248,15 @@ the anvil were allowed, `allowRename: false` keeps its configured name forever.
 | `grindstone` | `false` | Disenchanting at the grindstone. Fiw items are blocked by default so their configured enchantments are permanent; `true` allows the single-item disenchant. A two-item grindstone merge involving any Fiw item stays blocked regardless — two customs can never be ground into one |
 | `smithing` | `true` | Smithing table (netherite upgrades, armor trims) with this item in any input slot |
 | `allowRename` | `true` | Whether an anvil rename sticks. `false` still lets players use the anvil for enchantments/repair, but the configured name is forced back onto the result; a rename-only operation yields nothing. Renames are also wiped on `/fiwtools reload` re-sync. Alias: `rename` |
-| `allowEnchant` | `true` | Whether players may **add** enchantments at the anvil (books, combining two enchanted copies). `false` still lets the anvil rename and repair the item, but any result that would add or change an enchantment is refused — the inverse of `allowRename`. Alias: `enchant` |
+| `allowEnchant` | `true` | Whether players may **add** enchantments at the anvil (books, combining two enchanted copies). `false` still lets the anvil rename and repair the item, but any result that would add or change an enchantment is refused — the inverse of `allowRename`. Also blocks the item being used as an enchant **donor**: a locked item in the sacrifice slot can't transfer its enchantments onto another item. Alias: `enchant` |
 
 Notes:
 
 - **Attribute lock:** a Fiw item's configured `attributes` are always re-stamped onto anvil and
   smithing-table results, so a rename, repair, book-enchant, netherite upgrade or trim can never
-  leave it with attributes other than the ones its config declares. This is automatic — no field to
-  set — and only affects Fiw items that declare `attributes`.
+  leave it with attributes other than the ones its config declares. Imbued attribute bonuses are
+  replayed on top of the rebuild, so player-earned imbuements survive the station. This is
+  automatic — no field to set — and only affects Fiw items that declare `attributes`.
 - Non-Fiw items are never affected — vanilla stays vanilla.
 - Explicit values override the curse defaults: a cursed item with `"anvil": true` is repairable.
 - Player-added enchantments survive `/fiwtools reload` (config enchantments always come back at
@@ -1212,7 +1213,7 @@ with a low `chance` and a real cooldown.
 | Param | Default | Description |
 |-------|---------|-------------|
 | `duration` | 60 | Lock length in ticks |
-| `slownessAmplifier` | 250 | Slowness level applied (high = fully immobilised) |
+| `slownessAmplifier` | 250 | Slowness level applied — lower values give players a soft slow instead of a full root (mobs are held in place by the velocity lock either way) |
 | `particle` | `minecraft:crit` | Burst on application |
 | `particles` | true | Show the Slowness swirl on the target |
 
@@ -1352,7 +1353,9 @@ Best trigger: `on_hurt`. Once you drop below a HP fraction, burst-heal + Resista
 Best trigger: `on_right_click`. Raise an on-demand barrier that swallows incoming hits for
 `duration` ticks. A `pool` of damage is absorbed; each hit is eaten whole while the pool lasts, and
 the hit that drains it shatters the barrier. Unlike Absorption this is a real damage gate — a chip
-hit and a huge hit both cost one "hold" of the shield.
+hit and a huge hit both cost one "hold" of the shield. Damage that bypasses invulnerability
+(`/kill`, the void) and the [Curse System](#curse-system)'s drain are never absorbed — the barrier
+is not an escape from either.
 
 | Param | Default | Description |
 |-------|---------|-------------|
@@ -3092,7 +3095,8 @@ the "one of these on-hit effects happens, not all of them" dial.
   (three effects at `0.1` each → 30 % one fires, 70 % none). Once they sum to ≥ 1.0 exactly one
   always fires and the values act purely as relative weights.
 - Only eligible abilities enter the roll — an ability still on cooldown, gated by a failed
-  condition, or in the wrong stance is skipped, and the roll happens among the rest.
+  condition, in the wrong stance, or whose `cost` can't be paid is skipped, and the roll happens
+  among the rest (an unaffordable ability can never "steal" its group's proc).
 - `procGroup` is independent of `cooldownGroup`; you can use both on the same ability.
 
 ---
@@ -3116,7 +3120,7 @@ fixed. Each entry adds `perPoint × stat` to a base numeric param at fire time:
 | Field | Description |
 |-------|-------------|
 | `stat` | What drives the bonus: `streak_tier` (killstreak tier), `imbue_count` (times imbued), `charges` (current charge pool), or `max_health` (the holder's max-health value) |
-| `param` | The `params` key whose number the bonus is added to (its base value is whatever `params` already sets, or 0) |
+| `param` | The `params` key whose number the bonus is added to. **The base value must be set explicitly in `params`** — a scaling entry that targets a param with no base fails the config at load (otherwise the bonus would silently replace the ability's built-in default and could make it weaker than unscaled) |
 | `perPoint` | Amount added per point of `stat` |
 | `cap` | Optional clamp on the total added bonus (before it's added to the base) |
 

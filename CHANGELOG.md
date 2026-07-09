@@ -29,7 +29,8 @@ version header.
   on contact or at `range`.
 - **`aegis_shield`** — raise an on-demand barrier that swallows incoming hits for `duration` ticks.
   A `pool` of damage is absorbed; each hit is eaten whole while the pool lasts and the hit that
-  drains it shatters the barrier. A real damage gate, not extra hearts.
+  drains it shatters the barrier. A real damage gate, not extra hearts. Damage that bypasses
+  invulnerability (`/kill`, the void) and the curse system's drain are never absorbed.
 - **`stun_strike`** — true hard crowd-control: on hit the target is locked for `duration` ticks
   (a per-tick sweep zeroes its movement while stacked Slowness / Weakness / Mining Fatigue stop it
   attacking or mining). A full freeze on mobs; a hard root and near-total disable on players.
@@ -41,20 +42,25 @@ version header.
 
 - **Attribute lock** — a Fiw item's configured `attributes` are now re-stamped after any anvil or
   smithing-table operation, so a rename, repair, book-enchant, netherite upgrade or trim can never
-  leave it with attributes other than the ones its config declares.
+  leave it with attributes other than the ones its config declares. Imbued attribute bonuses are
+  replayed on top, so player-earned imbuements survive the station.
 - **`enchanting.allowEnchant`** — new per-item flag. `false` blocks *adding* enchantments at the
   anvil (books, combining enchanted copies) while still allowing rename and repair — the inverse of
-  `allowRename`. See [Enchanting Control](ITEM_CONFIG_DOCS.md#enchanting-control).
+  `allowRename`. Also blocks the item acting as an enchant donor from the sacrifice slot. See
+  [Enchanting Control](ITEM_CONFIG_DOCS.md#enchanting-control).
 - **Imbue self-targeting** — a catalyst can now imbue the item in your **main hand**: hold the
   target in the main hand and the catalyst in the off hand. The catalyst never imbues itself.
 - **Tiered resonance** — resonance abilities take a per-ability `minPieces` (default = the set's
   `resonanceRequires`), so one set can grant a 2-piece bonus *and* a stronger 4-piece bonus.
 - **Proc groups** — abilities sharing a `procGroup` on the same trigger are mutually exclusive: one
   weighted roll (by each ability's `chance`) fires at most one of them, instead of every eligible
-  ability firing. Sibling to `cooldownGroup`.
+  ability firing. Abilities whose `cost` can't be paid never enter the roll. Sibling to
+  `cooldownGroup`. Works on imbued (`addAbilities`) abilities too.
 - **Ability scaling** — any ability can carry a `scaling` block whose entries add
   `perPoint × stat` to a numeric param at fire time, where `stat` is `streak_tier`, `imbue_count`,
-  `charges`, or `max_health`. Static abilities become build-defined curves.
+  `charges`, or `max_health`. Static abilities become build-defined curves. The scaled param must
+  have an explicit base value in `params` (configs without one fail to load). Works on imbued
+  abilities too.
 
 ## [1.1.1] - HOTFIX: custom recipe crafting dupe
 
