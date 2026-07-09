@@ -232,7 +232,8 @@ behave exactly as before.
   "anvil": false,
   "grindstone": false,
   "smithing": true,
-  "allowRename": false
+  "allowRename": false,
+  "allowEnchant": false
 }
 ```
 
@@ -247,9 +248,14 @@ the anvil were allowed, `allowRename: false` keeps its configured name forever.
 | `grindstone` | `false` | Disenchanting at the grindstone. Fiw items are blocked by default so their configured enchantments are permanent; `true` allows the single-item disenchant. A two-item grindstone merge involving any Fiw item stays blocked regardless — two customs can never be ground into one |
 | `smithing` | `true` | Smithing table (netherite upgrades, armor trims) with this item in any input slot |
 | `allowRename` | `true` | Whether an anvil rename sticks. `false` still lets players use the anvil for enchantments/repair, but the configured name is forced back onto the result; a rename-only operation yields nothing. Renames are also wiped on `/fiwtools reload` re-sync. Alias: `rename` |
+| `allowEnchant` | `true` | Whether players may **add** enchantments at the anvil (books, combining two enchanted copies). `false` still lets the anvil rename and repair the item, but any result that would add or change an enchantment is refused — the inverse of `allowRename`. Alias: `enchant` |
 
 Notes:
 
+- **Attribute lock:** a Fiw item's configured `attributes` are always re-stamped onto anvil and
+  smithing-table results, so a rename, repair, book-enchant, netherite upgrade or trim can never
+  leave it with attributes other than the ones its config declares. This is automatic — no field to
+  set — and only affects Fiw items that declare `attributes`.
 - Non-Fiw items are never affected — vanilla stays vanilla.
 - Explicit values override the curse defaults: a cursed item with `"anvil": true` is repairable.
 - Player-added enchantments survive `/fiwtools reload` (config enchantments always come back at
@@ -578,6 +584,31 @@ caster (and hitting anything that walks in mid-storm).
 
 ---
 
+### `teleport_behind`
+
+The arc-slash barrage's finisher as a standalone move: blink to a safe spot behind your target's
+back, with optional damage. Works from `on_attack` (the struck target) or `on_right_click` (the
+entity under the crosshair within `targetRange`). No target = no-op (nothing to be "behind"), so
+the cooldown isn't spent.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `behindDistance` | 2.0 | How far behind the target you land |
+| `targetRange` | 16.0 | Crosshair pick distance (right-click use) |
+| `damage` | 0.0 | Optional finisher hit (0 = teleport only) |
+| `ignoreArmor` | 1.0 | For the finisher: true/false or a percent (armor pierce) |
+| `particle` | `minecraft:portal` | Burst at the landing spot |
+| `particleCount` | 40 | Particle amount |
+| `sound` | `minecraft:entity.enderman.teleport` | On teleport |
+| `message` | *(none)* | Optional action-bar line |
+
+```json
+{ "type": "teleport_behind", "trigger": "on_right_click", "cooldownTicks": 120,
+  "params": { "damage": 8, "message": "&c&lBehind you." } }
+```
+
+---
+
 ### `beam`
 
 Sustained energy beam — the Fiw Bosses beam attack in item form. A windup gathers spiraling
@@ -719,6 +750,86 @@ Cosmetic lightning bolt at the target on attack, plus bonus damage. Default cosm
 
 ```json
 { "type": "lightning_strike", "trigger": "on_attack", "chance": 0.25, "cooldownTicks": 40, "params": { "damage": 4 } }
+```
+
+---
+
+### `lightning_rain`
+
+Mark a circle at your crosshair (up to `targetRange`, or the surface you're looking at), telegraph
+it, then rain lightning bolts down inside it on a fully custom schedule. Each bolt is cosmetic by
+default (no fire, no mob conversion) and damages everything within `aoeRadius` of where it lands.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `targetRange` | 40.0 | How far the circle can be placed |
+| `radius` | 5.0 | Circle radius |
+| `delay` | 10 | Telegraph ticks before the first bolt |
+| `groups` | *(none)* | Array of `{ "count": N, "delayTicks": T }` — each group drops `count` bolts `delayTicks` after the previous group. Omit for the even-spread fallback below |
+| `count` | 12 | (fallback) Total bolts when `groups` is absent |
+| `waves` | `count` | (fallback) Number of groups to spread `count` over |
+| `waveInterval` | 8 | (fallback) Ticks between waves |
+| `damage` | 5.0 | Damage per bolt |
+| `aoeRadius` | 2.5 | Splash radius around each strike (0 = purely cosmetic) |
+| `cosmetic` | true | Suppress vanilla lightning fire / mob conversion |
+| `affects` | `all` | Who the bolts damage |
+| `markerParticle` | `minecraft:electric_spark` | Telegraph ring |
+| `boltParticle` | `minecraft:electric_spark` | Burst at each strike |
+| `castSound` / `strikeSound` | thunder / impact | On cast and per strike |
+
+```json
+{ "type": "lightning_rain", "trigger": "on_right_click", "cooldownTicks": 200,
+  "params": { "radius": 6, "damage": 6, "aoeRadius": 3,
+    "groups": [ { "count": 1, "delayTicks": 0 }, { "count": 1, "delayTicks": 10 }, { "count": 3, "delayTicks": 10 } ] } }
+```
+
+---
+
+### `lightning_ray`
+
+A straight line of bolts marching forward from your look direction, one every `boltInterval` ticks
+up to `range`, each landing on the ground and damaging within `aoeRadius`. Passes over terrain and
+always reaches full range.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 16.0 | Line length in blocks |
+| `stepDistance` | 2.0 | Spacing between consecutive bolts |
+| `boltInterval` | 4 | Ticks between each bolt |
+| `damage` | 5.0 | Damage per bolt |
+| `aoeRadius` | 2.0 | Splash radius around each strike |
+| `cosmetic` | true | Suppress vanilla lightning side effects |
+| `affects` | `all` | Who the bolts damage |
+| `boltParticle` | `minecraft:electric_spark` | Burst at each strike |
+| `strikeSound` | `minecraft:entity.lightning_bolt.impact` | Per bolt |
+
+```json
+{ "type": "lightning_ray", "trigger": "on_right_click", "cooldownTicks": 160,
+  "params": { "range": 20, "boltInterval": 3, "damage": 6 } }
+```
+
+---
+
+### `homing_bolt`
+
+Fires a particle projectile that curves toward the nearest valid enemy as it flies — turning at
+most `turnRate` degrees per tick and re-aiming within `trackRange`. Deals `damage` in a small
+`aoeRadius` on contact or at max `range`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 24.0 | Max travel |
+| `speed` | 0.8 | Blocks per tick |
+| `damage` | 6.0 | Hit damage |
+| `aoeRadius` | 1.0 | Radius checked for hits |
+| `trackRange` | 12.0 | How far it looks for a target to steer toward |
+| `turnRate` | 12.0 | Max degrees it can turn per tick (0 = flies straight) |
+| `affects` | `all` | Who it can home in on and hit |
+| `particle` | `minecraft:soul_fire_flame` | Trail |
+
+```json
+{ "type": "homing_bolt", "trigger": "on_right_click", "cooldownTicks": 40,
+  "params": { "damage": 7, "turnRate": 15 } }
 ```
 
 ---
@@ -1090,6 +1201,54 @@ Defaults deal 1 damage every second for 5 seconds = 5 total magic damage. Bleed 
 
 ---
 
+### `stun_strike`
+
+Best trigger: `on_attack`. A true hard crowd-control: the target is locked for `duration` ticks. A
+per-tick sweep zeroes its movement (it can't walk, flee, or be knocked along) while stacked
+Slowness / Weakness / Mining Fatigue stop it attacking or mining. A full freeze on mobs; a hard
+root and near-total disable on players (they can still turn the camera — a server-side limit). Pair
+with a low `chance` and a real cooldown.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `duration` | 60 | Lock length in ticks |
+| `slownessAmplifier` | 250 | Slowness level applied (high = fully immobilised) |
+| `particle` | `minecraft:crit` | Burst on application |
+| `particles` | true | Show the Slowness swirl on the target |
+
+```json
+{ "type": "stun_strike", "trigger": "on_attack", "chance": 0.2, "cooldownTicks": 120, "params": { "duration": 40 } }
+```
+
+---
+
+### `apply_effect`
+
+The general-purpose potion-effect tool — name any vanilla effect and drop it on the caster or the
+target, for any trigger. Replaces reaching for a bespoke buff/debuff ability. Effect names are the
+same friendly set as `passive_buff` (`speed`, `strength`, `poison`, `wither`, `levitation`,
+`regeneration`, `resistance`, `glowing`, …).
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `effect` | **required** | Effect name (unknown = no-op) |
+| `target` | `self` | `self` = the holder, `target` = the attacked / looked-at entity |
+| `duration` | 100 | Ticks |
+| `amplifier` | 0 | 0 = level I |
+| `ambient` | false | Fainter "beacon" particles |
+| `particles` | true | Show the swirl particles |
+
+```json
+{ "type": "apply_effect", "trigger": "on_attack", "chance": 0.5, "params": { "effect": "poison", "duration": 100, "amplifier": 1 } }
+```
+
+```json
+{ "type": "apply_effect", "trigger": "on_right_click", "cooldownTicks": 400,
+  "params": { "effect": "strength", "target": "self", "duration": 200, "amplifier": 1 } }
+```
+
+---
+
 ## Utility Abilities
 
 Movement and survival, all self-targeted.
@@ -1188,6 +1347,26 @@ Best trigger: `on_hurt`. Once you drop below a HP fraction, burst-heal + Resista
 
 ---
 
+### `aegis_shield`
+
+Best trigger: `on_right_click`. Raise an on-demand barrier that swallows incoming hits for
+`duration` ticks. A `pool` of damage is absorbed; each hit is eaten whole while the pool lasts, and
+the hit that drains it shatters the barrier. Unlike Absorption this is a real damage gate — a chip
+hit and a huge hit both cost one "hold" of the shield.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `pool` | 20.0 | Total damage the barrier absorbs before it breaks |
+| `duration` | 100 | Ticks the barrier lasts if unbroken |
+| `particle` | `minecraft:end_rod` | Dome burst on cast |
+| `sound` | `minecraft:block.beacon.activate` | Played on cast |
+
+```json
+{ "type": "aegis_shield", "trigger": "on_right_click", "cooldownTicks": 400, "params": { "pool": 30, "duration": 120 } }
+```
+
+---
+
 ### `ender_recall`
 
 Best trigger: `on_right_click`. First cast anchors your spot; a second cast within range and time teleports you back to it.
@@ -1215,6 +1394,34 @@ Best trigger: `on_right_click`. A controlled upward boost for traversal — not 
 
 ```json
 { "type": "levitate_self", "trigger": "on_right_click", "cooldownTicks": 30, "params": { "power": 1.0 } }
+```
+
+---
+
+### `repair`
+
+Best trigger: `on_right_click`. A repair kit — hold it and right-click while a **damaged** item
+sits in your other hand (or armor). It restores that item's durability, then is spent. Right-clicks
+that find nothing to repair cost no cooldown and consume nothing.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `repairAmount` | 0 | Flat durability restored |
+| `repairPercent` | 0.0 | Additional durability restored as a fraction of the item's max |
+| `fullRepair` | false | Fully repair the item |
+| `consumeSelf` | true | Spend the kit on success |
+| `useKitDurability` | false | Instead of shrinking, burn the kit's own durability so one kit lasts several repairs (needs a `maxDamage` on the kit) |
+| `kitDurabilityPerUse` | 1 | Durability the kit loses per use when `useKitDurability` is on |
+| `targets` | *(any)* | Optional filter — `items` (Fiw ids) / `bases` (vanilla ids) / `tags` — limiting what it mends |
+| `messages` | *(defaults)* | Override `noTarget` / `alreadyFull` (empty string silences) |
+
+```json
+{ "type": "repair", "trigger": "on_right_click", "params": { "repairAmount": 200, "targets": { "tags": ["#minecraft:swords"] } } }
+```
+
+```json
+{ "type": "repair", "trigger": "on_right_click",
+  "params": { "fullRepair": true, "consumeSelf": true } }
 ```
 
 ---
@@ -1932,6 +2139,18 @@ When `resonanceRequires` or more equipped items share the same `resonanceId`, ab
 
 Any ability type works with `trigger: "resonance"` — passive_buff, auras, custom passives. The resonance sweep runs on the same 10-tick cycle as the normal passive sweep.
 
+**Tiered set bonuses (`minPieces`):** each resonance ability may declare a `minPieces` param — it
+only fires once at least that many pieces of the set are equipped. It defaults to the set's
+`resonanceRequires`, so untiered sets behave exactly as before. Put several resonance abilities on
+the set holder with different thresholds to build a 2-piece bonus *and* a stronger 4-piece bonus:
+
+```json
+"abilities": [
+  { "type": "passive_buff", "trigger": "resonance", "params": { "minPieces": 2, "buffs": ["speed"] } },
+  { "type": "passive_buff", "trigger": "resonance", "params": { "minPieces": 4, "buffs": ["strength"], "amplifier": 1 } }
+]
+```
+
 ---
 
 ## Elemental Status System
@@ -2243,7 +2462,13 @@ All `add` / `remove` / `whitelist` commands rewrite the backing JSON in place �
 
 ## Imbuing System
 
-An admin-defined upgrade system. A **catalyst** is a normal Fiw item carrying the `imbue` ability; when right-clicked it scans the player's off hand + armor for a valid **target**, rolls one **outcome** from its outcome list, and applies the outcome's `mods` block (enchantments, attributes, abilities, lore) to the target. Outcomes can be deterministic or weighted-random, the admin's choice. Each target tracks how many times it's been imbued; cap reached = the catalyst refuses with an admin-set message.
+An admin-defined upgrade system. A **catalyst** is a normal Fiw item carrying the `imbue` ability; when right-clicked it scans the player's off hand → **main hand** → armor for a valid **target**, rolls one **outcome** from its outcome list, and applies the outcome's `mods` block (enchantments, attributes, abilities, lore) to the target. Outcomes can be deterministic or weighted-random, the admin's choice. Each target tracks how many times it's been imbued; cap reached = the catalyst refuses with an admin-set message.
+
+> **Imbuing the item you're holding:** because the scan reaches the main hand (and never the
+> catalyst itself), you can upgrade the item in your **main hand** by holding the catalyst in your
+> **off hand** and right-clicking. The main-hand target must not have its own right-click ability
+> (that would fire instead of the catalyst). Off hand is still checked first, so the classic
+> "catalyst in main hand, target in off hand" arrangement is unchanged.
 
 ### Catalyst definition
 
@@ -2844,6 +3069,60 @@ Give abilities a `cooldownGroup` name and they **share one cooldown per player �
 ```
 
 Firing either ability puts the whole `mobility` group on cooldown — including abilities in the same group on *other* items the player carries. Group names are case-insensitive. `rechargeOnKill` cooldown rewards recharge group cooldowns too.
+
+---
+
+## Proc Groups
+
+Give two or more abilities the same `procGroup` and, on a given trigger, **only one of them fires** —
+chosen by a single weighted roll using each ability's `chance` as its weight. Without a proc group,
+every eligible ability rolls its own `chance` independently and any number can fire at once. This is
+the "one of these on-hit effects happens, not all of them" dial.
+
+```json
+"abilities": [
+  { "type": "ignite",       "trigger": "on_attack", "chance": 0.5, "procGroup": "on_hit" },
+  { "type": "freeze",       "trigger": "on_attack", "chance": 0.3, "procGroup": "on_hit" },
+  { "type": "stun_strike",  "trigger": "on_attack", "chance": 0.2, "procGroup": "on_hit", "cooldownTicks": 100 }
+]
+```
+
+- The winner is picked in proportion to the `chance` values (above: 50 / 30 / 20).
+- If the group's chances **sum below 1.0**, the shortfall is the probability that *nothing* fires
+  (three effects at `0.1` each → 30 % one fires, 70 % none). Once they sum to ≥ 1.0 exactly one
+  always fires and the values act purely as relative weights.
+- Only eligible abilities enter the roll — an ability still on cooldown, gated by a failed
+  condition, or in the wrong stance is skipped, and the roll happens among the rest.
+- `procGroup` is independent of `cooldownGroup`; you can use both on the same ability.
+
+---
+
+## Ability Scaling
+
+Any ability can carry a `scaling` block so its numbers grow with the holder's build instead of being
+fixed. Each entry adds `perPoint × stat` to a base numeric param at fire time:
+
+```json
+{
+  "type": "arc_slash", "trigger": "on_attack",
+  "scaling": [
+    { "stat": "streak_tier", "param": "damage", "perPoint": 2.0 },
+    { "stat": "imbue_count", "param": "damage", "perPoint": 1.0, "cap": 5.0 }
+  ],
+  "params": { "damage": 6 }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `stat` | What drives the bonus: `streak_tier` (killstreak tier), `imbue_count` (times imbued), `charges` (current charge pool), or `max_health` (the holder's max-health value) |
+| `param` | The `params` key whose number the bonus is added to (its base value is whatever `params` already sets, or 0) |
+| `perPoint` | Amount added per point of `stat` |
+| `cap` | Optional clamp on the total added bonus (before it's added to the base) |
+
+In the example a tier-3 killstreak adds +6 damage, and each imbuement adds +1 up to a +5 cap — so a
+fully-built blade hits far harder than a fresh one, with no new ability code. Scaling applies to
+active and passive abilities alike, and stacks with everything else (cost, cooldown, proc groups).
 
 ---
 

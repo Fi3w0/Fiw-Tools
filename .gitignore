@@ -55,6 +55,7 @@ Thumbs.db
 AGENT.md
 AGENTS.md
 CLAUDE.md
+PLAN-*.md
 .cursor/
 .cursorrules
 .github/copilot-instructions.md

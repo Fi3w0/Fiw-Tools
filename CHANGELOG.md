@@ -4,6 +4,58 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.2.0] - New abilities and deeper customization
+
+### Added
+
+- **`teleport_behind`** — a standalone blink to a safe spot behind your target (`behindDistance`),
+  with optional armor-piercing `damage` (`ignoreArmor` true/false/percent), particles, sound and a
+  message. Works from `on_attack` (the struck target) or `on_right_click` (the entity under the
+  crosshair within `targetRange`).
+- **`lightning_rain`** — mark a circle at the crosshair (`targetRange`, `radius`), telegraph it,
+  then rain bolts down on a fully custom schedule. Give a `groups` array of `{count, delayTicks}`
+  to place bolts exactly (one, then one 10t later, then three together), or omit it for `count`
+  bolts spread over `waves` `waveInterval` apart. Each bolt is cosmetic by default and damages
+  everything within `aoeRadius` of its strike. Example: `examples/items/stormcaller_staff.json`
+- **`lightning_ray`** — a straight line of bolts that march forward from your look direction, one
+  every `boltInterval` ticks up to `range`, each landing on the ground and damaging within
+  `aoeRadius`. A "run or get fried" lane.
+- **`repair`** — a repair kit: hold it and right-click while a damaged item is in your other hand
+  (or armor) to restore its durability by `repairAmount` (+ optional `repairPercent`) or `fullRepair`.
+  The kit is spent per use (shrinks by one, or burns its own durability with `useKitDurability`). An
+  optional `targets` filter (items/bases/tags) limits what it mends.
+- **`homing_bolt`** — a projectile that curves toward the nearest enemy as it flies, turning at
+  most `turnRate` degrees per tick and re-aiming within `trackRange`; deals `damage` in `aoeRadius`
+  on contact or at `range`.
+- **`aegis_shield`** — raise an on-demand barrier that swallows incoming hits for `duration` ticks.
+  A `pool` of damage is absorbed; each hit is eaten whole while the pool lasts and the hit that
+  drains it shatters the barrier. A real damage gate, not extra hearts.
+- **`stun_strike`** — true hard crowd-control: on hit the target is locked for `duration` ticks
+  (a per-tick sweep zeroes its movement while stacked Slowness / Weakness / Mining Fatigue stop it
+  attacking or mining). A full freeze on mobs; a hard root and near-total disable on players.
+- **`apply_effect`** — the general-purpose potion-effect tool: name any vanilla effect and drop it
+  on the caster or the target, for any trigger, with `duration` / `amplifier` / `ambient` /
+  `particles`.
+
+### Changed
+
+- **Attribute lock** — a Fiw item's configured `attributes` are now re-stamped after any anvil or
+  smithing-table operation, so a rename, repair, book-enchant, netherite upgrade or trim can never
+  leave it with attributes other than the ones its config declares.
+- **`enchanting.allowEnchant`** — new per-item flag. `false` blocks *adding* enchantments at the
+  anvil (books, combining enchanted copies) while still allowing rename and repair — the inverse of
+  `allowRename`. See [Enchanting Control](ITEM_CONFIG_DOCS.md#enchanting-control).
+- **Imbue self-targeting** — a catalyst can now imbue the item in your **main hand**: hold the
+  target in the main hand and the catalyst in the off hand. The catalyst never imbues itself.
+- **Tiered resonance** — resonance abilities take a per-ability `minPieces` (default = the set's
+  `resonanceRequires`), so one set can grant a 2-piece bonus *and* a stronger 4-piece bonus.
+- **Proc groups** — abilities sharing a `procGroup` on the same trigger are mutually exclusive: one
+  weighted roll (by each ability's `chance`) fires at most one of them, instead of every eligible
+  ability firing. Sibling to `cooldownGroup`.
+- **Ability scaling** — any ability can carry a `scaling` block whose entries add
+  `perPoint × stat` to a numeric param at fire time, where `stat` is `streak_tier`, `imbue_count`,
+  `charges`, or `max_health`. Static abilities become build-defined curves.
+
 ## [1.1.1] - HOTFIX: custom recipe crafting dupe
 
 > **Update immediately if you use custom recipes.** Taking a custom recipe's result from a

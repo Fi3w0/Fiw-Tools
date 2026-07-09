@@ -120,7 +120,7 @@ Abilities can apply FROZEN, SOAKED, or SHOCKED to entities. Each status has pass
 
 ### Set bonuses (resonance)
 
-Tag items with a `resonanceId`. When a player has enough matching pieces equipped (held or worn), the first item in the set fires its `resonance` trigger automatically each passive sweep — unlocking bonus effects without any player input.
+Tag items with a `resonanceId`. When a player has enough matching pieces equipped (held or worn), the first item in the set fires its `resonance` trigger automatically each passive sweep — unlocking bonus effects without any player input. A per-ability `minPieces` enables tiered set bonuses — a 2-piece bonus and a stronger 4-piece bonus on one set.
 
 ### Soul system
 
@@ -157,6 +157,18 @@ Give items a regenerating `charges` pool and make any ability spend charges, dur
 ### Cooldown groups
 
 `cooldownGroup` shares one cooldown across abilities and across items — the anti-broken-combo dial.
+
+### Proc groups
+
+`procGroup` makes abilities on the same trigger mutually exclusive — one weighted roll fires at most one of them, instead of every eligible ability firing at once.
+
+### Ability scaling
+
+A `scaling` block makes any ability's numbers grow with the holder's build — killstreak tier, imbue count, remaining charges, or max health — turning static abilities into build-defined curves with no new code.
+
+### Enchanting control
+
+Per-station `enchanting` rules gate the table, anvil, grindstone, and smithing table. `allowEnchant` blocks adding enchantments while keeping rename and repair; configured attributes are re-stamped after any anvil or smithing operation so they can't be overwritten.
 
 ### Ten lifecycle triggers
 
@@ -198,6 +210,14 @@ Abilities are small, tunable modules. Add them to an item, set a trigger, tune t
 |---|---|
 | `arc_slash` | Animated multi-tick particle slash ported from FIW Bosses |
 | `lightning_strike` | Calls lightning or damage at a targeted location |
+| `lightning_rain` | Rains bolts over a crosshair circle on a custom stagger schedule |
+| `lightning_ray` | Sequential bolts marching forward in a straight line |
+| `teleport_behind` | Blink behind your target with optional finisher damage |
+| `homing_bolt` | Projectile that curves toward the nearest enemy mid-flight |
+| `aegis_shield` | On-demand barrier that swallows a pool of incoming damage |
+| `stun_strike` | True hard crowd-control — a full movement/attack lock |
+| `apply_effect` | Apply any vanilla potion effect to self or target, any trigger |
+| `repair` | Repair-kit item that mends a damaged item in your other hand |
 | `projectile_burst` | Fires a custom particle projectile with damage and AoE |
 | `frost_nova` | Freezes and slows enemies around the player |
 | `riptide_dash` | Launches the player in the look direction |

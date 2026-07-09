@@ -1,0 +1,46 @@
+{
+  "id": "phantom_dagger",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&5&lPhantom Dagger",
+  "lore": [
+    "&7Strike, then vanish.",
+    "",
+    "&eRight-click &8- &7blink behind your target",
+    "&7On hit &8- &7one of: stun, poison, or a homing echo"
+  ],
+  "rarity": "epic",
+  "attributes": [
+    { "type": "attack_damage", "slot": "mainhand", "amount": 9.0, "operation": "add_value" },
+    { "type": "attack_speed", "slot": "mainhand", "amount": -2.0, "operation": "add_value" }
+  ],
+  "abilities": [
+    {
+      "type": "teleport_behind",
+      "trigger": "on_right_click",
+      "cooldownTicks": 120,
+      "params": { "damage": 6, "message": "&5&lNowhere to run." }
+    },
+    {
+      "type": "stun_strike",
+      "trigger": "on_attack",
+      "chance": 0.25,
+      "procGroup": "dagger_hit",
+      "cooldownTicks": 100,
+      "params": { "duration": 30 }
+    },
+    {
+      "type": "apply_effect",
+      "trigger": "on_attack",
+      "chance": 0.5,
+      "procGroup": "dagger_hit",
+      "params": { "effect": "poison", "target": "target", "duration": 80, "amplifier": 1 }
+    },
+    {
+      "type": "homing_bolt",
+      "trigger": "on_attack",
+      "chance": 0.25,
+      "procGroup": "dagger_hit",
+      "params": { "damage": 5, "turnRate": 18 }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "tinkers_kit",
+  "base": "minecraft:leather",
+  "displayName": "&a&lTinker's Kit",
+  "lore": [
+    "&7A pouch of patches and thread.",
+    "",
+    "&eHold a damaged tool in your other hand",
+    "&eand right-click &8- &7repairs it, one kit per use"
+  ],
+  "rarity": "uncommon",
+  "abilities": [
+    {
+      "type": "repair",
+      "trigger": "on_right_click",
+      "params": {
+        "repairAmount": 250,
+        "repairPercent": 0.1,
+        "consumeSelf": true
+      }
+    }
+  ]
+}

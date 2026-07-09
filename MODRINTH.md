@@ -69,7 +69,7 @@ Tweak the file, reload, try again.
 
 **Elemental status** - apply FROZEN, SOAKED, or SHOCKED to enemies. Stack statuses for interactions: freeze then thaw_burst for a fire explosion, soak then storm_chain to arc lightning between targets.
 
-**Set bonuses** - tag items with a `resonanceId`. Equip enough pieces and extra passive abilities unlock automatically.
+**Set bonuses** - tag items with a `resonanceId`. Equip enough pieces and extra passive abilities unlock automatically. A per-ability `minPieces` enables tiers — a 2-piece and a stronger 4-piece bonus on one set.
 
 **Soul system** - items can store souls on kill. Spend them all at once for a burst of scaled AoE damage.
 
@@ -95,6 +95,12 @@ Tweak the file, reload, try again.
 
 **Cooldown groups** - one shared cooldown across abilities and items. No more stacking three blink trinkets.
 
+**Proc groups** - abilities sharing a `procGroup` on one trigger are mutually exclusive: a single weighted roll fires just one of them, not all.
+
+**Ability scaling** - a `scaling` block grows any ability's numbers with the holder's build: killstreak tier, imbue count, charges, or max health.
+
+**Enchanting control** - per-station rules for table, anvil, grindstone, and smithing. `allowEnchant` blocks adding enchantments while keeping rename and repair, and configured attributes are re-stamped after anvil/smithing so they can't be overwritten.
+
 **Ten lifecycle triggers** - react to eating, pickup, drop, death, respawn, dimension travel, equip/unequip, and boss kills (FIW Bosses aware).
 
 **Conditions** - gate any ability: low health, night, storm, dimension, sneaking, enemies nearby, in combat, and more.
@@ -113,6 +119,14 @@ Tweak the file, reload, try again.
 |---|---|
 | `arc_slash` | Animated particle slash, ported from FIW Bosses |
 | `lightning_strike` | Calls lightning or damage at range |
+| `lightning_rain` | Rains bolts over a crosshair circle on a custom schedule |
+| `lightning_ray` | Sequential bolts marching forward in a line |
+| `teleport_behind` | Blink behind your target, optional finisher damage |
+| `homing_bolt` | Projectile that curves toward the nearest enemy |
+| `aegis_shield` | On-demand barrier that absorbs a pool of damage |
+| `stun_strike` | True hard crowd-control lock |
+| `apply_effect` | Apply any potion effect to self or target |
+| `repair` | Repair-kit item that mends a damaged item in your other hand |
 | `projectile_burst` | Custom particle projectile with optional AoE |
 | `frost_nova` | Freezes nearby enemies |
 | `riptide_dash` | Movement burst in the look direction |

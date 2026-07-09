@@ -1,0 +1,20 @@
+{
+  "id": "bulwark_totem",
+  "base": "minecraft:totem_of_undying",
+  "displayName": "&e&lBulwark Totem",
+  "lore": [
+    "&7Raise a wall of light.",
+    "",
+    "&eRight-click &8- &7a barrier that swallows the",
+    "&8  next 30 damage for 6 seconds"
+  ],
+  "rarity": "rare",
+  "abilities": [
+    {
+      "type": "aegis_shield",
+      "trigger": "on_right_click",
+      "cooldownTicks": 400,
+      "params": { "pool": 30, "duration": 120 }
+    }
+  ]
+}

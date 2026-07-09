@@ -1,0 +1,43 @@
+{
+  "id": "stormcaller_staff",
+  "base": "minecraft:blaze_rod",
+  "displayName": "&b&lStormcaller Staff",
+  "lore": [
+    "&7The storm answers.",
+    "",
+    "&eRight-click &8- &7call a rain of lightning",
+    "&8  at your crosshair",
+    "&eSneak + right-click &8- &7a forward lane",
+    "&8  of marching bolts"
+  ],
+  "rarity": "epic",
+  "enchantmentGlint": true,
+  "abilities": [
+    {
+      "type": "lightning_rain",
+      "trigger": "on_right_click",
+      "cooldownTicks": 200,
+      "params": {
+        "radius": 6,
+        "damage": 6,
+        "aoeRadius": 3,
+        "groups": [
+          { "count": 1, "delayTicks": 0 },
+          { "count": 1, "delayTicks": 10 },
+          { "count": 3, "delayTicks": 10 }
+        ]
+      }
+    },
+    {
+      "type": "lightning_ray",
+      "trigger": "on_shift_right_click",
+      "cooldownTicks": 160,
+      "params": {
+        "range": 20,
+        "boltInterval": 3,
+        "damage": 6,
+        "aoeRadius": 2
+      }
+    }
+  ]
+}
