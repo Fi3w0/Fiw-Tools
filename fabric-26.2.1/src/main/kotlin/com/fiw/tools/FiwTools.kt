@@ -60,7 +60,7 @@ object FiwTools : ModInitializer {
             if (entity is ServerPlayer) AbilityDispatcher.onDeath(entity)
         }
         ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, amount ->
-            if (entity is ServerPlayer && com.fiw.tools.ability.AbilityState.aegisAbsorbs(entity, amount)) {
+            if (entity is ServerPlayer && com.fiw.tools.ability.AbilityState.aegisAbsorbs(entity, source, amount)) {
                 false  // an active aegis barrier swallowed the whole hit
             } else {
                 if (entity is ServerPlayer) AbilityDispatcher.onHurt(entity, source, amount)

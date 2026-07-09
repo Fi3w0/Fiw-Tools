@@ -122,7 +122,8 @@ object PassiveHandler {
         if (com.fiw.tools.bind.BindingHandler.blocksUse(player, stack, def)) return
         val abilities = ImbueMods.effectiveAbilities(stack, def)
         // Pass 1: keep abilities clearing every non-random gate (trigger, resonance tier, stance,
-        // slot filter, cooldown, conditions). Chance/proc groups are resolved together afterwards.
+        // slot filter, cooldown, conditions, affordable cost). Chance/proc groups resolve after —
+        // an unpayable ability must not enter the roll and steal its group's proc.
         val eligible = ArrayList<Int>()
         abilities.forEachIndexed { idx, ab ->
             if (AbilityTrigger.parse(ab.trigger) != trigger) return@forEachIndexed
@@ -138,6 +139,8 @@ object PassiveHandler {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, ab.params)) return@forEachIndexed
+            val cost = ab.cost
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) return@forEachIndexed
             eligible.add(idx)
         }
         if (eligible.isEmpty()) return
@@ -149,6 +152,7 @@ object PassiveHandler {
         for (idx in eligible) {
             if (idx !in winners) continue
             val ab = abilities[idx]
+            // Re-check silently: an earlier winner in this same sweep may have drained the pool.
             val cost = ab.cost
             if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) continue
             val ability = AbilityRegistry.get(ab.type) ?: continue

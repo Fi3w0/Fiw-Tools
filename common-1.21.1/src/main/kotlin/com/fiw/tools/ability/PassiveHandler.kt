@@ -138,6 +138,8 @@ object PassiveHandler {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, ab.params)) return@forEachIndexed
+            val cost = ab.cost
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) return@forEachIndexed
             eligible.add(idx)
         }
         if (eligible.isEmpty()) return
@@ -149,6 +151,7 @@ object PassiveHandler {
         for (idx in eligible) {
             if (idx !in winners) continue
             val ab = abilities[idx]
+            // Re-check silently: an earlier winner in this same sweep may have drained the pool.
             val cost = ab.cost
             if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) continue
             val ability = AbilityRegistry.get(ab.type) ?: continue

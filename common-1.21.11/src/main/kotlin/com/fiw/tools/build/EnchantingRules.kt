@@ -2,6 +2,7 @@ package com.fiw.tools.build
 
 import com.fiw.tools.config.ItemDefinition
 import com.fiw.tools.config.ItemRegistry
+import com.fiw.tools.imbue.ImbueMods
 import net.minecraft.core.component.DataComponents
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.enchantment.ItemEnchantments
@@ -58,9 +59,11 @@ object EnchantingRules {
 
     /**
      * Re-stamps the item's configured attribute modifiers onto [result], so an anvil/smithing
-     * operation can never leave a Fiw item with attributes other than the ones its config declares.
-     * No-op for non-Fiw stacks and for Fiw items that declare no attributes. Returns true if the
-     * attribute component actually changed (so the caller can re-sync the slot).
+     * operation can never leave a Fiw item with attributes other than the ones its config declares
+     * — then replays the stack's imbue log so player-earned imbued attribute bonuses come back on
+     * top (the rebuild alone would wipe them). No-op for non-Fiw stacks and for Fiw items that
+     * declare no attributes. Returns true if the attribute component actually changed (so the
+     * caller can re-sync the slot).
      */
     @JvmStatic
     fun restoreAttributes(result: ItemStack): Boolean {
@@ -70,6 +73,7 @@ object EnchantingRules {
         if (def.attributes.isEmpty()) return false
         val before = result.get(DataComponents.ATTRIBUTE_MODIFIERS)
         ItemBuilder.applyAttributes(result, def)
+        ImbueMods.replayAttributes(result)
         return before != result.get(DataComponents.ATTRIBUTE_MODIFIERS)
     }
 

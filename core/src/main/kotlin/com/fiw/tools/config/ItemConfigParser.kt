@@ -60,6 +60,7 @@ object ItemConfigParser {
 
         val abilities = root.getAsJsonArray("abilities")?.map { e ->
             val o = e.asJsonObject
+            val abilityParams = o.getAsJsonObject("params") ?: JsonObject()
             ItemDefinition.AbilityDef(
                 type = o.requireString("type"),
                 trigger = o.optString("trigger", "on_right_click"),
@@ -69,8 +70,8 @@ object ItemConfigParser {
                 procGroup = o.optStringOrNull("procGroup"),
                 cost = parseCost(o.getAsJsonObject("cost")),
                 stance = o.optStringOrNull("stance"),
-                scaling = parseScaling(o.getAsJsonArray("scaling")),
-                params = o.getAsJsonObject("params") ?: JsonObject()
+                scaling = parseScaling(o.getAsJsonArray("scaling"), abilityParams),
+                params = abilityParams
             )
         } ?: emptyList()
 
@@ -344,16 +345,21 @@ object ItemConfigParser {
     private val SCALING_STATS = setOf("streak_tier", "imbue_count", "charges", "max_health")
 
     /** Public so imbued `addAbilities` blocks parse scaling identically to normal abilities. */
-    fun parseScaling(arr: com.google.gson.JsonArray?): List<ItemDefinition.ScalingDef> {
+    fun parseScaling(arr: com.google.gson.JsonArray?, params: JsonObject): List<ItemDefinition.ScalingDef> {
         if (arr == null) return emptyList()
         return arr.map { el ->
             val o = el.asJsonObject
             val stat = o.requireString("stat").lowercase()
             if (stat !in SCALING_STATS)
                 throw IllegalArgumentException("unknown scaling stat '$stat' (${SCALING_STATS.joinToString("/")})")
+            val param = o.requireString("param")
+            // Fail loud at load: without an explicit base the bonus would REPLACE the ability's
+            // built-in default (base 0 + bonus), silently making a scaled ability weaker.
+            if (!params.has(param))
+                throw IllegalArgumentException("scaling targets param '$param' which has no base value in params")
             ItemDefinition.ScalingDef(
                 stat = stat,
-                param = o.requireString("param"),
+                param = param,
                 perPoint = o.optDouble("perPoint", 0.0),
                 cap = o.optDoubleOrNull("cap")
             )

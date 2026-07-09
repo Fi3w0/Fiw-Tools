@@ -2,6 +2,7 @@ package com.fiw.tools.build
 
 import com.fiw.tools.config.ItemDefinition
 import com.fiw.tools.config.ItemRegistry
+import com.fiw.tools.imbue.ImbueMods
 import net.minecraft.core.component.DataComponents
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.enchantment.ItemEnchantments
@@ -70,6 +71,8 @@ object EnchantingRules {
         if (def.attributes.isEmpty()) return false
         val before = result.get(DataComponents.ATTRIBUTE_MODIFIERS)
         ItemBuilder.applyAttributes(result, def)
+        // Imbued attribute bonuses live in the same component — replay them on top of the rebuild.
+        ImbueMods.replayAttributes(result)
         return before != result.get(DataComponents.ATTRIBUTE_MODIFIERS)
     }
 

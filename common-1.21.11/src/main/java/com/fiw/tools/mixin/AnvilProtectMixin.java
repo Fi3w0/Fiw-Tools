@@ -32,7 +32,10 @@ public abstract class AnvilProtectMixin {
         if (result.isEmpty()) return;
 
         // Enchant lock: any result that changes the base's enchantments is an enchant op — refuse.
-        if (!EnchantingRules.allowsEnchant(base) && EnchantingRules.enchantmentsDiffer(base, result)) {
+        // Checked on both slots: a locked base can't gain enchantments, and a locked sacrifice
+        // can't act as a donor that transfers its enchantments onto an unrestricted base.
+        if ((!EnchantingRules.allowsEnchant(base) || !EnchantingRules.allowsEnchant(sacrifice))
+                && EnchantingRules.enchantmentsDiffer(base, result)) {
             clearResult(menu);
             return;
         }

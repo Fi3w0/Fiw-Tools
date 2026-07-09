@@ -32,16 +32,19 @@ object AbilityState {
     }
     val bleeds: MutableMap<UUID, BleedEntry> = ConcurrentHashMap()
 
-    /** victim -> game-time their hard stun expires (see `stun_strike`). */
-    val stuns: MutableMap<UUID, Long> = ConcurrentHashMap()
+    /** victim -> their active hard stun (expiry + slowness strength), see `stun_strike`. */
+    class StunEntry(val until: Long, val slownessAmplifier: Int)
+    val stuns: MutableMap<UUID, StunEntry> = ConcurrentHashMap()
 
     /** player -> their active aegis barrier (remaining pool + expiry), see `aegis_shield`. */
     class AegisEntry(var pool: Float, val expiry: Long)
     val aegisShields: MutableMap<UUID, AegisEntry> = ConcurrentHashMap()
 
     /** Hard-stun [victim] until at least [untilTick]; extends an existing stun, never shortens it. */
-    fun addStun(victim: UUID, untilTick: Long) {
-        stuns.merge(victim, untilTick) { a, b -> maxOf(a, b) }
+    fun addStun(victim: UUID, untilTick: Long, slownessAmplifier: Int) {
+        stuns.merge(victim, StunEntry(untilTick, slownessAmplifier)) { a, b ->
+            StunEntry(maxOf(a.until, b.until), maxOf(a.slownessAmplifier, b.slownessAmplifier))
+        }
     }
 
     /** Raise an aegis barrier on [player]: [pool] damage absorbed, expiring at [expiry]. */
@@ -50,13 +53,17 @@ object AbilityState {
     }
 
     /**
-     * Called when [player] is about to take [amount] damage. Returns true if an active aegis barrier
-     * swallowed the hit (the caller must then cancel the damage). Each hit is fully absorbed while the
-     * barrier holds; the hit that drains the pool shatters it (and is still absorbed).
+     * Called when [player] is about to take [amount] damage from [source]. Returns true if an active
+     * aegis barrier swallowed the hit (the caller must then cancel the damage). Each hit is fully
+     * absorbed while the barrier holds; the hit that drains the pool shatters it (and is still
+     * absorbed). Damage that bypasses invulnerability (`/kill`, the void) and the mod's own curse
+     * drain are never absorbed — a barrier is not an escape from either.
      */
-    fun aegisAbsorbs(player: ServerPlayer, amount: Float): Boolean {
+    fun aegisAbsorbs(player: ServerPlayer, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
         val entry = aegisShields[player.uuid] ?: return false
         if (player.level().gameTime >= entry.expiry) { aegisShields.remove(player.uuid); return false }
+        if (source.`is`(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) return false
+        if (source.`is`(com.fiw.tools.curse.CurseHandler.CURSE_DAMAGE_TYPE)) return false
         entry.pool -= amount
         player.serverLevel().sendParticles(ParticleTypes.END_ROD, player.x, player.y + 1.0, player.z, 12, 0.4, 0.6, 0.4, 0.02)
         if (entry.pool <= 0f) aegisShields.remove(player.uuid)
@@ -68,14 +75,14 @@ object AbilityState {
         if (stuns.isEmpty()) return
         val now = server.overworld().gameTime
         val toRemove = mutableListOf<UUID>()
-        for ((uuid, until) in stuns) {
-            if (now >= until) { toRemove.add(uuid); continue }
+        for ((uuid, entry) in stuns) {
+            if (now >= entry.until) { toRemove.add(uuid); continue }
             var found = false
             for (level in server.allLevels) {
                 val e = level.getEntity(uuid) as? LivingEntity ?: continue
                 e.deltaMovement = net.minecraft.world.phys.Vec3.ZERO
                 e.hurtMarked = true
-                e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 10, 250, false, false))
+                e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 10, entry.slownessAmplifier, false, false))
                 e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 10, 250, false, false))
                 e.addEffect(net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DIG_SLOWDOWN, 10, 250, false, false))
                 found = true

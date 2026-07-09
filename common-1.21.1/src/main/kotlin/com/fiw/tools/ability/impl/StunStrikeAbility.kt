@@ -25,12 +25,13 @@ object StunStrikeAbility : Ability {
         val target = ctx.target ?: return false
         val p = ctx.params
         val duration = p.optI("duration", 60).coerceAtLeast(1)
+        val slownessAmplifier = p.optI("slownessAmplifier", 250)
 
-        AbilityState.addStun(target.uuid, ctx.world.gameTime + duration)
+        AbilityState.addStun(target.uuid, ctx.world.gameTime + duration, slownessAmplifier)
         // Immediate freeze so the lock is felt on the same tick as the hit.
         target.deltaMovement = Vec3.ZERO
         target.hurtMarked = true
-        target.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, p.optI("slownessAmplifier", 250), false, p.optB("particles", true)))
+        target.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, slownessAmplifier, false, p.optB("particles", true)))
         target.addEffect(MobEffectInstance(MobEffects.WEAKNESS, duration, 250, false, false))
         target.addEffect(MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, 250, false, false))
 

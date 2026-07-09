@@ -273,7 +273,8 @@ object AbilityDispatcher {
         if (abilities.isEmpty()) return false
 
         // Pass 1: keep the abilities that clear every non-random gate (trigger, stance, filter,
-        // cooldown, conditions). Chance is resolved next so proc groups can pick a single winner.
+        // cooldown, conditions, affordable cost). Chance is resolved next so proc groups can pick a
+        // single winner — an unpayable ability must not enter the roll and steal its group's proc.
         val eligible = ArrayList<Int>()
         abilities.forEachIndexed { idx, abilityDef ->
             if (AbilityTrigger.parse(abilityDef.trigger) != trigger) return@forEachIndexed
@@ -284,6 +285,14 @@ object AbilityDispatcher {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
             if (!PassiveConditions.met(player, world, abilityDef.params)) return@forEachIndexed
+            val cost = abilityDef.cost
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) {
+                if (trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_SHIFT_RIGHT_CLICK ||
+                    trigger == AbilityTrigger.ON_ATTACK) {
+                    AbilityCosts.notifyInsufficient(player)
+                }
+                return@forEachIndexed
+            }
             eligible.add(idx)
         }
         if (eligible.isEmpty()) return false
@@ -297,14 +306,9 @@ object AbilityDispatcher {
         for (idx in eligible) {
             if (idx !in winners) continue
             val abilityDef = abilities[idx]
+            // Re-check silently: an earlier winner in this same dispatch may have drained the pool.
             val cost = abilityDef.cost
-            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) {
-                if (trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_SHIFT_RIGHT_CLICK ||
-                    trigger == AbilityTrigger.ON_ATTACK) {
-                    AbilityCosts.notifyInsufficient(player)
-                }
-                continue
-            }
+            if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) continue
             val ability = AbilityRegistry.get(abilityDef.type) ?: run {
                 logger.warn("Unknown ability type '${abilityDef.type}' on '${def.id}'")
                 continue

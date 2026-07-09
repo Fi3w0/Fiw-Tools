@@ -125,6 +125,20 @@ object ImbueMods {
         }
     }
 
+    /**
+     * Re-applies only the `attributes` arrays from the imbue log. Used after a station rebuild
+     * ([com.fiw.tools.build.EnchantingRules.restoreAttributes]) reset the attribute component to
+     * the config truth — the imbued bonuses must come back on top, same as a full sync replay.
+     */
+    fun replayAttributes(stack: ItemStack) {
+        val log = readLog(stack)
+        if (log.isEmpty) return
+        log.forEachIndexed { index, entry ->
+            val obj = entry as? JsonObject ?: return@forEachIndexed
+            obj.getAsJsonArray("attributes")?.let { applyAttributes(stack, it, "fiw_tools.imbue.$index") }
+        }
+    }
+
     // === internals ===
 
     /**
@@ -185,14 +199,19 @@ object ImbueMods {
         stack.set(DataComponents.LORE, ItemLore(merged))
     }
 
-    private fun parseAbilityDef(obj: JsonObject): ItemDefinition.AbilityDef = ItemDefinition.AbilityDef(
-        type = obj.get("type")?.asString ?: error("ability missing 'type'"),
-        trigger = obj.get("trigger")?.asString ?: "on_right_click",
-        cooldownTicks = obj.get("cooldownTicks")?.asInt ?: 0,
-        chance = obj.get("chance")?.asFloat ?: 1f,
-        cooldownGroup = obj.get("cooldownGroup")?.takeIf { it.isJsonPrimitive }?.asString,
-        cost = com.fiw.tools.config.ItemConfigParser.parseCost(obj.getAsJsonObject("cost")),
-        stance = obj.get("stance")?.takeIf { it.isJsonPrimitive }?.asString,
-        params = obj.getAsJsonObject("params") ?: JsonObject()
-    )
+    private fun parseAbilityDef(obj: JsonObject): ItemDefinition.AbilityDef {
+        val params = obj.getAsJsonObject("params") ?: JsonObject()
+        return ItemDefinition.AbilityDef(
+            type = obj.get("type")?.asString ?: error("ability missing 'type'"),
+            trigger = obj.get("trigger")?.asString ?: "on_right_click",
+            cooldownTicks = obj.get("cooldownTicks")?.asInt ?: 0,
+            chance = obj.get("chance")?.asFloat ?: 1f,
+            cooldownGroup = obj.get("cooldownGroup")?.takeIf { it.isJsonPrimitive }?.asString,
+            procGroup = obj.get("procGroup")?.takeIf { it.isJsonPrimitive }?.asString,
+            cost = com.fiw.tools.config.ItemConfigParser.parseCost(obj.getAsJsonObject("cost")),
+            stance = obj.get("stance")?.takeIf { it.isJsonPrimitive }?.asString,
+            scaling = com.fiw.tools.config.ItemConfigParser.parseScaling(obj.getAsJsonArray("scaling"), params),
+            params = params
+        )
+    }
 }
