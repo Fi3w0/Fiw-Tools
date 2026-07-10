@@ -84,18 +84,19 @@ object PassiveHandler {
             add(player.offhandItem)
             for ((slot, _) in WORN_SLOTS) add(player.getItemBySlot(slot))
         }
-        // Map resonanceId -> list of (stack, def) pairs
-        val groups = mutableMapOf<String, MutableList<Pair<ItemStack, com.fiw.tools.config.ItemDefinition>>>()
+        // resonanceId -> (fiw id -> the first equipped stack of that piece). Deduping by id means
+        // two copies of the same piece (e.g. one weapon in each hand) count as a single set piece,
+        // not two — a set bonus is unlocked by distinct pieces, never by holding duplicates.
+        val groups = mutableMapOf<String, LinkedHashMap<String, ItemStack>>()
         for (stack in allStacks) {
             if (stack.isEmpty) continue
             val id = FiwItems.fiwId(stack) ?: continue
             val def = ItemRegistry.byId(id) ?: continue
             val rId = def.resonanceId ?: continue
-            groups.getOrPut(rId) { mutableListOf() }.add(stack to def)
+            groups.getOrPut(rId) { LinkedHashMap() }.putIfAbsent(id, stack)
         }
-        for ((_, entries) in groups) {
-            val (firstStack, _) = entries.first()
-            runSlot(player, world, firstStack, AbilityTrigger.RESONANCE, "slot", "any", "any", entries.size)
+        for ((_, pieces) in groups) {
+            runSlot(player, world, pieces.values.first(), AbilityTrigger.RESONANCE, "slot", "any", "any", pieces.size)
         }
     }
 
