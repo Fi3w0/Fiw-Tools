@@ -87,6 +87,12 @@ version header.
   Dragon, and anything that can't be affected) are skipped rather than frozen in place.
 - **`imbue` requires a single item** — imbuing a stack is refused (message key `stacked`), closing a
   dupe where splitting the stack yielded one imbued item per unit for a single catalyst charge.
+- **Anvils and smithing tables keep foreign attributes** — attribute modifiers added by admin
+  commands, datapacks or other mods are no longer wiped when a Fiw item passes through an anvil or
+  smithing-table operation (they were previously rebuilt from config + imbuements only).
+- **Resonance counts distinct set pieces** — a set bonus can no longer be triggered by holding two
+  copies of the same piece (e.g. one weapon in each hand); only distinct pieces count toward
+  `resonanceRequires` / `minPieces`.
 
 ## [1.1.1] - HOTFIX: custom recipe crafting dupe
 
