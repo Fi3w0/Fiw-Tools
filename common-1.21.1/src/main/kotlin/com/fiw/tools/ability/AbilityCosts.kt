@@ -4,6 +4,7 @@ import com.fiw.tools.charge.ChargeHandler
 import com.fiw.tools.config.ItemDefinition
 import com.fiw.tools.recipe.CraftingHandler
 import com.fiw.tools.util.TextParser
+import net.minecraft.core.component.DataComponents
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -22,7 +23,10 @@ object AbilityCosts {
             if (def.charges == null) return false
             if (ChargeHandler.charges(stack) < cost.charges) return false
         }
-        if (cost.durability > 0) {
+        if (cost.durability > 0 && !stack.has(DataComponents.UNBREAKABLE)) {
+            // Unbreakable items have no durability to spend, so the cost is free rather than unpayable —
+            // otherwise earning `unbreakable` (e.g. via rechargeOnKill) would permanently disable the
+            // item's own durability-cost abilities.
             if (!stack.isDamageableItem) return false
             if (stack.maxDamage - stack.damageValue <= cost.durability) return false
         }
@@ -38,7 +42,7 @@ object AbilityCosts {
 
     fun pay(player: ServerPlayer, stack: ItemStack, cost: ItemDefinition.CostDef) {
         if (cost.charges > 0) ChargeHandler.consume(stack, cost.charges)
-        if (cost.durability > 0) stack.damageValue = stack.damageValue + cost.durability
+        if (cost.durability > 0 && !stack.has(DataComponents.UNBREAKABLE)) stack.damageValue = stack.damageValue + cost.durability
         if (cost.health > 0f) player.health = (player.health - cost.health).coerceAtLeast(0.5f)
         if (cost.maxHealth > 0f) sacrificeMaxHealth(player, cost.maxHealth)
         if (cost.hunger > 0) player.foodData.foodLevel = (player.foodData.foodLevel - cost.hunger).coerceAtLeast(0)

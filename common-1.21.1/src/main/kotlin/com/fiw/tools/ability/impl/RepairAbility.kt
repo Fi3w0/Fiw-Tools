@@ -6,6 +6,8 @@ import com.fiw.tools.ability.optB
 import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optI
 import com.fiw.tools.build.FiwItems
+import com.fiw.tools.config.ItemRegistry
+import com.fiw.tools.infinite.InfiniteItems
 import com.fiw.tools.util.TextParser
 import com.google.gson.JsonObject
 import net.minecraft.core.registries.BuiltInRegistries
@@ -45,6 +47,14 @@ object RepairAbility : Ability {
         if (amount <= 0) { tell(player, p, "alreadyFull"); return false }
 
         target.damageValue = (cur - amount).coerceAtLeast(0)
+        // An infinite(damage) item keeps its next-use durability baked into a USE_REMAINDER copy; the
+        // 10-tick restamp sweep self-heals it, but a use inside that window would revert this repair.
+        // Re-bake the remainder now so the repaired durability sticks immediately (mirrors RechargeOnKillHandler).
+        val tId = FiwItems.fiwId(target)
+        val tDef = tId?.let { ItemRegistry.byId(it) }
+        if (tDef?.infinite?.mode == "damage") {
+            InfiniteItems.applyUseRemainder(target, tDef, player.level().registryAccess())
+        }
         spendKit(kit, p)
         return true
     }

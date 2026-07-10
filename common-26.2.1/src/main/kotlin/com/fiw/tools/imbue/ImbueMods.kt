@@ -71,6 +71,22 @@ object ImbueMods {
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
     }
 
+    /**
+     * The `appendLore` lines every imbuement in this stack's log contributed, in order. Used by
+     * [com.fiw.tools.lore.DynamicLoreHandler] so its once-a-second rebuild (`def.lore` + dynamic
+     * lines) doesn't drop imbue-appended lore. Empty when the stack was never imbued or added no lore.
+     */
+    fun loreLines(stack: ItemStack): List<net.minecraft.network.chat.Component> {
+        val log = readLog(stack)
+        if (log.isEmpty) return emptyList()
+        val out = mutableListOf<net.minecraft.network.chat.Component>()
+        for (entry in log) {
+            val obj = entry as? JsonObject ?: continue
+            obj.getAsJsonArray("appendLore")?.forEach { out.add(TextParser.parse(it.asString)) }
+        }
+        return out
+    }
+
     /** Read the imbue count from the stack. */
     fun readCount(stack: ItemStack): Int {
         val data = stack.get(DataComponents.CUSTOM_DATA) ?: return 0

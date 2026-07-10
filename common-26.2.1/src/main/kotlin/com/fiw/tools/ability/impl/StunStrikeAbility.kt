@@ -9,6 +9,7 @@ import com.fiw.tools.ability.optParticle
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon
 import net.minecraft.world.phys.Vec3
 
 /**
@@ -26,6 +27,11 @@ object StunStrikeAbility : Ability {
         val p = ctx.params
         val duration = p.optI("duration", 60).coerceAtLeast(1)
         val slownessAmplifier = p.optI("slownessAmplifier", 250)
+
+        // The stun's per-tick velocity lock would air-freeze an entity even when it shrugs off the CC
+        // effects — trivializing bosses like the Ender Dragon. Skip entities immune to the effects.
+        val probe = MobEffectInstance(MobEffects.SLOWNESS, duration, slownessAmplifier)
+        if (target is EnderDragon || !target.canBeAffected(probe)) return false
 
         AbilityState.addStun(target.uuid, ctx.world.gameTime + duration, slownessAmplifier)
         // Immediate freeze so the lock is felt on the same tick as the hit.

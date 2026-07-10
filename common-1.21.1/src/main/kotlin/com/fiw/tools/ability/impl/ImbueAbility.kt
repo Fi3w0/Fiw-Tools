@@ -43,6 +43,7 @@ object ImbueAbility : Ability {
         "wrongType" to "&cThis catalyst doesn't work on that item.",
         "capReached" to "&6This item refuses further imbuement.",
         "cursed" to "&cCursed items cannot be imbued.",
+        "stacked" to "&cSplit this into a single item before imbuing.",
         "outOfCharges" to "&7This catalyst is spent.",
         "noOutcomes" to "&cThis catalyst has no outcomes configured."
     )
@@ -59,6 +60,10 @@ object ImbueAbility : Ability {
 
         // --- 2. Curse refuses imbue ---
         if (isCursedStack(target)) { tell(player, params, "cursed"); return false }
+
+        // A stacked target would take the mods + one cap count on all N items; splitting the stack
+        // would then yield N imbued items for a single catalyst charge. Require a single item.
+        if (target.count > 1) { tell(player, params, "stacked"); return false }
 
         // --- 3. Cap check ---
         val effectiveCap = effectiveCap(target, params)

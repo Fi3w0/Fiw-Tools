@@ -47,6 +47,9 @@ object DynamicLoreHandler {
     private fun refresh(stack: ItemStack, def: ItemDefinition) {
         val lines = buildList {
             def.lore.forEach { add(TextParser.parse(it)) }
+            // Keep imbue-appended lore between the static and dynamic lines — without this the sweep
+            // would erase every `appendLore` line the imbue log added within one second.
+            addAll(com.fiw.tools.imbue.ImbueMods.loreLines(stack))
             def.dynamicLore.forEach { add(TextParser.parse(resolve(it, stack, def))) }
         }
         val lore = ItemLore(lines)
