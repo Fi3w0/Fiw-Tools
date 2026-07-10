@@ -109,7 +109,7 @@ Tweak the file, reload, try again.
 
 **Vanilla visuals** - potion colors, leather dye, and item models straight from JSON.
 
-**Hot reload** - update configs live while preserving player changes like durability, renames, extra enchants, uncurse flags, imbuement logs, awakening progress, and binding owners.
+**Hot reload** - update configs live while preserving player changes: durability, renames, extra enchants (including anvil-upgraded config enchants), uncurse flags, imbuement logs, souls, killstreaks, stances, charges, awakening progress, binding owners, and any attribute modifiers, armor trim or dye added by players, commands or other mods. The same state carries through artifact awakenings and crafting upgrade recipes, so an upgraded item is never a stripped-down copy.
 
 ---
 

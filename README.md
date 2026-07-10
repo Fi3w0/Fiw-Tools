@@ -192,7 +192,7 @@ The `run_command` ability silently executes any server command(s) on any trigger
 
 ### Hot reload and sync
 
-`/fiwtools reload` re-reads item configs live. Existing player stacks are rebuilt from the new definition while preserving durability, player-added enchants, player renames, uncurse flags, and imbuement history.
+`/fiwtools reload` re-reads item configs live. Existing player stacks are rebuilt from the new definition while preserving durability, player-added enchants (including anvil-upgraded config enchants), player renames, uncurse flags, imbuement history, souls, killstreaks, stances, charges, awakening progress, binding owners, and any attribute modifiers, armor trim or dye added by players, commands or other mods. The same state carries through artifact awakenings and crafting upgrade recipes.
 
 ### FIW Bosses integration
 

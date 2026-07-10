@@ -62,6 +62,32 @@ version header.
   have an explicit base value in `params` (configs without one fail to load). Works on imbued
   abilities too.
 
+### Fixed
+
+> **Update immediately** — a `run_command` ability using the `{target}` placeholder could be
+> abused for privilege escalation: a mob renamed to `@a` (or a selector) made the command run on
+> everyone at full permission. All placeholders are now stripped to safe characters before use.
+
+- **State survives everything now** — player- and admin-set state is never wiped when an item is
+  rebuilt. A `/fiwtools reload`, an artifact **awakening**, or a crafting **upgrade recipe** now
+  carries the item's imbuements, binding owner, souls, killstreak, stance, charges, and any
+  enchantments / attribute modifiers / armor trim / dye that a player, command, datapack or other
+  mod added — instead of returning a stripped-down copy. Awakening progress is intentionally reset
+  when an item transforms so it can't instantly trigger the next stage.
+- **Player enchant upgrades stick** — upgrading a config enchantment at an anvil (e.g. Sharpness 3 → 4)
+  is no longer snapped back to the configured level on the next reload.
+- **Imbue lore stays** — `appendLore` lines added by an imbuement are no longer erased a second
+  later on items that also use `dynamicLore`.
+- **Unbreakable items keep their abilities** — an item that earns `unbreakable` (via
+  `rechargeOnKill`) no longer loses access to its own durability-cost abilities; the cost is simply
+  free when there is no durability to spend.
+- **`repair` on infinite items** — repairing an `infinite: damage` item now sticks immediately
+  instead of possibly reverting on the next use.
+- **`stun_strike` no longer air-freezes bosses** — targets immune to the stun's effects (the Ender
+  Dragon, and anything that can't be affected) are skipped rather than frozen in place.
+- **`imbue` requires a single item** — imbuing a stack is refused (message key `stacked`), closing a
+  dupe where splitting the stack yielded one imbued item per unit for a single catalyst charge.
+
 ## [1.1.1] - HOTFIX: custom recipe crafting dupe
 
 > **Update immediately if you use custom recipes.** Taking a custom recipe's result from a

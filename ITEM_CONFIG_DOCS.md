@@ -1221,6 +1221,10 @@ with a low `chance` and a real cooldown.
 { "type": "stun_strike", "trigger": "on_attack", "chance": 0.2, "cooldownTicks": 120, "params": { "duration": 40 } }
 ```
 
+Entities immune to the stun's effects (the Ender Dragon, and anything that can't be affected by
+Slowness/Weakness/Mining Fatigue) are skipped entirely — the velocity lock won't freeze a boss that
+otherwise ignores crowd control.
+
 ---
 
 ### `apply_effect`
@@ -2534,7 +2538,7 @@ An admin-defined upgrade system. A **catalyst** is a normal Fiw item carrying th
 | `maxUses` | `1` | How many imbuements a single catalyst stack performs before it's consumed. `0`/negative = unlimited (debug). |
 | `maxImbuements` | `3` | Fallback cap when the target has no `imbueLimit` field of its own. |
 | `outcomes` | — | The outcome pool (see below). Required. |
-| `messages` | — | Optional admin-set refusal messages keyed by `noTarget`, `wrongType`, `capReached`, `cursed`, `outOfCharges`, `noOutcomes`. An empty string silences the refusal. |
+| `messages` | — | Optional admin-set refusal messages keyed by `noTarget`, `wrongType`, `capReached`, `cursed`, `stacked`, `outOfCharges`, `noOutcomes`. An empty string silences the refusal. `stacked` fires when the target is a stack of more than one — the target must be a single item to imbue. |
 
 ### `targets` filter
 
