@@ -2938,6 +2938,9 @@ The `run_command` ability (alias `command`) executes server commands when trigge
 | `{uuid}` | Their UUID |
 | `{x}` `{y}` `{z}` | Their block position |
 | `{target}` | The right-clicked/attacked entity's name (empty if none) |
+| `{target_uuid}` | The right-clicked/attacked entity's UUID (empty if none). A UUID is a valid entity selector, so use this — not `{target}` — to run a command **on** the entity you hit, e.g. `effect give {target_uuid} minecraft:glowing 5 0`. `{target}` is only a display name and won't address a mob. |
+
+All placeholders are sanitized (stripped to `[A-Za-z0-9_-]`) before substitution, so an entity renamed to a selector like `@a` can't inject commands.
 
 Commands run at full permission level, so anything an op could do, an item can grant. Works with every trigger — pair `on_right_click` and `on_shift_right_click` for two command sets on one item, or hook `on_kill` / `on_hurt` for reactive effects.
 

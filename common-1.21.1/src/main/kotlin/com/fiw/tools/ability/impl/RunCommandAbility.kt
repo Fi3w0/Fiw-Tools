@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory
  * Params:
  * - `command`: a single command string, or `commands`: an array of them (leading `/` optional)
  * - placeholders: `{player}` name, `{uuid}`, `{x}` `{y}` `{z}` block position, `{target}` the
- *   targeted entity's name (empty when there is none)
+ *   targeted entity's name, `{target_uuid}` its UUID — usable as a command selector so a command can
+ *   affect the entity you hit (both empty when there is no target)
  *
  * Pair with `on_right_click` / `on_shift_right_click` for two different command sets on one item.
  */
@@ -54,6 +55,9 @@ object RunCommandAbility : Ability {
                 .replace("{x}", sanitize(pos.x.toString()))
                 .replace("{y}", sanitize(pos.y.toString()))
                 .replace("{z}", sanitize(pos.z.toString()))
+                // {target_uuid} addresses the actual targeted entity (a UUID is a valid entity
+                // selector), so commands can affect a mob you hit — {target} is only its display name.
+                .replace("{target_uuid}", sanitize(ctx.target?.uuid?.toString() ?: ""))
                 .replace("{target}", sanitize(ctx.target?.name?.string ?: ""))
             try {
                 dispatcher.performPrefixedCommand(source, cmd)
