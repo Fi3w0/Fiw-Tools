@@ -122,6 +122,15 @@ object AwakeningHandler {
         }
         val upgraded = ItemBuilder.build(upgradeDef, 1, player.level().registryAccess()) ?: return
 
+        // Carry the player's accumulated state onto the awakened item so the transform can't wipe a
+        // bound / imbued / enchanted artifact. Awakening progress is intentionally NOT carried — it
+        // would immediately satisfy the next chain stage.
+        stack.get(DataComponents.CUSTOM_DATA)?.let { oldData ->
+            com.fiw.tools.state.StackStatePreserver.carry(
+                stack, oldData.copyTag(), upgraded, upgradeDef, player.level().registryAccess(), carryAwakenProgress = false
+            )
+        }
+
         val inv = player.inventory
         var replaced = false
         for (slot in 0 until inv.containerSize) {

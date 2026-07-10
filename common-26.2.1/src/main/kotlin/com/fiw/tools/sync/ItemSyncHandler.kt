@@ -1,17 +1,12 @@
 package com.fiw.tools.sync
 
 import com.fiw.tools.build.ItemBuilder
-import com.fiw.tools.config.ItemDefinition
 import com.fiw.tools.config.ItemRegistry
-import com.fiw.tools.util.TextParser
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.component.DataComponents
-import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.Unit
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.enchantment.ItemEnchantments
 import org.slf4j.LoggerFactory
 
 /**
@@ -78,135 +73,18 @@ object ItemSyncHandler {
 
         val rebuilt = ItemBuilder.build(def, stack.count, registries) ?: return null
 
+        // Carry every scrap of player-earned / admin-set state onto the fresh build (durability
+        // rewards, enchants, rename, uncurse, imbue log, binding, charges, streak, stance, souls,
+        // foreign attributes, trim, dye) — the same pipeline the awaken/craft transforms use.
+        com.fiw.tools.state.StackStatePreserver.carry(stack, tag, rebuilt, def, registries, carryAwakenProgress = true)
+
         // Preserve the player's accumulated wear rather than resetting durability on every edit.
-        preserveDurabilityRewards(tag, rebuilt, def)
+        // Runs after the preserver so an earned max-damage bonus is already reflected in maxDamage.
         if (rebuilt.isDamageableItem) {
             val maxDamage = rebuilt.maxDamage
             rebuilt.damageValue = stack.damageValue.coerceIn(0, (maxDamage - 1).coerceAtLeast(0))
         }
-        preservePlayerEnchantments(stack, rebuilt, def)
-        preservePlayerName(stack, rebuilt, tag.getString(ItemBuilder.CONFIG_NAME_KEY).orElse(""), def)
-        preserveUncursed(tag, rebuilt)
-        preserveImbueState(tag, rebuilt, registries)
-        preserveStackState(tag, rebuilt, def)
         return rebuilt
     }
 
-    /**
-     * Replay durability rewards this specific stack earned from `rechargeOnKill` kills (recorded by
-     * [com.fiw.tools.recharge.RechargeOnKillHandler]) on top of the fresh build. Unlike copying the
-     * old components wholesale, this keeps the config authoritative: an admin who lowers `maxDamage`
-     * or removes `unbreakable` from the JSON wins for the def-granted part, while earned bonuses stick.
-     */
-    private fun preserveDurabilityRewards(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack, def: ItemDefinition) {
-        val bonus = oldTag.getInt(com.fiw.tools.recharge.RechargeOnKillHandler.BONUS_MAX_DAMAGE_KEY).orElse(0)
-        val earnedUnbreakable = oldTag.getBoolean(com.fiw.tools.recharge.RechargeOnKillHandler.UNBREAKABLE_KEY).orElse(false)
-        if (bonus <= 0 && !earnedUnbreakable) return
-        val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
-        val tag = data.copyTag()
-        if (bonus > 0) {
-            val cap = def.rechargeOnKill?.maxDamageCap ?: Int.MAX_VALUE
-            val next = (rebuilt.maxDamage.coerceAtLeast(0) + bonus).coerceAtMost(cap)
-            if (next > rebuilt.maxDamage) rebuilt.set(DataComponents.MAX_DAMAGE, next)
-            tag.putInt(com.fiw.tools.recharge.RechargeOnKillHandler.BONUS_MAX_DAMAGE_KEY, bonus)
-        }
-        if (earnedUnbreakable) {
-            rebuilt.set(DataComponents.UNBREAKABLE, Unit.INSTANCE)
-            tag.putBoolean(com.fiw.tools.recharge.RechargeOnKillHandler.UNBREAKABLE_KEY, true)
-        }
-        rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
-    }
-
-    /**
-     * Carry per-stack lifecycle state (awakening progress, binding owner) across rebuilds so a
-     * `/fiwtools reload` can't reset a half-awakened or soul-bound artifact.
-     */
-    private fun preserveStackState(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack, def: ItemDefinition) {
-        val progress = oldTag.getDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY).orElse(null)
-        val boundOwner = oldTag.getString(com.fiw.tools.bind.BindingHandler.OWNER_KEY).orElse(null)
-        val boundName = oldTag.getString(com.fiw.tools.bind.BindingHandler.OWNER_NAME_KEY).orElse(null)
-        val oldCharges = oldTag.getInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY).orElse(-1)
-        val keepCharges = oldCharges >= 0 && def.charges != null
-        val oldStreak = oldTag.getInt(com.fiw.tools.streak.KillstreakHandler.STREAK_KEY).orElse(0)
-        val keepStreak = oldStreak > 0 && def.killstreak != null
-        val oldStance = oldTag.getString(com.fiw.tools.stance.StanceHandler.STANCE_KEY).orElse(null)
-        val keepStance = oldStance != null && def.stances.isNotEmpty()
-        if (progress == null && boundOwner == null && !keepCharges && !keepStreak && !keepStance) return
-        val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
-        val tag = data.copyTag()
-        progress?.let { tag.putDouble(com.fiw.tools.awaken.AwakeningHandler.PROGRESS_KEY, it) }
-        boundOwner?.let { tag.putString(com.fiw.tools.bind.BindingHandler.OWNER_KEY, it) }
-        boundName?.let { tag.putString(com.fiw.tools.bind.BindingHandler.OWNER_NAME_KEY, it) }
-        if (keepCharges) {
-            tag.putInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY, oldCharges.coerceAtMost(def.charges!!.max))
-        }
-        if (keepStreak) tag.putInt(com.fiw.tools.streak.KillstreakHandler.STREAK_KEY, oldStreak)
-        if (keepStance) tag.putString(com.fiw.tools.stance.StanceHandler.STANCE_KEY, oldStance!!)
-        rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
-    }
-
-    /**
-     * Carry the imbuement log + count across rebuilds, then replay every logged mod block on top of
-     * the fresh stack. This is what makes imbuements survive `/fiwtools reload` and builder bumps —
-     * the config is the floor, the log is what's been added on top.
-     */
-    private fun preserveImbueState(
-        oldTag: net.minecraft.nbt.CompoundTag,
-        rebuilt: ItemStack,
-        registries: net.minecraft.core.HolderLookup.Provider
-    ) {
-        val logJson = oldTag.getString(ItemBuilder.IMBUE_LOG_KEY).orElse(null)
-        val count = oldTag.getInt(ItemBuilder.IMBUE_COUNT_KEY).orElse(0)
-        if (logJson.isNullOrEmpty() && count == 0) return
-
-        val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: net.minecraft.world.item.component.CustomData.EMPTY
-        val tag = data.copyTag()
-        if (!logJson.isNullOrEmpty()) tag.putString(ItemBuilder.IMBUE_LOG_KEY, logJson)
-        if (count > 0) tag.putInt(ItemBuilder.IMBUE_COUNT_KEY, count)
-        rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
-
-        com.fiw.tools.imbue.ImbueMods.replayLog(rebuilt, registries)
-    }
-
-    /**
-     * Carry the per-stack `fiw_uncursed` flag across rebuilds. Without this, a `/fiwtools reload` would
-     * undo a Blessed Scroll use — the rebuilt stack would lose the flag and start cursing again. The
-     * flag is authoritative: once a specific stack is uncursed it stays uncursed forever.
-     */
-    private fun preserveUncursed(oldTag: net.minecraft.nbt.CompoundTag, rebuilt: ItemStack) {
-        if (!oldTag.getBoolean(ItemBuilder.UNCURSED_KEY).orElse(false)) return
-        val data = rebuilt.get(DataComponents.CUSTOM_DATA) ?: return
-        val tag = data.copyTag()
-        tag.putBoolean(ItemBuilder.UNCURSED_KEY, true)
-        rebuilt.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag))
-    }
-
-    /**
-     * Re-applies any enchantment the player added themselves (enchanting table / anvil). Config
-     * enchantments are owned by the definition — they always come from the fresh [rebuilt] stack at
-     * their configured level, so a player can't override or drop them; everything else is carried over.
-     */
-    private fun preservePlayerEnchantments(old: ItemStack, rebuilt: ItemStack, def: ItemDefinition) {
-        val playerEnchants = old.get(DataComponents.ENCHANTMENTS) ?: return
-        if (playerEnchants.isEmpty) return
-        val baseIds = def.enchantments.keys.mapNotNull { Identifier.tryParse(it)?.toString() }.toSet()
-
-        val merged = ItemEnchantments.Mutable(rebuilt.get(DataComponents.ENCHANTMENTS) ?: ItemEnchantments.EMPTY)
-        for (entry in playerEnchants.entrySet()) {
-            val id = entry.key.unwrapKey().orElse(null)?.identifier()?.toString() ?: continue
-            if (id !in baseIds) merged.set(entry.key, entry.intValue)
-        }
-        rebuilt.set(DataComponents.ENCHANTMENTS, merged.toImmutable())
-    }
-
-    /**
-     * Keeps a player's anvil rename. [appliedConfigName] is the raw config name the item last carried;
-     * if the live name still equals that, the player never renamed it and the fresh config name wins.
-     */
-    private fun preservePlayerName(old: ItemStack, rebuilt: ItemStack, appliedConfigName: String, def: ItemDefinition) {
-        if (def.enchanting?.allowRename == false) return
-        val currentName = old.get(DataComponents.CUSTOM_NAME) ?: return
-        val lastConfigName = if (appliedConfigName.isEmpty()) null else TextParser.parse(appliedConfigName)
-        if (currentName != lastConfigName) rebuilt.set(DataComponents.CUSTOM_NAME, currentName)
-    }
 }

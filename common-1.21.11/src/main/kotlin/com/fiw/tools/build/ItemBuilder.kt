@@ -97,6 +97,14 @@ object ItemBuilder {
     const val IMBUE_USES_KEY = "fiw_imbue_uses"
 
     /**
+     * Reserved custom_data key holding a JSON object of the config enchantment levels last stamped
+     * onto this stack (`{"minecraft:sharpness":3,...}`). Lets a resync tell an untouched config
+     * enchant from a player anvil-upgrade — if the live level differs from the stamped one, the
+     * player changed it and their level is kept. Mirrors [CONFIG_NAME_KEY] for names.
+     */
+    const val CONFIG_ENCHANTS_KEY = "fiw_config_enchants"
+
+    /**
      * Bumped whenever this builder's output changes in a way that should re-stamp existing items
      * even if their JSON is untouched. Folded into [revision] so a mod update forces a one-time resync.
      */
@@ -350,7 +358,23 @@ object ItemBuilder {
         if (def.keepOnDeath && !def.cursed) tag.putBoolean(KEEP_ON_DEATH_KEY, true)
         def.charges?.let { tag.putInt(com.fiw.tools.charge.ChargeHandler.CHARGES_KEY, it.effectiveStart) }
         if (def.cursed) tag.putBoolean(CURSED_KEY, true)
+        stampConfigEnchants(tag, def)
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
+    }
+
+    /**
+     * Record the config enchant levels this build applied, so [com.fiw.tools.state.StackStatePreserver]
+     * can later distinguish a player's anvil-upgrade from an untouched config enchant. Stored as a
+     * JSON object string for a version-agnostic round-trip.
+     */
+    private fun stampConfigEnchants(tag: CompoundTag, def: ItemDefinition) {
+        if (def.enchantments.isEmpty()) return
+        val obj = com.google.gson.JsonObject()
+        for ((rawId, level) in def.enchantments) {
+            val id = Identifier.tryParse(rawId)?.toString() ?: continue
+            obj.addProperty(id, level)
+        }
+        tag.putString(CONFIG_ENCHANTS_KEY, obj.toString())
     }
 
     /**

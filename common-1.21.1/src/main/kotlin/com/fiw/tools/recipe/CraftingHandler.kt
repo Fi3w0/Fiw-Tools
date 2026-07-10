@@ -190,8 +190,34 @@ object CraftingHandler {
      */
     fun buildResult(recipe: RecipeDefinition, player: ServerPlayer, grid: List<ItemStack>? = null): ItemStack? {
         val stack = buildBaseResult(recipe, player) ?: return null
-        if (grid != null) EnchantTransfer.apply(recipe, stack, grid)
+        if (grid != null) {
+            EnchantTransfer.apply(recipe, stack, grid)
+            carryUpgradeState(recipe, stack, grid, player)
+        }
         return stack
+    }
+
+    /**
+     * Upgrade recipes (docs recommend crafting as an awakening path) rebuild the `fiw:` result fresh,
+     * which would return a blank sword for an imbued / soul-bound / enchanted input. When the grid
+     * holds exactly one Fiw-item ingredient, carry that ingredient's player state onto the result —
+     * the same pipeline the resync and awaken transforms use. Awakening progress is not carried.
+     */
+    private fun carryUpgradeState(
+        recipe: RecipeDefinition,
+        result: ItemStack,
+        grid: List<ItemStack>,
+        player: ServerPlayer
+    ) {
+        if (!recipe.resultItem.startsWith("fiw:")) return
+        val fiwSources = grid.filter { !it.isEmpty && FiwItems.isFiwItem(it) }
+        if (fiwSources.size != 1) return
+        val source = fiwSources[0]
+        val def = ItemRegistry.byId(recipe.resultItem.removePrefix("fiw:")) ?: return
+        val oldData = source.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA) ?: return
+        com.fiw.tools.state.StackStatePreserver.carry(
+            source, oldData.copyTag(), result, def, player.level().registryAccess(), carryAwakenProgress = false
+        )
     }
 
     private fun buildBaseResult(recipe: RecipeDefinition, player: ServerPlayer): ItemStack? {
