@@ -71,8 +71,10 @@ object FiwTools : ModInitializer {
                 true
             }
         }
-        PlayerBlockBreakEvents.AFTER.register { world, player, pos, _, _ ->
-            if (player is ServerPlayer) AbilityDispatcher.onBlockBreak(player, player.serverLevel(), pos)
+        PlayerBlockBreakEvents.AFTER.register { _, player, pos, state, _ ->
+            if (player !is ServerPlayer || com.fiw.tools.mining.MiningHandler.isActive()) return@register
+            AbilityDispatcher.onBlockBreak(player, player.serverLevel(), pos)
+            com.fiw.tools.mining.MiningHandler.onBlockBroken(player, player.serverLevel(), pos, state)
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> FiwToolsCommon.playerJoin(handler.player) }

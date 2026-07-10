@@ -106,8 +106,39 @@ data class ItemDefinition(
      * refuse the enchanting table and anvil, every Fiw item refuses the grindstone, smithing and
      * anvil renaming are allowed.
      */
-    val enchanting: EnchantingDef? = null
+    val enchanting: EnchantingDef? = null,
+    /**
+     * Multi-block mining. When this tool breaks a block, it breaks extra blocks around it: a
+     * connected `vein` (ores / logs), an `area` hammer plane, or a forward `tunnel`. `null` = plain
+     * single-block mining.
+     */
+    val mining: MiningDef? = null
 ) {
+    data class MiningDef(
+        /** `vein` = flood-fill connected matching blocks; `area` = a plane facing you; `tunnel` = area extended forward. */
+        val mode: String = "vein",
+        /** Hard cap on how many extra blocks a single break may chain, protecting the server. */
+        val maxBlocks: Int = 64,
+        /** `area`/`tunnel`: half-width of the plane. 1 = 3x3, 2 = 5x5. */
+        val radius: Int = 1,
+        /** `tunnel`: how many blocks forward (in addition to the mined one) the tunnel reaches. */
+        val depth: Int = 1,
+        /** `vein`: only chain blocks of the same type as the one mined (ignored when [whitelist]/[tags] are set). */
+        val matchBlock: Boolean = true,
+        /** `vein`: also chain diagonally-touching blocks (26-neighbour), not just face-adjacent (6-neighbour). */
+        val diagonal: Boolean = true,
+        /** Only break blocks whose id is listed here (empty = no id restriction). */
+        val whitelist: List<String> = emptyList(),
+        /** Only break blocks in one of these block tags, e.g. `#minecraft:logs` (empty = no tag restriction). */
+        val tags: List<String> = emptyList(),
+        /** Only break blocks this tool is the correct harvest tool for (so a pickaxe won't chew dirt). */
+        val requireCorrectTool: Boolean = true,
+        /** Skip blocks harder than this (-1 = no limit); handy to stop a vein at bedrock/obsidian. */
+        val maxHardness: Double = -1.0,
+        /** Hold sneak to break just the single block, bypassing the multi-break. */
+        val sneakToDisable: Boolean = true
+    )
+
     data class EnchantingDef(
         /** May players enchant this at the enchanting table? Default: `!cursed`. */
         val table: Boolean? = null,

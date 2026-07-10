@@ -319,6 +319,29 @@ object ItemConfigParser {
                     allowRename = o.optBoolOrNull("allowRename") ?: o.optBoolOrNull("rename"),
                     allowEnchant = o.optBoolOrNull("allowEnchant") ?: o.optBoolOrNull("enchant")
                 )
+            },
+            mining = root.get("mining")?.takeIf { !it.isJsonNull }?.let { el ->
+                if (!el.isJsonObject) throw IllegalArgumentException("'mining' must be an object")
+                val o = el.asJsonObject
+                val def = ItemDefinition.MiningDef(
+                    mode = o.optString("mode", "vein").lowercase(),
+                    maxBlocks = o.optInt("maxBlocks", 64),
+                    radius = o.optInt("radius", 1),
+                    depth = o.optInt("depth", 1),
+                    matchBlock = o.optBool("matchBlock", true),
+                    diagonal = o.optBool("diagonal", true),
+                    whitelist = o.stringList("whitelist") + o.stringList("blocks"),
+                    tags = o.stringList("tags"),
+                    requireCorrectTool = o.optBool("requireCorrectTool", true),
+                    maxHardness = o.optDouble("maxHardness", -1.0),
+                    sneakToDisable = o.optBool("sneakToDisable", true)
+                )
+                if (def.mode !in setOf("vein", "area", "tunnel"))
+                    throw IllegalArgumentException("mining mode must be vein, area, or tunnel")
+                if (def.maxBlocks < 1) throw IllegalArgumentException("mining maxBlocks must be >= 1")
+                if (def.radius < 0) throw IllegalArgumentException("mining radius must be >= 0")
+                if (def.depth < 1) throw IllegalArgumentException("mining depth must be >= 1")
+                def
             }
         )
     }

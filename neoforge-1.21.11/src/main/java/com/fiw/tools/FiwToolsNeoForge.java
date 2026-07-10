@@ -177,9 +177,11 @@ public final class FiwToolsNeoForge {
 
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {
+        if (com.fiw.tools.mining.MiningHandler.isActive()) return;
         if (event.getPlayer() instanceof ServerPlayer player
                 && event.getLevel() instanceof ServerLevel level) {
             AbilityDispatcher.INSTANCE.onBlockBreak(player, level, event.getPos());
+            com.fiw.tools.mining.MiningHandler.INSTANCE.onBlockBroken(player, level, event.getPos(), event.getState());
         }
     }
 }
