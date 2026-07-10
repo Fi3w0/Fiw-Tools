@@ -19,6 +19,17 @@ import org.slf4j.LoggerFactory
 object RunCommandAbility : Ability {
     private val logger = LoggerFactory.getLogger("fiw-tools/run_command")
 
+    /**
+     * Placeholder values are substituted into a command run at full permission, so a value that
+     * reaches a selector position must never carry selector or command-break syntax. `{target}` in
+     * particular comes from an entity's display name — trivially attacker-controlled via a name tag
+     * (`@a`, `@e[...]`, quotes, spaces). We strip every placeholder down to the characters legal in a
+     * real player/entity name plus the `-` used by UUIDs and negative coordinates; anything that could
+     * break out of a token (`@`, whitespace, quotes, brackets, ...) is removed.
+     */
+    private val UNSAFE = Regex("[^A-Za-z0-9_-]")
+    private fun sanitize(raw: String): String = UNSAFE.replace(raw, "")
+
     override fun execute(ctx: AbilityContext): Boolean {
         val commands = buildList {
             ctx.params.get("command")?.takeIf { it.isJsonPrimitive }?.asString?.let { add(it) }
@@ -38,12 +49,12 @@ object RunCommandAbility : Ability {
         for (raw in commands) {
             val cmd = raw
                 .removePrefix("/")
-                .replace("{player}", player.gameProfile.name)
-                .replace("{uuid}", player.uuid.toString())
-                .replace("{x}", pos.x.toString())
-                .replace("{y}", pos.y.toString())
-                .replace("{z}", pos.z.toString())
-                .replace("{target}", ctx.target?.name?.string ?: "")
+                .replace("{player}", sanitize(player.gameProfile.name))
+                .replace("{uuid}", sanitize(player.uuid.toString()))
+                .replace("{x}", sanitize(pos.x.toString()))
+                .replace("{y}", sanitize(pos.y.toString()))
+                .replace("{z}", sanitize(pos.z.toString()))
+                .replace("{target}", sanitize(ctx.target?.name?.string ?: ""))
             try {
                 dispatcher.performPrefixedCommand(source, cmd)
             } catch (e: Exception) {
