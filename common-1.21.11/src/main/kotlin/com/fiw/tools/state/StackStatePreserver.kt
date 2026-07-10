@@ -20,7 +20,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.util.Unit
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.CustomData
-import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.enchantment.ItemEnchantments
 
 /**
@@ -211,21 +210,7 @@ object StackStatePreserver {
      * deduped (covers config `attributes` that declare a custom id).
      */
     private fun preserveForeignAttributes(old: ItemStack, rebuilt: ItemStack) {
-        val oldMods = old.get(DataComponents.ATTRIBUTE_MODIFIERS) ?: return
-        if (oldMods.modifiers.isEmpty()) return
-        val current = rebuilt.get(DataComponents.ATTRIBUTE_MODIFIERS) ?: ItemAttributeModifiers.EMPTY
-        val presentIds = current.modifiers.map { it.modifier.id() }.toHashSet()
-        val builder = ItemAttributeModifiers.builder()
-        for (entry in current.modifiers) builder.add(entry.attribute, entry.modifier, entry.slot)
-        var changed = false
-        for (entry in oldMods.modifiers) {
-            val id = entry.modifier.id()
-            if (id.namespace == "fiw_tools") continue
-            if (id in presentIds) continue
-            builder.add(entry.attribute, entry.modifier, entry.slot)
-            changed = true
-        }
-        if (changed) rebuilt.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build())
+        com.fiw.tools.build.AttributeMerge.mergeForeign(old.get(DataComponents.ATTRIBUTE_MODIFIERS), rebuilt)
     }
 
     /**

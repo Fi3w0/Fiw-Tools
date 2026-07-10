@@ -73,6 +73,9 @@ object EnchantingRules {
         ItemBuilder.applyAttributes(result, def)
         // Imbued attribute bonuses live in the same component — replay them on top of the rebuild.
         ImbueMods.replayAttributes(result)
+        // Keep any non-Fiw modifiers (admin commands / datapacks / other mods) the rebuild dropped —
+        // the anvil/smithing op must not strip attributes the item legitimately carried in.
+        AttributeMerge.mergeForeign(before, result)
         return before != result.get(DataComponents.ATTRIBUTE_MODIFIERS)
     }
 
