@@ -83,6 +83,8 @@ Tweak the file, reload, try again.
 
 **Infinite items** - food that never runs out, arrows that return the instant they're fired, items that spend durability instead of being consumed, or transform into something else on use (`keep` / `damage` / `replace` modes). On Minecraft 1.21.1, infinite support is limited to food and arrows because that version predates the generic vanilla `use_remainder` component.
 
+**Multi-block mining** - turn a tool into a vein-miner, 3x3 hammer, or forward tunnel-borer with the `mining` field. `vein` flood-fills connected matching blocks (ores, or logs for a tree-feller), `area` breaks a plane facing you, `tunnel` extends it forward. Drops, XP, Fortune/Silk Touch and durability all behave normally; filter by block id or tag, cap the count, hold sneak to mine one block. Unbreakable or infinite tools mine whole veins for free.
+
 **Recharge on kill** - turn kills into busted mending: repair damage, recharge cooldowns, grow max durability, or make the item unbreakable. Works from hands or inventory slots and can target mobs, players, specific entity ids, or anything living.
 
 **Awakening artifacts** - items that auto-upgrade when their holder proves worthy: kill a boss N times, slay a specific player, deal enough total damage, or set foot in a dimension. Chain stages for multi-awakening artifacts, or awaken via a custom recipe.

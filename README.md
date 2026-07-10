@@ -138,6 +138,10 @@ Drop JSON recipe files into `config/fiw_tools/recipes/` — shaped and shapeless
 
 The `infinite` field makes consumables never run out: `keep` (never consumed — infinite food, potions, pearls, arrows), `damage` (uses durability instead), or `replace` (turns into another item). Fired infinite arrows return to the shooter instantly and can't be dupe-farmed. On Minecraft 1.21.1, the port supports infinite food and arrows through the older food-conversion and arrow hooks; generic non-food consumed items need a newer target with vanilla `use_remainder`.
 
+### Multi-block mining
+
+The `mining` field turns a tool into a vein-miner, hammer, or tunnel-borer: `vein` flood-fills connected matching blocks (ores, or `#minecraft:logs` for a tree-feller), `area` breaks a `(2·radius+1)` plane facing you, and `tunnel` extends that plane forward. Extra blocks break through your own game mode, so drops, XP, Fortune/Silk Touch and durability all behave normally. Filter with `whitelist`/`tags`, cap with `maxBlocks`, hold sneak to mine one block; the tool stops before its last durability so it never snaps mid-vein (unbreakable/infinite tools mine whole veins free).
+
 ### Recharge on kill
 
 The `rechargeOnKill` field turns kills into item upkeep: reduce or reset cooldowns, repair damage, grow max durability, or make the item unbreakable. It can trigger from main hand, offhand, both hands, or any inventory slot, and can match any entity, mobs, players, specific mob ids, or specific player names/UUIDs.

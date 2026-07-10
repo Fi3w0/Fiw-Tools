@@ -1,0 +1,20 @@
+{
+  "id": "vein_ripper",
+  "base": "minecraft:netherite_pickaxe",
+  "displayName": "&b&lVein Ripper",
+  "lore": [
+    "&7Mines a whole ore vein at once.",
+    "&8Sneak to mine a single block.",
+    "&8Unbreakable, so veins cost nothing."
+  ],
+  "rarity": "epic",
+  "unbreakable": true,
+  "enchantmentGlint": true,
+  "enchantments": { "minecraft:fortune": 3, "minecraft:efficiency": 5 },
+  "mining": {
+    "mode": "vein",
+    "maxBlocks": 96,
+    "matchBlock": true,
+    "requireCorrectTool": true
+  }
+}

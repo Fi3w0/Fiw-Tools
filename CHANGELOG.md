@@ -37,6 +37,13 @@ version header.
 - **`apply_effect`** — the general-purpose potion-effect tool: name any vanilla effect and drop it
   on the caster or the target, for any trigger, with `duration` / `amplifier` / `ambient` /
   `particles`.
+- **Multi-block mining** (`mining` root field) — turn a tool into a vein-miner, 3×3 hammer, or
+  forward tunnel-borer. `vein` flood-fills connected matching blocks (ores, or logs for a
+  tree-feller), `area` breaks a plane facing you, `tunnel` extends it forward. Extra blocks break
+  through your own game mode so drops, XP, Fortune/Silk Touch and durability all behave normally;
+  filter by `whitelist`/`tags`, cap with `maxBlocks`, and hold sneak to mine one block. The tool
+  never snaps mid-vein (unbreakable/infinite tools mine whole veins free). See
+  [Multi-block Mining](ITEM_CONFIG_DOCS.md#multi-block-mining).
 
 ### Changed
 

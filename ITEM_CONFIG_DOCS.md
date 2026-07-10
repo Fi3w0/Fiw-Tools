@@ -2774,6 +2774,46 @@ or the full form:
 
 ---
 
+## Multi-block Mining
+
+The `mining` root field turns a tool into a vein-miner, hammer, or tunnel-borer. When it breaks a
+block it breaks the extra blocks around it — through your own game mode, so drops, XP, Fortune/Silk
+Touch and durability all behave exactly like a hand-mined block. Hold **sneak** to break just one
+block (unless `sneakToDisable` is off). The tool never snaps mid-vein: the sweep stops before its
+last point of durability (an `unbreakable` or `rechargeOnKill`/`infinite` tool mines whole veins free).
+
+```json
+"mining": { "mode": "vein", "tags": ["#minecraft:iron_ores"], "maxBlocks": 64 }
+```
+
+```json
+"mining": { "mode": "area", "radius": 1, "requireCorrectTool": true }
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `mode` | `vein` | `vein` = flood-fill connected matching blocks; `area` = a `(2·radius+1)` square plane facing you (a hammer/excavator); `tunnel` = that plane extended `depth` blocks forward |
+| `maxBlocks` | `64` | Hard cap on extra blocks broken per swing (server safety) |
+| `radius` | `1` | `area`/`tunnel` half-width. `1` = 3×3, `2` = 5×5 |
+| `depth` | `1` | `tunnel` only: how many blocks forward beyond the mined one |
+| `matchBlock` | `true` | `vein` only: chain only blocks of the same type as the one mined (ignored when `whitelist`/`tags` are set) |
+| `diagonal` | `true` | `vein` only: chain diagonally-touching blocks (26-neighbour), not just faces |
+| `whitelist` | `[]` | Only break these block ids (alias: `blocks`). Empty = no id restriction |
+| `tags` | `[]` | Only break blocks in these block tags, e.g. `#minecraft:logs`. Empty = no tag restriction |
+| `requireCorrectTool` | `true` | Only break blocks this tool is the correct harvest tool for (a pickaxe won't chew dirt; an axe fells logs) |
+| `maxHardness` | `-1` | Skip blocks harder than this (`-1` = no limit); unbreakable blocks (bedrock) are always skipped |
+| `sneakToDisable` | `true` | Hold sneak to mine a single block |
+
+**Tree-feller:** `{ "mode": "vein", "tags": ["#minecraft:logs"], "matchBlock": false, "maxBlocks": 128 }`
+**3×3 hammer:** `{ "mode": "area", "radius": 1 }` · **Excavator tunnel:** `{ "mode": "tunnel", "radius": 1, "depth": 4 }`
+
+**Notes:**
+- The extra blocks are broken as if you mined each one, so each costs durability (unless the tool is unbreakable/infinite). `maxBlocks` and the durability guard keep a swing bounded.
+- `vein` chains outward from the block you broke; with `matchBlock` (and no filter) it only follows the same block type — perfect for ores. Set `matchBlock: false` with a `tags` filter for tree-felling.
+- `area`/`tunnel` orient to the face you're looking at, so a wall mines a vertical plane and the floor mines a horizontal one.
+
+---
+
 ## Recharge on Kill
 
 The `rechargeOnKill` root field rewards kills by recharging this item and/or repairing it. It is intentionally strong enough for "busted mending" artifacts: it can work from an inventory slot, repair durability-spending infinite items, grow max durability, and even make the item unbreakable.
