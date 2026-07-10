@@ -95,10 +95,15 @@ object StackStatePreserver {
         for (entry in playerEnchants.entrySet()) {
             val id = entry.key.unwrapKey().orElse(null)?.location()?.toString() ?: continue
             val level = entry.intValue
+            val stampedLevel = stamp[id]
             if (id in configIds) {
-                val stampedLevel = stamp[id]
+                // Player upgraded a config enchant past what the config last applied → keep theirs.
                 if (stampedLevel != null && level != stampedLevel) merged.set(entry.key, level)
-            } else {
+            } else if (stampedLevel == null || stampedLevel != level) {
+                // A genuine player-added enchant → carry it. But if it was a config enchant on the
+                // OLD build at exactly this level, it belongs to the old definition, not the player,
+                // so it must NOT ride along into an awakened/upgraded form (different def) or survive
+                // the admin removing it from config.
                 merged.set(entry.key, level)
             }
         }
