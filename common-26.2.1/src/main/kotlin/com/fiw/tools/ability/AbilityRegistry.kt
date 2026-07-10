@@ -223,6 +223,12 @@ object AbilityRegistry {
         register("blood_pact") { BloodPactAbility }
         register("hemorrhage") { HemorrhageAbility }
         register("sanguine_strike") { SanguineStrikeAbility }
+        register("blood_debt") { com.fiw.tools.ability.impl.BloodDebtAbility }
+
+        // Ritual / mystical (skill-based)
+        register("void_rift") { com.fiw.tools.ability.impl.VoidRiftAbility }
+        register("phase_shade") { com.fiw.tools.ability.impl.PhaseShadeAbility }
+        register("gravity_singularity") { com.fiw.tools.ability.impl.GravitySingularityAbility }
 
         // Soul system
         register("soul_collector") { SoulCollectorAbility }

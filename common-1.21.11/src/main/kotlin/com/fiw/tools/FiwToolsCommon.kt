@@ -76,6 +76,7 @@ object FiwToolsCommon {
         com.fiw.tools.ability.impl.HomingBoltAbility.tick()
         AbilityState.processStuns(server)
         AbilityState.processBleeds(server)
+        AbilityState.processBloodDebt(server)
         ElementalStatusTracker.processTick(server)
     }
 

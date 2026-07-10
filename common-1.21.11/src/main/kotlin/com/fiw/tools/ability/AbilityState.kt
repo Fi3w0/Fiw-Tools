@@ -40,6 +40,52 @@ object AbilityState {
     class AegisEntry(var pool: Float, val expiry: Long)
     val aegisShields: MutableMap<UUID, AegisEntry> = ConcurrentHashMap()
 
+    /** caster -> banked blood charges that backlash if not spent before [BloodDebtEntry.expiry], see `blood_debt`. */
+    class BloodDebtEntry(var charges: Int, val expiry: Long, val backlashPerCharge: Float)
+    val bloodDebt: MutableMap<UUID, BloodDebtEntry> = ConcurrentHashMap()
+
+    /** caster -> the shade they can recall to (position + expiry), see `phase_shade`. */
+    class ShadeEntry(val x: Double, val y: Double, val z: Double, val dimension: ResourceKey<Level>, val expiry: Long)
+    val shades: MutableMap<UUID, ShadeEntry> = ConcurrentHashMap()
+
+    /** Bank [charges] blood charges on [player]; a fresh debt stacks onto any unspent one. */
+    fun addBloodDebt(player: UUID, charges: Int, expiry: Long, backlashPerCharge: Float) {
+        bloodDebt.merge(player, BloodDebtEntry(charges, expiry, backlashPerCharge)) { old, new ->
+            BloodDebtEntry(old.charges + new.charges, maxOf(old.expiry, new.expiry), maxOf(old.backlashPerCharge, new.backlashPerCharge))
+        }
+    }
+
+    /** Spend one blood charge; returns false when the pool is empty. */
+    fun spendBloodDebt(player: UUID): Boolean {
+        val e = bloodDebt[player] ?: return false
+        if (e.charges <= 0) return false
+        e.charges--
+        if (e.charges <= 0) bloodDebt.remove(player)
+        return true
+    }
+
+    fun bloodDebtCharges(player: UUID): Int = bloodDebt[player]?.charges ?: 0
+
+    /** The debt collector: once a debt's window closes, every unspent charge backlashes on the owner. */
+    fun processBloodDebt(server: MinecraftServer) {
+        if (bloodDebt.isEmpty()) return
+        val now = server.overworld().gameTime
+        val toRemove = mutableListOf<UUID>()
+        for ((uuid, e) in bloodDebt) {
+            if (now < e.expiry) continue
+            val player = server.playerList.getPlayer(uuid)
+            if (player != null && e.charges > 0 && player.isAlive) {
+                val level = player.level()
+                player.invulnerableTime = 0
+                player.hurtServer(level, level.damageSources().magic(), e.backlashPerCharge * e.charges)
+                player.displayClientMessage(
+                    com.fiw.tools.util.TextParser.parse("&4&lThe blood debt collects!"), true)
+            }
+            toRemove.add(uuid)
+        }
+        for (uuid in toRemove) bloodDebt.remove(uuid)
+    }
+
     /** Hard-stun [victim] until at least [untilTick]; extends an existing stun, never shortens it. */
     fun addStun(victim: UUID, untilTick: Long, slownessAmplifier: Int) {
         stuns.merge(victim, StunEntry(untilTick, slownessAmplifier)) { a, b ->
@@ -135,6 +181,8 @@ object AbilityState {
         lastDamageTick.remove(id)
         stuns.remove(id)
         aegisShields.remove(id)
+        bloodDebt.remove(id)
+        shades.remove(id)
     }
 
     fun clear() {
@@ -144,6 +192,8 @@ object AbilityState {
         bleeds.clear()
         stuns.clear()
         aegisShields.clear()
+        bloodDebt.clear()
+        shades.clear()
     }
 
     /** Records a fresh tether mark and returns true if [victim] was already marked and unexpired. */
