@@ -1374,6 +1374,87 @@ is not an escape from either.
 
 ---
 
+### `blood_debt`
+
+A two-part risk mechanic set by a `mode` param — reward for aggression, punishment for greed.
+Put one entry in `bank` mode on right-click and one in `spend` mode on `on_attack`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `mode` | `bank` | `bank` = pay HP to store charges; `spend` = consume a charge on hit |
+| `healthCost` | 6.0 | *(bank)* current HP paid to open a debt (refused if it would drop you too low) |
+| `charges` | 3 | *(bank)* charges banked; a new debt stacks onto any unspent one |
+| `windowTicks` | 120 | *(bank)* ticks before the debt collects |
+| `backlashPerCharge` | 4.0 | *(bank)* magic damage per **unspent** charge when the window closes |
+| `bonusDamage` | 4.0 | *(spend)* extra damage each consumed charge adds to the hit |
+| `lifesteal` | 2.0 | *(spend)* HP healed per consumed charge |
+
+```json
+{ "type": "blood_debt", "trigger": "on_shift_right_click", "cooldownTicks": 40, "params": { "mode": "bank", "healthCost": 6, "charges": 3, "windowTicks": 120, "backlashPerCharge": 4 } },
+{ "type": "blood_debt", "trigger": "on_attack", "params": { "mode": "spend", "bonusDamage": 4, "lifesteal": 2 } }
+```
+
+### `void_rift`
+
+Plant a telegraphed rift at the block you're looking at; for `delay` ticks it drags nearby entities
+inward, then detonates. You cast it *before* the enemy arrives — the skill is prediction and herding.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 20.0 | How far ahead the rift can be placed (raycast to the surface you look at) |
+| `delay` | 40 | Telegraph ticks before it collapses |
+| `radius` | 4.0 | Detonation radius (the inward tug reaches a bit further) |
+| `damage` | 10.0 | Damage dealt in the radius on collapse |
+| `pull` | 0.18 | Inward tug strength during the telegraph (0 = no pull) |
+| `affects` | `all` | Who it pulls and damages |
+
+```json
+{ "type": "void_rift", "trigger": "on_right_click", "cooldownTicks": 120, "params": { "delay": 40, "radius": 4, "damage": 10, "pull": 0.2 } }
+```
+
+### `phase_shade`
+
+Right-click blinks you forward and leaves a shade (a lingering wisp) where you were; right-click again
+while it lasts to snap back. Commit to the dive, then bail if you time it — or lose the shade.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `distance` | 6.0 | Blink distance forward |
+| `windowTicks` | 100 | How long the shade persists / the recall window |
+| `recallResistance` | 30 | Ticks of Resistance V granted on recall (0 = none) |
+
+```json
+{ "type": "phase_shade", "trigger": "on_right_click", "cooldownTicks": 30, "params": { "distance": 7, "windowTicks": 100 } }
+```
+
+### `gravity_singularity`
+
+A hold-to-charge pull — best on a `chargeable` item via `on_charge_release`. Longer charge = wider,
+stronger well and a bigger implosion, but the charge commits you and `selfDamage` scales with it too.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `maxChargeTicks` | 40 | Charge ticks that count as "fully charged" (100%) |
+| `minRadius` / `maxRadius` | 3.0 / 8.0 | Well radius interpolated by charge fraction |
+| `pullStrength` | 0.55 | Base inward pull (scaled 40–100% by charge) |
+| `duration` / `period` | 40 / 4 | How long the well lasts and how often it pulses |
+| `damage` | 8.0 | Implosion damage at the end (scaled by charge) |
+| `selfDamage` | 0.0 | HP the caster pays (scaled by charge) |
+| `range` | 4.0 | How far ahead the well forms |
+| `affects` | `mobs` | Who it pulls and damages |
+
+```json
+{ "type": "gravity_singularity", "trigger": "on_charge_release", "cooldownTicks": 80, "params": { "maxChargeTicks": 40, "maxRadius": 9, "damage": 8, "selfDamage": 2 } }
+```
+
+Pair with a `chargeable` block so the item can be held to charge:
+
+```json
+"chargeable": { "animation": "bow", "maxSeconds": 3600 }
+```
+
+---
+
 ### `ender_recall`
 
 Best trigger: `on_right_click`. First cast anchors your spot; a second cast within range and time teleports you back to it.

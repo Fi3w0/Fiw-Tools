@@ -37,6 +37,12 @@ version header.
 - **`apply_effect`** — the general-purpose potion-effect tool: name any vanilla effect and drop it
   on the caster or the target, for any trigger, with `duration` / `amplifier` / `ambient` /
   `particles`.
+- **Skill-based ritual/mystical abilities** — a first set of abilities that reward execution over
+  spam: **`blood_debt`** (pay HP to bank charges, spend them on hits before the debt collects and
+  backlashes), **`void_rift`** (a telegraphed rift that drags enemies in, then detonates — you cast
+  it *before* they arrive), **`phase_shade`** (blink forward leaving a shade, re-cast to snap back in
+  the window), and **`gravity_singularity`** (a hold-to-charge pull scaled by charge time, with an
+  optional self-cost). See [Item Config Docs](ITEM_CONFIG_DOCS.md#blood_debt).
 - **Multi-block mining** (`mining` root field) — turn a tool into a vein-miner, 3×3 hammer, or
   forward tunnel-borer. `vein` flood-fills connected matching blocks (ores, or logs for a
   tree-feller), `area` breaks a plane facing you, `tunnel` extends it forward. Extra blocks break

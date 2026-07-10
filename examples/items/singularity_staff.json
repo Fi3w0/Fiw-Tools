@@ -1,0 +1,17 @@
+{
+  "id": "singularity_staff",
+  "base": "minecraft:breeze_rod",
+  "displayName": "&5&lSingularity Staff",
+  "lore": [
+    "&7Hold to charge a gravity well, release to pull.",
+    "&8Longer charge = wider, stronger, costlier.",
+    "&8Right-click (tap): open a Void Rift instead."
+  ],
+  "rarity": "epic",
+  "enchantmentGlint": true,
+  "chargeable": { "animation": "bow", "maxSeconds": 3600 },
+  "abilities": [
+    { "type": "gravity_singularity", "trigger": "on_charge_release", "cooldownTicks": 80, "params": { "maxChargeTicks": 40, "minRadius": 3, "maxRadius": 9, "damage": 8, "selfDamage": 2, "affects": "mobs" } },
+    { "type": "void_rift", "trigger": "on_shift_right_click", "cooldownTicks": 120, "params": { "delay": 40, "radius": 4, "damage": 10, "pull": 0.2 } }
+  ]
+}

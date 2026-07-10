@@ -1,0 +1,20 @@
+{
+  "id": "crimson_covenant",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&4&lCrimson Covenant",
+  "lore": [
+    "&7Sacrifice blood for power — then collect.",
+    "&8Sneak-right-click: pay 6 HP, bank 3 charges.",
+    "&8Each hit spends a charge (+dmg, lifesteal).",
+    "&8Unspent charges backlash after 6 seconds."
+  ],
+  "rarity": "epic",
+  "unbreakable": true,
+  "attributes": [
+    { "type": "minecraft:attack_damage", "slot": "mainhand", "amount": 7.0, "operation": "add_value" }
+  ],
+  "abilities": [
+    { "type": "blood_debt", "trigger": "on_shift_right_click", "cooldownTicks": 40, "params": { "mode": "bank", "healthCost": 6, "charges": 3, "windowTicks": 120, "backlashPerCharge": 4 } },
+    { "type": "blood_debt", "trigger": "on_attack", "params": { "mode": "spend", "bonusDamage": 4, "lifesteal": 2 } }
+  ]
+}
