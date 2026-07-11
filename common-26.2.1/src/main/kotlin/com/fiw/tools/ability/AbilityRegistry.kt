@@ -236,6 +236,8 @@ object AbilityRegistry {
         register("sanguine_tether") { com.fiw.tools.ability.impl.SanguineTetherAbility }
         register("ley_line") { com.fiw.tools.ability.impl.LeyLineAbility }
         register("altar_sacrifice") { com.fiw.tools.ability.impl.AltarSacrificeAbility }
+        register("runic_sequence") { com.fiw.tools.ability.impl.RunicSequenceAbility }
+        register("heartbeat_cast") { com.fiw.tools.ability.impl.HeartbeatCastAbility }
 
         // Soul system
         register("soul_collector") { SoulCollectorAbility }
