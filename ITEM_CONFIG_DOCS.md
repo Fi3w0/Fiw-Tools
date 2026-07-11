@@ -1573,6 +1573,47 @@ boon — a heal plus Strength + Absorption. The skill is bringing the offering l
 { "type": "altar_sacrifice", "trigger": "on_right_click", "cooldownTicks": 40, "params": { "threshold": 0.3, "heal": 6, "boonTicks": 200 } }
 ```
 
+### `runic_sequence`
+
+A spell you *draw*. Every right-click records where you're looking as a token — `up` (pitch above
+50°), `down` (below −50°), or `level` — and when your recent tokens match the configured `sequence`
+in order (each within `stepTimeout` ticks), the rune fires an AoE burst. A wrong look trims to the
+longest matching tail instead of resetting; the action bar shows progress (▲ ▼ ◆). Use one entry on
+`on_right_click`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `sequence` | *(required)* | Ordered look tokens, e.g. `["up","down","up","level"]` |
+| `stepTimeout` | 30 | Max ticks between looks before the buffer clears |
+| `castCooldown` | 40 | Ticks after a successful cast before you can start again |
+| `radius` | 5.0 | AoE burst radius on completion |
+| `damage` | 12.0 | Burst damage |
+| `affects` | `mobs` | Who the burst damages |
+
+```json
+{ "type": "runic_sequence", "trigger": "on_right_click", "params": { "sequence": ["up","down","up"], "damage": 14, "radius": 5 } }
+```
+
+### `heartbeat_cast`
+
+A rhythm spell. A steady beat ticks every `beatInterval`; right-click **on** the beat (within
+`tolerance` ticks) and the burst hits for `onBeatMultiplier`× and heals you — off-beat it's a weak
+tap. The action bar reports your offset (`±Nt`) after each cast, so you learn the cadence by feel.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `beatInterval` | 20 | Ticks between beats (20 ≈ once per second) |
+| `tolerance` | 3 | Ticks of leeway around the beat that still count as on-beat |
+| `damage` | 6.0 | Base burst damage |
+| `onBeatMultiplier` | 2.5 | Damage multiplier when on-beat |
+| `onBeatHeal` | 2.0 | HP healed on an on-beat cast |
+| `radius` | 4.0 | Burst radius |
+| `affects` | `mobs` | Who the burst damages |
+
+```json
+{ "type": "heartbeat_cast", "trigger": "on_right_click", "cooldownTicks": 10, "params": { "beatInterval": 20, "tolerance": 3, "damage": 6, "onBeatMultiplier": 2.5 } }
+```
+
 ---
 
 ### `ender_recall`

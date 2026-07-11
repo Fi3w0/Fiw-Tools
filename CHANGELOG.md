@@ -49,7 +49,9 @@ version header.
   before it lands to negate + reflect it, then land an empowered strike), **`sanguine_tether`** (mark
   and bind a target to split your incoming damage onto it), **`ley_line`** (two anchors + a
   damaging/healing line between them), and **`altar_sacrifice`** (execute a low-HP target for a boon).
-  See [Item Config Docs](ITEM_CONFIG_DOCS.md#blood_debt).
+  Finally two execution-heavy casts: **`runic_sequence`** (draw a spell by clicking in a look-pitch
+  pattern — up/down/level — in order) and **`heartbeat_cast`** (click *on the beat* of a steady pulse
+  to empower the burst). See [Item Config Docs](ITEM_CONFIG_DOCS.md#blood_debt).
 - **Multi-block mining** (`mining` root field) — turn a tool into a vein-miner, 3×3 hammer, or
   forward tunnel-borer. `vein` flood-fills connected matching blocks (ores, or logs for a
   tree-feller), `area` breaks a plane facing you, `tunnel` extends it forward. Extra blocks break
