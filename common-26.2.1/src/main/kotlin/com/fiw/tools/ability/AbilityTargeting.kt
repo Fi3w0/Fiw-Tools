@@ -52,6 +52,24 @@ internal fun JsonObject?.scope(key: String, default: AffectScope): AffectScope {
     return AffectScope.parse(raw) ?: default
 }
 
+/** The nearest living entity the player's crosshair ray touches within [range], or null. */
+internal fun pickLookedAtLiving(world: ServerLevel, player: ServerPlayer, range: Double): LivingEntity? {
+    val eye = player.eyePosition
+    val dir = player.lookAngle.normalize()
+    val end = eye.add(dir.scale(range))
+    val box = player.boundingBox.expandTowards(dir.scale(range)).inflate(1.0)
+    var best: LivingEntity? = null
+    var bestDist = Double.MAX_VALUE
+    for (e in world.getEntitiesOfClass(LivingEntity::class.java, box) { it !== player && it.isAlive }) {
+        val clip = e.boundingBox.inflate(0.3).clip(eye, end)
+        if (clip.isPresent) {
+            val d = clip.get().distanceTo(eye)
+            if (d < bestDist) { bestDist = d; best = e }
+        }
+    }
+    return best
+}
+
 /** Living entities within [radius] of [center] that the [scope] permits, caster excluded by default. */
 internal fun collectTargets(
     world: ServerLevel,

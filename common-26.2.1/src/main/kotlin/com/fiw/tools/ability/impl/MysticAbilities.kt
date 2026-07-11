@@ -285,3 +285,76 @@ object MarionetteAbility : Ability {
         return best
     }
 }
+
+/**
+ * `ley_line` — a two-anchor line effect. Cast once to drop an anchor at the block you look at; cast
+ * again (within `armWindow`, within `maxLength`) to string a ley-line between the two points. For
+ * `duration` the line pulses: mobs crossing it take `damage`, players crossing it are `heal`ed. The
+ * skill is placing the two ends to rake a chokepoint or to link your team's lane.
+ */
+object LeyLineAbility : Ability {
+    private class Anchor(val pos: Vec3, val dim: net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, val expiry: Long)
+    private val pending = java.util.concurrent.ConcurrentHashMap<java.util.UUID, Anchor>()
+
+    override fun execute(ctx: AbilityContext): Boolean {
+        val p = ctx.params
+        val player = ctx.player
+        val world = ctx.world
+        val now = world.gameTime
+        val point = ctx.targetPos ?: raycast(world, player, p.optD("range", 24.0))
+        val existing = pending[player.uuid]
+        if (existing != null && now < existing.expiry && existing.dim == world.dimension()) {
+            pending.remove(player.uuid)
+            if (existing.pos.distanceTo(point) > p.optD("maxLength", 24.0)) {
+                player.sendOverlayMessage(TextParser.parse("&cThe ley-line would stretch too far."))
+                return false
+            }
+            startLine(ctx, existing.pos, point)
+            return true
+        }
+        pending[player.uuid] = Anchor(point, world.dimension(), now + p.optI("armWindow", 100))
+        world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, point.x, point.y + 0.3, point.z, 12, 0.2, 0.3, 0.2, 0.0)
+        player.sendOverlayMessage(TextParser.parse("&bLey anchor set — cast again for the far end."))
+        world.playSound(null, point.x, point.y, point.z, SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.PLAYERS, 0.8f, 1.4f)
+        return true
+    }
+
+    private fun startLine(ctx: AbilityContext, a: Vec3, b: Vec3) {
+        val p = ctx.params
+        val world = ctx.world
+        val player = ctx.player
+        val duration = p.optI("duration", 100)
+        val period = p.optI("period", 10).coerceAtLeast(2)
+        val lineRadius = p.optD("lineRadius", 1.5)
+        val damage = p.optF("damage", 4f)
+        val heal = p.optF("heal", 2f)
+        ZoneEffects.repeating(duration, period) {
+            val steps = (a.distanceTo(b) / 0.5).toInt().coerceIn(2, 200)
+            for (i in 0..steps) {
+                val pt = a.lerp(b, i / steps.toDouble())
+                world.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, pt.x, pt.y + 0.3, pt.z, 1, 0.0, 0.0, 0.0, 0.0)
+            }
+            val box = net.minecraft.world.phys.AABB(a.x, a.y, a.z, b.x, b.y, b.z).inflate(lineRadius + 1.0)
+            for (e in world.getEntitiesOfClass(LivingEntity::class.java, box) { it.isAlive && it !== player }) {
+                if (distToSeg(e.position().add(0.0, e.bbHeight * 0.5, 0.0), a, b) > lineRadius) continue
+                if (e is Player) { if (heal > 0f) e.heal(heal) }
+                else if (damage > 0f) e.hurtServer(world, world.damageSources().magic(), damage)
+            }
+        }
+        world.playSound(null, player.x, player.y, player.z, SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 0.8f, 1.2f)
+    }
+
+    private fun raycast(world: ServerLevel, player: ServerPlayer, range: Double): Vec3 {
+        val eye = player.eyePosition
+        val end = eye.add(player.lookAngle.normalize().scale(range))
+        return world.clip(ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).location
+    }
+
+    private fun distToSeg(pt: Vec3, a: Vec3, b: Vec3): Double {
+        val ab = b.subtract(a)
+        val abLen2 = ab.lengthSqr()
+        if (abLen2 < 1e-6) return pt.distanceTo(a)
+        val t = (pt.subtract(a).dot(ab) / abLen2).coerceIn(0.0, 1.0)
+        return pt.distanceTo(a.add(ab.scale(t)))
+    }
+}

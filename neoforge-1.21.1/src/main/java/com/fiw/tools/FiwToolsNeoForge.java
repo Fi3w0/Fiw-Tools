@@ -150,11 +150,17 @@ public final class FiwToolsNeoForge {
     @SubscribeEvent
     public void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player
+                && com.fiw.tools.ability.AbilityState.INSTANCE.tryRiposte(player, event.getSource(), event.getAmount())) {
+            event.setCanceled(true);  // a well-timed parry negated the hit
+            return;
+        }
+        if (event.getEntity() instanceof ServerPlayer player
                 && com.fiw.tools.ability.AbilityState.INSTANCE.aegisAbsorbs(player, event.getSource(), event.getAmount())) {
             event.setCanceled(true);  // an active aegis barrier swallowed the whole hit
             return;
         }
         if (event.getEntity() instanceof ServerPlayer player) {
+            com.fiw.tools.ability.AbilityState.INSTANCE.processSanguine(player, event.getSource(), event.getAmount());
             AbilityDispatcher.INSTANCE.onHurt(player, event.getSource(), event.getAmount());
         }
         if (event.getSource().getEntity() instanceof ServerPlayer attacker && attacker != event.getEntity()) {

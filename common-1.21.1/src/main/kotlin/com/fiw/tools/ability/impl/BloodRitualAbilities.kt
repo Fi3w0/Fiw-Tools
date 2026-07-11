@@ -9,6 +9,7 @@ import com.fiw.tools.ability.collectTargets
 import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optF
 import com.fiw.tools.ability.optI
+import com.fiw.tools.ability.pickLookedAtLiving
 import com.fiw.tools.ability.scope
 import com.fiw.tools.util.TextParser
 import net.minecraft.core.particles.ParticleTypes
@@ -16,6 +17,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.player.Player
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -173,5 +175,38 @@ object BloodCircleAbility : Ability {
                 world.playSound(null, anchor.x, anchor.y, anchor.z, SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.0f, 0.6f)
             }
         )
+    }
+}
+
+/**
+ * `altar_sacrifice` — a finisher, not a nuke. Look at (or attack) a living entity already brought
+ * below `threshold` HP and this executes it, channelling its essence into a boon: it heals you and
+ * grants Strength + Absorption for `boonTicks`. The skill is bringing the offering low *without*
+ * killing it, then landing the rite in the window.
+ */
+object AltarSacrificeAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val p = ctx.params
+        val player = ctx.player
+        val world = ctx.world
+        val target = ctx.target ?: pickLookedAtLiving(world, player, p.optD("range", 5.0)) ?: run {
+            player.displayClientMessage(TextParser.parse("&5No offering in reach."), true); return false
+        }
+        if (target is Player) return false
+        val threshold = p.optF("threshold", 0.3f)
+        if (target.maxHealth <= 0f || target.health / target.maxHealth > threshold) {
+            player.displayClientMessage(TextParser.parse("&5The offering must be near death."), true)
+            return false
+        }
+        target.hurt(world.damageSources().indirectMagic(player, player), target.maxHealth * 100f)
+        val boonTicks = p.optI("boonTicks", 200)
+        val heal = p.optF("heal", 6f)
+        if (heal > 0f) player.heal(heal)
+        player.addEffect(MobEffectInstance(MobEffects.DAMAGE_BOOST, boonTicks, p.optI("strength", 0), false, true))
+        val absorb = p.optI("absorption", 1)
+        if (absorb >= 0) player.addEffect(MobEffectInstance(MobEffects.ABSORPTION, boonTicks, absorb, false, true))
+        world.sendParticles(ParticleTypes.SOUL, target.x, target.y + target.bbHeight * 0.5, target.z, 30, 0.3, 0.5, 0.3, 0.05)
+        world.playSound(null, target.x, target.y, target.z, SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.0f, 0.7f)
+        return true
     }
 }

@@ -232,6 +232,10 @@ object AbilityRegistry {
         register("exsanguinate") { com.fiw.tools.ability.impl.ExsanguinateAbility }
         register("blood_circle") { com.fiw.tools.ability.impl.BloodCircleAbility }
         register("marionette") { com.fiw.tools.ability.impl.MarionetteAbility }
+        register("riposte") { com.fiw.tools.ability.impl.RiposteAbility }
+        register("sanguine_tether") { com.fiw.tools.ability.impl.SanguineTetherAbility }
+        register("ley_line") { com.fiw.tools.ability.impl.LeyLineAbility }
+        register("altar_sacrifice") { com.fiw.tools.ability.impl.AltarSacrificeAbility }
 
         // Soul system
         register("soul_collector") { SoulCollectorAbility }

@@ -85,6 +85,82 @@ object AbilityState {
         for (uuid in toRemove) bloodDebt.remove(uuid)
     }
 
+    // ===== Riposte (see `riposte`) =====
+
+    class ParryArm(val expiry: Long, val reflectFrac: Float, val riposteWindow: Int)
+    val parryArms: MutableMap<UUID, ParryArm> = ConcurrentHashMap()
+    val riposteReady: MutableMap<UUID, Long> = ConcurrentHashMap()
+
+    fun armParry(player: UUID, expiry: Long, reflectFrac: Float, riposteWindow: Int) {
+        parryArms[player] = ParryArm(expiry, reflectFrac, riposteWindow)
+    }
+
+    fun tryRiposte(player: ServerPlayer, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        val arm = parryArms[player.uuid] ?: return false
+        val level = player.serverLevel()
+        val now = level.gameTime
+        if (now > arm.expiry) { parryArms.remove(player.uuid); return false }
+        if (source.`is`(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) return false
+        parryArms.remove(player.uuid)
+        riposteReady[player.uuid] = now + arm.riposteWindow
+        if (arm.reflectFrac > 0f) {
+            (source.entity as? LivingEntity)?.hurt(level.damageSources().thorns(player), amount * arm.reflectFrac)
+        }
+        level.playSound(null, player.x, player.y, player.z, net.minecraft.sounds.SoundEvents.SHIELD_BLOCK, net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.4f)
+        level.sendParticles(ParticleTypes.CRIT, player.x, player.y + 1.0, player.z, 24, 0.4, 0.5, 0.4, 0.25)
+        player.displayClientMessage(com.fiw.tools.util.TextParser.parse("&e&l⚔ PARRY!"), true)
+        return true
+    }
+
+    fun consumeRiposte(player: UUID, now: Long): Boolean {
+        val expiry = riposteReady[player] ?: return false
+        riposteReady.remove(player)
+        return now <= expiry
+    }
+
+    // ===== Sanguine tether (see `sanguine_tether`) =====
+
+    class SanguineMark(val targetId: UUID, val expiry: Long)
+    val sanguineMarks: MutableMap<UUID, SanguineMark> = ConcurrentHashMap()
+    class SanguineBind(val targetId: UUID, val expiry: Long, val splitFrac: Float, val backlash: Float)
+    val sanguineBinds: MutableMap<UUID, SanguineBind> = ConcurrentHashMap()
+
+    fun markSanguine(caster: UUID, target: UUID, expiry: Long) {
+        sanguineMarks[caster] = SanguineMark(target, expiry)
+    }
+
+    fun tryBindSanguine(caster: ServerPlayer, splitFrac: Float, backlash: Float, durationTicks: Int): Boolean {
+        val now = caster.serverLevel().gameTime
+        val mark = sanguineMarks[caster.uuid] ?: return false
+        if (now > mark.expiry) { sanguineMarks.remove(caster.uuid); return false }
+        sanguineMarks.remove(caster.uuid)
+        sanguineBinds[caster.uuid] = SanguineBind(mark.targetId, now + durationTicks, splitFrac, backlash)
+        return true
+    }
+
+    fun processSanguine(player: ServerPlayer, source: net.minecraft.world.damagesource.DamageSource, amount: Float) {
+        val bind = sanguineBinds[player.uuid] ?: return
+        val level = player.serverLevel()
+        val now = level.gameTime
+        if (now > bind.expiry) { sanguineBinds.remove(player.uuid); return }
+        if (amount <= 0f) return
+        if (source.`is`(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY) ||
+            source.`is`(com.fiw.tools.curse.CurseHandler.CURSE_DAMAGE_TYPE)) return
+        val target = level.getEntity(bind.targetId) as? LivingEntity
+        if (target == null || !target.isAlive) { sanguineBinds.remove(player.uuid); return }
+        val redirect = amount * bind.splitFrac
+        target.hurt(level.damageSources().magic(), redirect)
+        player.heal(redirect)
+        level.sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.x, target.y + target.bbHeight * 0.5, target.z, 6, 0.2, 0.3, 0.2, 0.05)
+        if (!target.isAlive) {
+            sanguineBinds.remove(player.uuid)
+            if (bind.backlash > 0f) {
+                player.invulnerableTime = 0
+                player.hurt(level.damageSources().magic(), bind.backlash)
+            }
+        }
+    }
+
     /** Hard-stun [victim] until at least [untilTick]; extends an existing stun, never shortens it. */
     fun addStun(victim: UUID, untilTick: Long, slownessAmplifier: Int) {
         stuns.merge(victim, StunEntry(untilTick, slownessAmplifier)) { a, b ->
@@ -185,6 +261,10 @@ object AbilityState {
         aegisShields.remove(id)
         bloodDebt.remove(id)
         shades.remove(id)
+        parryArms.remove(id)
+        riposteReady.remove(id)
+        sanguineMarks.remove(id)
+        sanguineBinds.remove(id)
     }
 
     fun clear() {
@@ -196,6 +276,10 @@ object AbilityState {
         aegisShields.clear()
         bloodDebt.clear()
         shades.clear()
+        parryArms.clear()
+        riposteReady.clear()
+        sanguineMarks.clear()
+        sanguineBinds.clear()
     }
 
     /** Records a fresh tether mark and returns true if [victim] was already marked and unexpired. */
