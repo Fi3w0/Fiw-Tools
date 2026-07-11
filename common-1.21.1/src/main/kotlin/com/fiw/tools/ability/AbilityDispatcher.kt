@@ -107,7 +107,13 @@ object AbilityDispatcher {
         fireInventory(AbilityTrigger.ON_DEATH, player, null)
     }
 
-    fun onRespawn(player: ServerPlayer) = fireInventory(AbilityTrigger.ON_RESPAWN, player, null)
+    fun onRespawn(player: ServerPlayer) {
+        // Death is a hard reset for transient combat state (blood debt, tethers, shades, parry,
+        // stuns, aegis...). Cooldowns are intentionally NOT cleared, so dying can't reset them.
+        AbilityState.clear(player)
+        ChannelHandler.cancel(player.uuid)
+        fireInventory(AbilityTrigger.ON_RESPAWN, player, null)
+    }
 
     /** Fires leave for the origin and enter for the destination; abilities may filter via a `dimension` param. */
     fun onDimensionChange(player: ServerPlayer, fromId: String, toId: String) {
