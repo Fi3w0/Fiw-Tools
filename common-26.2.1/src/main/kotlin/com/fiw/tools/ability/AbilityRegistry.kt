@@ -229,6 +229,9 @@ object AbilityRegistry {
         register("void_rift") { com.fiw.tools.ability.impl.VoidRiftAbility }
         register("phase_shade") { com.fiw.tools.ability.impl.PhaseShadeAbility }
         register("gravity_singularity") { com.fiw.tools.ability.impl.GravitySingularityAbility }
+        register("exsanguinate") { com.fiw.tools.ability.impl.ExsanguinateAbility }
+        register("blood_circle") { com.fiw.tools.ability.impl.BloodCircleAbility }
+        register("marionette") { com.fiw.tools.ability.impl.MarionetteAbility }
 
         // Soul system
         register("soul_collector") { SoulCollectorAbility }

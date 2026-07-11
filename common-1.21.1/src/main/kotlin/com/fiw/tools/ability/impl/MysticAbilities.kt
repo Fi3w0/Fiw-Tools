@@ -4,8 +4,10 @@ import com.fiw.tools.ability.Ability
 import com.fiw.tools.ability.AbilityContext
 import com.fiw.tools.ability.AbilityState
 import com.fiw.tools.ability.AffectScope
+import com.fiw.tools.ability.ChannelHandler
 import com.fiw.tools.ability.ZoneEffects
 import com.fiw.tools.ability.collectTargets
+import com.fiw.tools.ability.optB
 import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optF
 import com.fiw.tools.ability.optI
@@ -21,6 +23,10 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.Mob
+import net.minecraft.world.entity.monster.Enemy
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
 import kotlin.math.cos
@@ -206,5 +212,76 @@ object GravitySingularityAbility : Ability {
         }
         world.playSound(null, center.x, center.y, center.z, SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 0.9f, (0.6 + 0.4 * t).toFloat())
         return true
+    }
+}
+/**
+ * `marionette` — seize a mob and puppet it. Right-click (or attack) to grab the living entity you're
+ * looking at, then channel (hold sneak): you're rooted and defenceless while the puppet walks where
+ * you look and lunges at the nearest enemy. Release / move / get hit and control ends. The skill is
+ * landing the grab, then driving the puppet while you can't protect yourself.
+ */
+object MarionetteAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val player = ctx.player
+        val world = ctx.world
+        val p = ctx.params
+        if (ChannelHandler.isChanneling(player.uuid)) return false
+        val range = p.optD("range", 8.0)
+        val puppet = ctx.target ?: pickLookedAt(world, player, range) ?: run {
+            player.displayClientMessage(TextParser.parse("&5No puppet in your sight."), true); return false
+        }
+        if (puppet is Player && !p.optB("allowPlayers", false)) {
+            player.displayClientMessage(TextParser.parse("&5You cannot bind another soul."), true); return false
+        }
+        val speed = p.optD("speed", 0.35)
+        val channelTicks = p.optI("channelTicks", 100).coerceIn(20, 400)
+        val puppetId = puppet.uuid
+
+        val started = ChannelHandler.start(
+            player = player, durationTicks = channelTicks, requireSneak = true, maxMove = 0.6,
+            label = "&5Marionette", particle = ParticleTypes.WITCH,
+            onProgress = { pl, _ ->
+                pl.deltaMovement = Vec3.ZERO  // rooted while puppeteering
+                pl.hurtMarked = true
+                val level = pl.serverLevel()
+                val m = level.getEntity(puppetId) as? LivingEntity
+                if (m != null && m.isAlive) {
+                    val look = pl.lookAngle
+                    m.deltaMovement = Vec3(look.x * speed, m.deltaMovement.y, look.z * speed)
+                    m.hurtMarked = true
+                    (m as? Mob)?.let { mob ->
+                        val enemy = level.getEntitiesOfClass(LivingEntity::class.java, m.boundingBox.inflate(6.0)) {
+                            it !== m && it !== pl && it.isAlive && it is Enemy
+                        }.minByOrNull { it.distanceToSqr(m) }
+                        if (enemy != null) mob.target = enemy
+                    }
+                    level.sendParticles(ParticleTypes.WITCH, m.x, m.y + m.bbHeight, m.z, 2, 0.2, 0.2, 0.2, 0.0)
+                }
+            },
+            onComplete = { }
+        )
+        if (started) {
+            (puppet as? LivingEntity)?.addEffect(MobEffectInstance(MobEffects.GLOWING, channelTicks, 0, false, false))
+            world.playSound(null, player.x, player.y, player.z, SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.PLAYERS, 0.8f, 1.2f)
+        }
+        return started
+    }
+
+    /** The nearest living entity the player's crosshair ray touches within [range]. */
+    private fun pickLookedAt(world: ServerLevel, player: ServerPlayer, range: Double): LivingEntity? {
+        val eye = player.eyePosition
+        val dir = player.lookAngle.normalize()
+        val end = eye.add(dir.scale(range))
+        val box = player.boundingBox.expandTowards(dir.scale(range)).inflate(1.0)
+        var best: LivingEntity? = null
+        var bestDist = Double.MAX_VALUE
+        for (e in world.getEntitiesOfClass(LivingEntity::class.java, box) { it !== player && it.isAlive }) {
+            val clip = e.boundingBox.inflate(0.3).clip(eye, end)
+            if (clip.isPresent) {
+                val d = clip.get().distanceTo(eye)
+                if (d < bestDist) { bestDist = d; best = e }
+            }
+        }
+        return best
     }
 }

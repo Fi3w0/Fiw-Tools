@@ -146,6 +146,9 @@ object AbilityState {
     /** Ticks since the player last took damage (a huge number if never, this session). */
     fun ticksSinceDamage(player: UUID, now: Long): Long = now - (lastDamageTick[player] ?: Long.MIN_VALUE / 2)
 
+    /** Game-time of the player's last damage this session; `Long.MIN_VALUE` if never. Used by channels. */
+    fun lastDamageTickOf(player: UUID): Long = lastDamageTick[player] ?: Long.MIN_VALUE
+
     /** Schedule a bleed DoT on [victim]. Replaces a weaker existing bleed; keeps the worse one. */
     fun addBleed(victim: UUID, dps: Float, pulses: Int, intervalTicks: Int) {
         bleeds.merge(victim, BleedEntry(dps, intervalTicks, pulses)) { old, new ->

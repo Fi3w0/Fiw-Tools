@@ -77,6 +77,7 @@ object FiwToolsCommon {
         AbilityState.processStuns(server)
         AbilityState.processBleeds(server)
         AbilityState.processBloodDebt(server)
+        com.fiw.tools.ability.ChannelHandler.tick(server)
         ElementalStatusTracker.processTick(server)
     }
 
@@ -88,6 +89,7 @@ object FiwToolsCommon {
     fun playerDisconnect(player: ServerPlayer) {
         AbilityCooldownTracker.clear(player)
         AbilityState.clear(player)
+        com.fiw.tools.ability.ChannelHandler.cancel(player.uuid)
         CraftingHandler.clear(player)
     }
 
@@ -105,6 +107,7 @@ object FiwToolsCommon {
         com.fiw.tools.ability.impl.LightningRayAbility.clear()
         com.fiw.tools.ability.impl.HomingBoltAbility.clear()
         ZoneEffects.clear()
+        com.fiw.tools.ability.ChannelHandler.clear()
         AbilityState.clear()
         ElementalStatusTracker.reset()
     }
