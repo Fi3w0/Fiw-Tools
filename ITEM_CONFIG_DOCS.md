@@ -1585,7 +1585,6 @@ longest matching tail instead of resetting; the action bar shows progress (▲ �
 |-------|---------|-------------|
 | `sequence` | *(required)* | Ordered look tokens, e.g. `["up","down","up","level"]` |
 | `stepTimeout` | 30 | Max ticks between looks before the buffer clears |
-| `castCooldown` | 40 | Ticks after a successful cast before you can start again |
 | `radius` | 5.0 | AoE burst radius on completion |
 | `damage` | 12.0 | Burst damage |
 | `affects` | `mobs` | Who the burst damages |
@@ -1593,6 +1592,9 @@ longest matching tail instead of resetting; the action bar shows progress (▲ �
 ```json
 { "type": "runic_sequence", "trigger": "on_right_click", "params": { "sequence": ["up","down","up"], "damage": 14, "radius": 5 } }
 ```
+
+Intermediate clicks don't arm the cooldown — only a completed cast does — so a `cooldownTicks` here
+becomes the delay between *casts*, and never blocks the clicks needed to build the sequence.
 
 ### `heartbeat_cast`
 

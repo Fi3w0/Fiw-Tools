@@ -138,7 +138,11 @@ object AbilityState {
         return true
     }
 
+    /** Guards against a mutual tether (A→B and B→A) recursing forever through the damage hook. */
+    private val redirecting = ThreadLocal.withInitial { false }
+
     fun processSanguine(player: ServerPlayer, source: net.minecraft.world.damagesource.DamageSource, amount: Float) {
+        if (redirecting.get()) return
         val bind = sanguineBinds[player.uuid] ?: return
         val level = player.serverLevel()
         val now = level.gameTime
@@ -149,7 +153,12 @@ object AbilityState {
         val target = level.getEntity(bind.targetId) as? LivingEntity
         if (target == null || !target.isAlive) { sanguineBinds.remove(player.uuid); return }
         val redirect = amount * bind.splitFrac
-        target.hurt(level.damageSources().magic(), redirect)
+        redirecting.set(true)
+        try {
+            target.hurt(level.damageSources().magic(), redirect)
+        } finally {
+            redirecting.set(false)
+        }
         player.heal(redirect)
         level.sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.x, target.y + target.bbHeight * 0.5, target.z, 6, 0.2, 0.3, 0.2, 0.05)
         if (!target.isAlive) {

@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap
 object RunicSequenceAbility : Ability {
     private class Progress(val tokens: MutableList<String>, var lastTick: Long)
     private val progress = ConcurrentHashMap<UUID, Progress>()
-    private val castCd = ConcurrentHashMap<UUID, Long>()
 
     override fun execute(ctx: AbilityContext): Boolean {
         val p = ctx.params
@@ -37,9 +36,6 @@ object RunicSequenceAbility : Ability {
         if (seq.isEmpty()) return false
         val now = world.gameTime
 
-        val cd = castCd[player.uuid]
-        if (cd != null && now < cd) return false
-
         val stepTimeout = p.optI("stepTimeout", 30).coerceAtLeast(4)
         val prog = progress.getOrPut(player.uuid) { Progress(mutableListOf(), now) }
         if (now - prog.lastTick > stepTimeout) prog.tokens.clear()
@@ -47,16 +43,17 @@ object RunicSequenceAbility : Ability {
         prog.tokens.add(lookToken(player))
         trimToPrefix(prog.tokens, seq)
 
-        if (prog.tokens.size == seq.size && prog.tokens == seq) {
+        if (prog.tokens.size == seq.size) {
             progress.remove(player.uuid)
-            castCd[player.uuid] = now + p.optI("castCooldown", 40).coerceAtLeast(0)
             cast(ctx)
-            return true
+            return true  // the cast is the only "acted" result — this is what arms `cooldownTicks`
         }
 
+        // Intermediate input: recorded and shown, but return false so it doesn't arm the cooldown
+        // (otherwise any cooldownTicks would gate the very clicks needed to finish the sequence).
         player.displayClientMessage(bar(prog.tokens, seq), true)
         world.playSound(null, player.x, player.y, player.z, SoundEvents.AMETHYST_BLOCK_HIT, SoundSource.PLAYERS, 0.7f, 0.7f + prog.tokens.size * 0.15f)
-        return true
+        return false
     }
 
     private fun cast(ctx: AbilityContext) {
