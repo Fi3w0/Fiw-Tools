@@ -1500,6 +1500,79 @@ to puppeteer players (default false).
 { "type": "marionette", "trigger": "on_right_click", "cooldownTicks": 120, "params": { "range": 8, "channelTicks": 100 } }
 ```
 
+### `riposte`
+
+A timing parry set by a `mode` param. Put `parry` on right-click and `strike` on `on_attack`.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `mode` | `parry` | `parry` primes a parry; `strike` cashes the riposte window |
+| `parryWindow` | 8 | *(parry)* ticks after the tap during which an incoming hit is negated |
+| `reflect` | 0.5 | *(parry)* fraction of the negated hit reflected at the attacker |
+| `riposteWindow` | 30 | *(parry)* ticks the follow-up strike window stays open |
+| `bonus` | 8.0 | *(strike)* bonus damage while the riposte window is open |
+| `executeThreshold` | 0.0 | *(strike)* HP fraction at/below which the riposte executes instead |
+
+```json
+{ "type": "riposte", "trigger": "on_right_click", "cooldownTicks": 30, "params": { "mode": "parry", "parryWindow": 8, "reflect": 0.5 } },
+{ "type": "riposte", "trigger": "on_attack", "params": { "mode": "strike", "bonus": 8, "executeThreshold": 0.25 } }
+```
+
+### `sanguine_tether`
+
+A two-step blood link. `mark` on `on_attack`, `bind` on right-click. While bound, `splitFraction` of
+every hit you take is dealt to the tethered target and healed back on you; if the target dies bound,
+the link snaps and backlashes.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `mode` | `mark` | `mark` tags the struck target; `bind` binds a fresh mark |
+| `markWindow` | 60 | *(mark)* ticks the mark stays bindable |
+| `splitFraction` | 0.5 | *(bind)* fraction of your incoming damage redirected to the target |
+| `durationTicks` | 200 | *(bind)* how long the bind lasts |
+| `backlash` | 6.0 | *(bind)* HP you lose if the target dies bound |
+
+```json
+{ "type": "sanguine_tether", "trigger": "on_attack", "params": { "mode": "mark", "markWindow": 60 } },
+{ "type": "sanguine_tether", "trigger": "on_shift_right_click", "cooldownTicks": 200, "params": { "mode": "bind", "splitFraction": 0.5, "durationTicks": 200, "backlash": 6 } }
+```
+
+### `ley_line`
+
+Cast once to drop an anchor at the block you look at; cast again (within `armWindow`, within
+`maxLength`) to string a line between the two. For `duration` the line pulses: mobs crossing take
+`damage`, players crossing are `heal`ed. The skill is placing the two ends well.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 24.0 | Raycast distance for each anchor |
+| `armWindow` | 100 | Ticks to place the second anchor before the first expires |
+| `maxLength` | 24.0 | Longest allowed line |
+| `duration` / `period` | 100 / 10 | How long the line lasts and how often it pulses |
+| `lineRadius` | 1.5 | How close an entity must be to the line to be affected |
+| `damage` / `heal` | 4.0 / 2.0 | Per-pulse damage to mobs / healing to players |
+
+```json
+{ "type": "ley_line", "trigger": "on_right_click", "cooldownTicks": 60, "params": { "maxLength": 24, "duration": 100, "damage": 4, "heal": 2 } }
+```
+
+### `altar_sacrifice`
+
+A finisher: look at (or attack) a living entity already below `threshold` HP to execute it for a
+boon — a heal plus Strength + Absorption. The skill is bringing the offering low without killing it.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 5.0 | Reach for the looked-at target |
+| `threshold` | 0.3 | HP fraction at/below which the target can be sacrificed |
+| `heal` | 6.0 | HP healed on a successful rite |
+| `boonTicks` | 200 | Duration of the Strength/Absorption boon |
+| `strength` / `absorption` | 0 / 1 | Amplifiers of the granted effects |
+
+```json
+{ "type": "altar_sacrifice", "trigger": "on_right_click", "cooldownTicks": 40, "params": { "threshold": 0.3, "heal": 6, "boonTicks": 200 } }
+```
+
 ---
 
 ### `ender_recall`
