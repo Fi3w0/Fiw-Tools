@@ -323,11 +323,13 @@ object ItemConfigParser {
             mining = root.get("mining")?.takeIf { !it.isJsonNull }?.let { el ->
                 if (!el.isJsonObject) throw IllegalArgumentException("'mining' must be an object")
                 val o = el.asJsonObject
+                // Bounds are clamped, not rejected: a typo like maxBlocks 1000000 would let one swing
+                // break millions of blocks in a tick and freeze the server, so we cap it instead.
                 val def = ItemDefinition.MiningDef(
                     mode = o.optString("mode", "vein").lowercase(),
-                    maxBlocks = o.optInt("maxBlocks", 64),
-                    radius = o.optInt("radius", 1),
-                    depth = o.optInt("depth", 1),
+                    maxBlocks = o.optInt("maxBlocks", 64).coerceIn(1, 4096),
+                    radius = o.optInt("radius", 1).coerceIn(0, 16),
+                    depth = o.optInt("depth", 1).coerceIn(1, 64),
                     matchBlock = o.optBool("matchBlock", true),
                     diagonal = o.optBool("diagonal", true),
                     whitelist = o.stringList("whitelist") + o.stringList("blocks"),
@@ -338,9 +340,6 @@ object ItemConfigParser {
                 )
                 if (def.mode !in setOf("vein", "area", "tunnel"))
                     throw IllegalArgumentException("mining mode must be vein, area, or tunnel")
-                if (def.maxBlocks < 1) throw IllegalArgumentException("mining maxBlocks must be >= 1")
-                if (def.radius < 0) throw IllegalArgumentException("mining radius must be >= 0")
-                if (def.depth < 1) throw IllegalArgumentException("mining depth must be >= 1")
                 def
             }
         )

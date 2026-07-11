@@ -15,6 +15,7 @@ import net.minecraft.tags.TagKey
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
+import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
 /**
@@ -27,6 +28,8 @@ import kotlin.math.abs
  * point of durability so a vein never snaps your pickaxe.
  */
 object MiningHandler {
+    private val logger = LoggerFactory.getLogger("fiw-tools/mining")
+
     // Our own destroyBlock calls fire the loader's break hook again; skip mining + on_block_break then.
     private val active = ThreadLocal.withInitial { false }
 
@@ -43,16 +46,14 @@ object MiningHandler {
         val cfg = def.mining ?: return
         if (cfg.sneakToDisable && player.isShiftKeyDown) return
 
-        val targets = when (cfg.mode) {
-            "vein" -> veinTargets(level, stack, origin, brokenState, cfg)
-            "area" -> planeTargets(player, origin, cfg, depth = 0)
-            "tunnel" -> planeTargets(player, origin, cfg, depth = cfg.depth)
-            else -> return
-        }
-        if (targets.isEmpty()) return
-
         active.set(true)
         try {
+            val targets = when (cfg.mode) {
+                "vein" -> veinTargets(level, stack, origin, brokenState, cfg)
+                "area" -> planeTargets(player, origin, cfg, depth = 0)
+                "tunnel" -> planeTargets(player, origin, cfg, depth = cfg.depth)
+                else -> return
+            }
             for (pos in targets) {
                 if (stack.isEmpty) break
                 // Keep the tool alive: leave the last point of durability (breakables only).
@@ -61,6 +62,9 @@ object MiningHandler {
                 if (!matches(level, stack, pos, brokenState, cfg)) continue
                 player.gameMode.destroyBlock(pos)
             }
+        } catch (e: Exception) {
+            // A mining error must never crash block-breaking (it runs inside the break hook).
+            logger.warn("Mining sweep for '${def.id}' failed: ${e.message}")
         } finally {
             active.set(false)
         }
