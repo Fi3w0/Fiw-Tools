@@ -1453,6 +1453,53 @@ Pair with a `chargeable` block so the item can be held to charge:
 "chargeable": { "animation": "bow", "maxSeconds": 3600 }
 ```
 
+### Channelled abilities (`exsanguinate`, `blood_circle`, `marionette`)
+
+These are **channels**: right-click to start, then **hold sneak and stand still** while a progress
+bar fills in the action bar and a particle ring shrinks around you. Moving too far, letting go of
+sneak, or taking any damage **breaks** the channel. Only one channel runs at a time.
+
+**`exsanguinate`** — bleed yourself over the channel, then release a blood nova. Landing it returns
+more blood than you spent; being interrupted wastes it.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `channelTicks` | 60 | Channel length |
+| `drainInterval` / `drainPerPulse` | 10 / 1.0 | Ticks between self-drains, HP taken each drain (never below 1 HP) |
+| `radius` | 5.0 | Nova radius on completion |
+| `baseDamage` / `damagePerDrain` | 4.0 / 1.5 | Nova damage = base + perDrain × HP drained |
+| `bloodReturn` | 1.5 | HP healed per point of blood drained, **only if the nova hits something** |
+| `affects` | `all` | Who the nova damages |
+
+**`blood_circle`** — pay any `cost` offering, channel a ritual circle. On completion enemies inside
+take `damage` + Weakness/Wither and allies (you included) gain Regeneration + Strength; a broken
+channel costs `backlash` HP.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `channelTicks` | 80 | Channel length |
+| `radius` | 5.0 | Circle radius |
+| `damage` | 8.0 | Damage to enemies inside on completion |
+| `boonTicks` | 200 | Duration of the debuffs/buffs applied |
+| `backlash` | 4.0 | HP lost if the channel is interrupted |
+
+**`marionette`** — grab the living entity you look at (within `range`) and puppet it while you channel:
+you're rooted, the puppet walks where you look and lunges at the nearest enemy. `allowPlayers: true`
+to puppeteer players (default false).
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 8.0 | Grab distance |
+| `channelTicks` | 100 | How long control lasts |
+| `speed` | 0.35 | Puppet move speed toward your look |
+| `allowPlayers` | false | Whether players can be puppeted |
+
+```json
+{ "type": "exsanguinate", "trigger": "on_right_click", "cooldownTicks": 100, "params": { "channelTicks": 60, "radius": 5, "damagePerDrain": 1.5 } },
+{ "type": "blood_circle", "trigger": "on_shift_right_click", "cooldownTicks": 200, "cost": { "item": "minecraft:ghast_tear", "itemCount": 1 }, "params": { "channelTicks": 80, "radius": 5, "damage": 8 } },
+{ "type": "marionette", "trigger": "on_right_click", "cooldownTicks": 120, "params": { "range": 8, "channelTicks": 100 } }
+```
+
 ---
 
 ### `ender_recall`
