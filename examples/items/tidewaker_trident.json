@@ -1,0 +1,16 @@
+{
+  "id": "tidewaker_trident",
+  "base": "minecraft:trident",
+  "displayName": "&b&lTidewaker Trident",
+  "lore": [
+    "&7Showcases the geyser_burst ability.",
+    "",
+    "&8Right-click: &7erupt a geyser at range"
+  ],
+  "rarity": "rare",
+  "unbreakable": true,
+  "enchantments": { "minecraft:impaling": 4, "minecraft:loyalty": 2 },
+  "abilities": [
+    { "type": "geyser_burst", "trigger": "on_right_click", "cooldownTicks": 200, "params": { "radius": 5, "damage": 4, "launchPower": 1.4 } }
+  ]
+}

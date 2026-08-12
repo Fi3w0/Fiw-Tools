@@ -6,6 +6,7 @@ import com.fiw.tools.ability.AffectScope
 import com.fiw.tools.ability.collectTargets
 import com.fiw.tools.ability.optD
 import com.fiw.tools.ability.optF
+import com.fiw.tools.ability.optI
 import com.fiw.tools.ability.scope
 import com.fiw.tools.build.FiwItems
 import com.fiw.tools.config.ItemRegistry
@@ -72,6 +73,31 @@ object SoulSurgeAbility : Ability {
         player.sendSystemMessage(
             net.minecraft.network.chat.Component.literal("§5Released §d${drained}§5 souls for §d${totalDamage.toInt()}§5 damage.")
         )
+        return true
+    }
+}
+
+/**
+ * On attack: spends one stored soul (configurable via `soulCost`) for bonus magic damage plus
+ * lifesteal on the same hit. Requires `soulCapacity` on the item (souls earned via
+ * `soul_collector`). Does nothing — and costs no cooldown — when the item holds too few souls.
+ */
+object SoulLashAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val target = ctx.target ?: return false
+        val cost = ctx.params.optI("soulCost", 1)
+        if (cost <= 0 || !SoulHandler.spendSouls(ctx.stack, cost)) return false
+        val bonusDamage = ctx.params.optF("bonusDamage", 4f)
+        val lifesteal = ctx.params.optD("lifesteal", 0.5)
+        val world = ctx.world
+        val player = ctx.player
+        val src = world.damageSources().magic()
+        target.hurtServer(world, src, bonusDamage)
+        val heal = (bonusDamage * lifesteal).toFloat()
+        if (heal > 0f) player.heal(heal)
+        world.sendParticles(ParticleTypes.SOUL, target.x, target.y + 1.0, target.z, 10, 0.3, 0.4, 0.3, 0.03)
+        world.playSound(null, target.x, target.y, target.z,
+            SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 0.6f, 1.2f)
         return true
     }
 }

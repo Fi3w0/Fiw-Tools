@@ -109,3 +109,33 @@ object MeteorStrikeAbility : Ability {
         return true
     }
 }
+
+/**
+ * On kill: a small fire nova erupts at the corpse, igniting nearby enemies. A follow-up payoff
+ * for `on_kill` weapons — clear a cluster by chaining kills through it.
+ */
+object EmberBurstAbility : Ability {
+    override fun execute(ctx: AbilityContext): Boolean {
+        val pos = ctx.targetPos ?: ctx.target?.position() ?: return false
+        val radius = ctx.params.optD("radius", 4.0)
+        val igniteSeconds = ctx.params.optI("igniteSeconds", 4)
+        val scope = ctx.params.scope("affects", AffectScope.ALL)
+        val world = ctx.world
+        val player = ctx.player
+
+        for (e in collectTargets(world, pos, radius, player, scope)) {
+            e.igniteForSeconds(igniteSeconds.toFloat())
+            world.sendParticles(ParticleTypes.FLAME, e.x, e.y + 1.0, e.z, 10, 0.3, 0.4, 0.3, 0.05)
+        }
+        for (i in 0 until 5) {
+            world.sendParticles(ParticleTypes.FLAME,
+                pos.x + (Math.random() - 0.5) * radius,
+                pos.y + Math.random() * 1.5,
+                pos.z + (Math.random() - 0.5) * radius,
+                6, 0.2, 0.3, 0.2, 0.05)
+        }
+        world.playSound(null, pos.x, pos.y, pos.z,
+            SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 0.9f, 1.3f)
+        return true
+    }
+}

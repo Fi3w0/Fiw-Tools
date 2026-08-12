@@ -1,0 +1,19 @@
+{
+  "id": "soulforged_scythe",
+  "base": "minecraft:netherite_hoe",
+  "displayName": "&5&lSoulforged Scythe",
+  "lore": [
+    "&7Showcases soul_lash and ember_burst.",
+    "",
+    "&8On attack: &7spend a soul for bonus damage + lifesteal",
+    "&8On kill:   &7fire nova ignites nearby enemies"
+  ],
+  "rarity": "epic",
+  "soulCapacity": 8,
+  "enchantments": { "minecraft:sharpness": 6, "minecraft:looting": 2 },
+  "abilities": [
+    { "type": "soul_collector", "trigger": "on_kill", "cooldownTicks": 0 },
+    { "type": "soul_lash",      "trigger": "on_attack", "cooldownTicks": 0, "params": { "bonusDamage": 5, "lifesteal": 0.6 } },
+    { "type": "ember_burst",    "trigger": "on_kill", "cooldownTicks": 40, "params": { "radius": 5, "igniteSeconds": 5 } }
+  ]
+}

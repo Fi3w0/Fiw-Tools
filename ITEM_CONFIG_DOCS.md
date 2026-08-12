@@ -2278,6 +2278,25 @@ Right-click to knock back all entities in a forward cone. Applies Slowness after
 
 ---
 
+### `geyser_burst`
+
+Raycast to a target position and erupt a geyser: launches everything in range upward, deals light magic damage, and applies SOAKED. Unlike `tidal_surge` (centered on the player, directional cone) this hits a targeted point at range — good for launching a cluster off a ledge or setting up a `storm_chain` follow-up.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `range` | 20.0 | Max cast range |
+| `radius` | 4.0 | Blast radius at impact |
+| `damage` | 3.0 | Magic damage per target |
+| `launchPower` | 1.1 | Upward velocity applied to targets |
+| `soakedDuration` | 100 | SOAKED status ticks |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "geyser_burst", "trigger": "on_right_click", "cooldownTicks": 200, "params": { "radius": 5, "launchPower": 1.4 } }
+```
+
+---
+
 ### `flame_dash`
 
 Dash forward in the look direction. Every entity along the path is ignited. Uses the same safe-block pathing as `blink` — stops at walls.
@@ -2307,6 +2326,22 @@ Raycast to a target position and call down a fire strike. AoE magic damage + ign
 
 ```json
 { "type": "meteor_strike", "trigger": "on_right_click", "cooldownTicks": 300, "params": { "damage": 10, "radius": 5 } }
+```
+
+---
+
+### `ember_burst`
+
+On kill: a small fire nova erupts at the corpse, igniting nearby enemies. A follow-up payoff for `on_kill` weapons — clear a cluster by chaining kills through it.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `radius` | 4.0 | Nova radius around the kill |
+| `igniteSeconds` | 4 | Fire duration applied |
+| `affects` | `all` | Scope |
+
+```json
+{ "type": "ember_burst", "trigger": "on_kill", "cooldownTicks": 40, "params": { "radius": 5, "igniteSeconds": 5 } }
 ```
 
 ---
@@ -2529,6 +2564,28 @@ Drain all stored souls and unleash an AoE magic damage burst. Damage = souls × 
 
 ```json
 { "type": "soul_surge", "trigger": "on_right_click", "cooldownTicks": 400, "params": { "damagePerSoul": 3, "radius": 7 } }
+```
+
+---
+
+### `soul_lash`
+
+On attack: spends one stored soul for bonus magic damage plus lifesteal on the same hit. Requires `soulCapacity` on the item (souls earned via `soul_collector`). Does nothing — and costs no cooldown — when the item holds too few souls.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `soulCost` | 1 | Souls spent per proc |
+| `bonusDamage` | 4.0 | Extra magic damage dealt |
+| `lifesteal` | 0.5 | Fraction of `bonusDamage` healed back |
+
+```json
+{
+  "soulCapacity": 10,
+  "abilities": [
+    { "type": "soul_collector", "trigger": "on_kill", "cooldownTicks": 0 },
+    { "type": "soul_lash",      "trigger": "on_attack", "cooldownTicks": 0, "params": { "bonusDamage": 5, "lifesteal": 0.6 } }
+  ]
+}
 ```
 
 ---

@@ -142,11 +142,14 @@ Tweak the file, reload, try again.
 | `storm_chain` | Consume SOAKED to arc lightning damage to nearby enemies |
 | `soul_collector` | Absorb a soul on kill; stored in the item up to `soulCapacity` |
 | `soul_surge` | Spend all stored souls for scaled AoE magic damage |
+| `soul_lash` | Spend one soul per hit for bonus damage + lifesteal |
 | `blood_pact` | Sacrifice HP to multiply next attack damage |
 | `sanguine_strike` | Lifesteal that scales with the target's missing HP |
 | `hemorrhage` | On-hurt: inflict bleed DoT on whoever hit you |
 | `flame_dash` | Teleport forward, igniting enemies along the path |
 | `meteor_strike` | Raycast impact AoE at cursor position |
+| `ember_burst` | On-kill: fire nova at the corpse ignites nearby enemies |
+| `geyser_burst` | Raycast AoE launch + damage + SOAKED at a targeted point |
 | `run_command` | Silently run any server command(s) from an item |
 
 Full schema and every ability parameter are in the documentation.

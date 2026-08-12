@@ -126,7 +126,7 @@ Tag items with a `resonanceId`. When a player has enough matching pieces equippe
 
 ### Soul system
 
-Items with `soulCapacity` can store souls. `soul_collector` adds one on kill; `soul_surge` spends them all at once for AoE magic damage that scales with the count stored.
+Items with `soulCapacity` can store souls. `soul_collector` adds one on kill; `soul_surge` spends them all at once for AoE magic damage that scales with the count stored; `soul_lash` spends just one per hit for a smaller, repeatable bonus-damage-plus-lifesteal proc.
 
 ### Imbuing system
 
@@ -239,11 +239,14 @@ Abilities are small, tunable modules. Add them to an item, set a trigger, tune t
 | `storm_chain` | Consume SOAKED to arc lightning to nearby enemies |
 | `soul_collector` | Absorb a soul on kill (stored up to `soulCapacity`) |
 | `soul_surge` | Spend all stored souls for scaled AoE magic damage |
+| `soul_lash` | Spend one soul per hit for bonus damage + lifesteal |
 | `blood_pact` | Sacrifice HP to multiply next attack damage |
 | `sanguine_strike` | Lifesteal scaled by the target's missing HP |
 | `hemorrhage` | On-hurt: bleed DoT applied to whoever damaged you |
 | `flame_dash` | Dash forward, igniting enemies along the path |
 | `meteor_strike` | Raycast AoE impact at cursor position |
+| `ember_burst` | On-kill: fire nova at the corpse ignites nearby enemies |
+| `geyser_burst` | Raycast AoE launch + damage + SOAKED at a targeted point |
 | `run_command` | Silently run any server command(s) — infinite ability possibilities |
 
 <details>

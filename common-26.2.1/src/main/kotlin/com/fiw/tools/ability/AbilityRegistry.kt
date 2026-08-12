@@ -6,7 +6,9 @@ import com.fiw.tools.ability.impl.BlizzardAbility
 import com.fiw.tools.ability.impl.BloodPactAbility
 import com.fiw.tools.ability.impl.DecayAuraAbility
 import com.fiw.tools.ability.impl.EmberAuraAbility
+import com.fiw.tools.ability.impl.EmberBurstAbility
 import com.fiw.tools.ability.impl.FlameDashAbility
+import com.fiw.tools.ability.impl.GeyserBurstAbility
 import com.fiw.tools.ability.impl.GlacialShellAbility
 import com.fiw.tools.ability.impl.HemorrhageAbility
 import com.fiw.tools.ability.impl.HolderDebuffAbility
@@ -15,6 +17,7 @@ import com.fiw.tools.ability.impl.IgniteAbility
 import com.fiw.tools.ability.impl.MeteorStrikeAbility
 import com.fiw.tools.ability.impl.SanguineStrikeAbility
 import com.fiw.tools.ability.impl.SoulCollectorAbility
+import com.fiw.tools.ability.impl.SoulLashAbility
 import com.fiw.tools.ability.impl.SoulSurgeAbility
 import com.fiw.tools.ability.impl.TidalSurgeAbility
 import com.fiw.tools.ability.impl.FreezeAbility
@@ -214,10 +217,12 @@ object AbilityRegistry {
 
         // Water
         register("tidal_surge") { TidalSurgeAbility }
+        register("geyser_burst") { GeyserBurstAbility }
 
         // Fire
         register("flame_dash") { FlameDashAbility }
         register("meteor_strike") { MeteorStrikeAbility }
+        register("ember_burst") { EmberBurstAbility }
 
         // Blood
         register("blood_pact") { BloodPactAbility }
@@ -242,6 +247,7 @@ object AbilityRegistry {
         // Soul system
         register("soul_collector") { SoulCollectorAbility }
         register("soul_surge") { SoulSurgeAbility }
+        register("soul_lash") { SoulLashAbility }
 
         // Elemental status appliers
         register("freeze") { FreezeAbility }
