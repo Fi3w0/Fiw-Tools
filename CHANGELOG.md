@@ -4,6 +4,27 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.3.0] - Minecraft 1.21.8 support and three new abilities
+
+### Added
+
+- **Minecraft 1.21.8 support** — new `fabric-1.21.8` and `neoforge-1.21.8` modules, backed by a
+  new `common-1.21.8` implementation. 1.21.8 predates Mojang's `ResourceLocation`→`Identifier`
+  rename (that lands at 1.21.9+), so it needed its own port rather than reusing 1.21.1 or
+  1.21.11 outright — see `AGENT.md`'s API-notes table for the exact divergences (particle option
+  types, command permission API, the `AbstractArrow` package). Every existing item, ability, and
+  system behaves identically on 1.21.8 as on 1.21.11.
+- **`geyser_burst`** (Water) — a raycast counterpart to `tidal_surge`: erupt a geyser at a
+  targeted point up to `range` blocks away, launching everything within `radius` upward, dealing
+  light magic damage, and applying SOAKED. Good for launching a cluster off a ledge or setting up
+  a `storm_chain` follow-up. See `examples/items/tidewaker_trident.json`.
+- **`ember_burst`** (Fire) — on kill, a small fire nova erupts at the corpse and ignites nearby
+  enemies. A follow-up payoff for `on_kill` weapons — chain kills to clear a cluster.
+- **`soul_lash`** (Soul) — spends one stored soul per hit (instead of draining the whole pool like
+  `soul_surge`) for a smaller, repeatable burst of bonus magic damage plus lifesteal. Requires
+  `soulCapacity` on the item; does nothing and costs no cooldown when the item holds too few
+  souls. See `examples/items/soulforged_scythe.json`.
+
 ## [1.2.0] - New abilities and deeper customization
 
 ### Added
