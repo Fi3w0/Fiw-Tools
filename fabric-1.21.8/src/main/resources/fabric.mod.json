@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "fiw-tools",
+	"version": "${version}",
+	"name": "Fiw Custom Items",
+	"description": "Create custom server-side items, weapons, armor, food and abilities from JSON. No client install required.",
+	"authors": [
+		"Fiw"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/fiw-custom-items",
+		"sources": "https://github.com/Fi3w0/Fiw-Tools",
+		"issues": "https://github.com/Fi3w0/Fiw-Tools/issues"
+	},
+	"license": "CC-BY-NC-SA-4.0",
+	"icon": "assets/fiw-tools/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "com.fiw.tools.FiwTools",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"fiw-tools.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.8",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}

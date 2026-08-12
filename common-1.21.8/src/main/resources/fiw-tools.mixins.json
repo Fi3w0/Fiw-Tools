@@ -1,0 +1,30 @@
+{
+	"required": true,
+	"package": "com.fiw.tools.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"AnvilProtectMixin",
+		"ArrowHitMixin",
+		"BlockItemPlaceMixin",
+		"ChargeReleaseMixin",
+		"LivingEntityBlockingMixin",
+		"PlayerCombatHooksMixin",
+		"BlockItemPlacePreventMixin",
+		"GrindstoneProtectMixin",
+		"SmithingProtectMixin",
+		"EnchantTableProtectMixin",
+		"ItemEntityPickupMixin",
+		"LivingEntityConsumeMixin",
+		"PlayerInventoryDropAllMixin",
+		"RecipeManagerAccessor",
+		"ResultSlotCraftMixin",
+		"ServerPlayerDropMixin",
+		"StanceSwapMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

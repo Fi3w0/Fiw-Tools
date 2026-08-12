@@ -6,7 +6,7 @@
 
 [![Build](https://github.com/Fi3w0/Fiw-Tools/actions/workflows/build.yml/badge.svg)](https://github.com/Fi3w0/Fiw-Tools/actions/workflows/build.yml)
 [![Modrinth](https://img.shields.io/modrinth/v/fiw-custom-items?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-custom-items)
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.8_·_1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue)](LICENSE)
 
 [![Fabric](https://img.shields.io/badge/Fabric-✓-DBB591)](https://fabricmc.net)
@@ -83,6 +83,8 @@ Full JSON reference -> **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG_DOCS.md)**
 | -------- | --------- | ------------------ | ---- |
 | Fabric   | 1.21.1    | `fabric-1.21.1`    | 21   |
 | NeoForge | 1.21.1    | `neoforge-1.21.1`  | 21   |
+| Fabric   | 1.21.8    | `fabric-1.21.8`    | 21   |
+| NeoForge | 1.21.8    | `neoforge-1.21.8`  | 21   |
 | Fabric   | 1.21.11   | `fabric-1.21.11`   | 21   |
 | NeoForge | 1.21.11   | `neoforge-1.21.11` | 21   |
 | Fabric   | 26.1.2    | `fabric-26.2.1`    | 25   |
@@ -294,7 +296,7 @@ config/fiw_tools/recipes/   custom crafting recipes
 
 ## Building
 
-Run Gradle with **JDK 25** available. The 1.21.1 and 1.21.11 modules compile against a Java 21 toolchain, and the Fabric 26 module compiles against Java 25.
+Run Gradle with **JDK 25** available. The 1.21.1, 1.21.8 and 1.21.11 modules compile against a Java 21 toolchain, and the Fabric 26 module compiles against Java 25.
 
 ```bash
 git clone https://github.com/Fi3w0/Fiw-Tools
@@ -309,6 +311,8 @@ cd Fiw-Tools
 ./gradlew :fabric-1.21.11:build \
   :fabric-1.21.1:build \
   :neoforge-1.21.1:build \
+  :fabric-1.21.8:build \
+  :neoforge-1.21.8:build \
   :neoforge-1.21.11:build \
   :fabric-26.2.1:build
 ```
@@ -324,6 +328,9 @@ core/                Minecraft-free item config parser, text codes, and tests
 common-1.21.1/       shared MC 1.21.1 implementation
 fabric-1.21.1/       Fabric entrypoint, events, metadata, build
 neoforge-1.21.1/     NeoForge entrypoint, events, metadata, build
+common-1.21.8/       shared MC 1.21.8 implementation
+fabric-1.21.8/       Fabric entrypoint, events, metadata, build
+neoforge-1.21.8/     NeoForge entrypoint, events, metadata, build
 common-1.21.11/      shared MC 1.21.11 implementation
 fabric-1.21.11/      Fabric entrypoint, events, metadata, build
 neoforge-1.21.11/    NeoForge entrypoint, events, metadata, build

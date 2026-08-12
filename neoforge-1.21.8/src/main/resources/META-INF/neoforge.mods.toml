@@ -1,0 +1,29 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "CC-BY-NC-SA-4.0"
+issueTrackerURL = "https://github.com/Fi3w0/Fiw-Tools/issues"
+
+[[mods]]
+modId = "fiw_tools"
+version = "${version}"
+displayName = "Fiw Custom Items"
+authors = "Fiw"
+logoFile = "icon.png"
+description = "Create custom server-side items, weapons, armor, food and abilities from JSON. Clients do not need this mod."
+
+[[mixins]]
+config = "fiw-tools.mixins.json"
+
+[[dependencies.fiw_tools]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.8,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.fiw_tools]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.8,1.21.9)"
+ordering = "NONE"
+side = "BOTH"
