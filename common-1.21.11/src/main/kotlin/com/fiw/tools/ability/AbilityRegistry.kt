@@ -124,6 +124,7 @@ object AbilityRegistry {
         register("aegis_shield") { AegisShieldAbility }
         register("stun_strike") { StunStrikeAbility }
         register("apply_effect") { ApplyEffectAbility }
+        register("boss_phase") { com.fiw.tools.ability.impl.BossPhaseAbility }
         register("shockwave") { ShockwaveAbility }
         register("heal_on_hit") { HealOnHitAbility }
         register("blink") { BlinkAbility }

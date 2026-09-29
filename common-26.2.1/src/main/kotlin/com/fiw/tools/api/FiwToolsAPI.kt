@@ -1,9 +1,12 @@
 package com.fiw.tools.api
 
+import com.fiw.tools.ability.AbilityDispatcher
 import com.fiw.tools.build.ItemBuilder
 import com.fiw.tools.config.ItemRegistry
 import net.minecraft.core.HolderLookup
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 
 /**
@@ -25,4 +28,10 @@ object FiwToolsAPI {
     @JvmOverloads
     fun getItemStack(id: String, server: MinecraftServer, count: Int = 1): ItemStack? =
         getItemStack(id, count, server.registryAccess())
+
+    /** Called by Fiw Bosses when a boss changes phase (1-based numbers); fires `on_boss_phase`. */
+    @JvmStatic
+    fun onBossPhaseChange(boss: Entity, bossId: String, phase: Int, previousPhase: Int) {
+        if (boss is LivingEntity) AbilityDispatcher.onBossPhase(boss, bossId, phase, previousPhase)
+    }
 }

@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3
 enum class AbilityTrigger {
     ON_RIGHT_CLICK, ON_SHIFT_RIGHT_CLICK, ON_ATTACK, ON_KILL, ON_BOSS_KILL, ON_HURT, ON_BLOCK_BREAK,
     ON_CONSUME, ON_PICKUP, ON_DROP, ON_DEATH, ON_RESPAWN, ON_ENTER_DIMENSION, ON_LEAVE_DIMENSION,
-    ON_EQUIP, ON_UNEQUIP, ON_SHOOT, ON_ARROW_HIT, ON_SHIELD_BLOCK, ON_CRIT, ON_BLOCK_PLACE, ON_FALL, ON_CHARGE_RELEASE,
+    ON_EQUIP, ON_UNEQUIP, ON_BOSS_PHASE, ON_SHOOT, ON_ARROW_HIT, ON_SHIELD_BLOCK, ON_CRIT, ON_BLOCK_PLACE, ON_FALL, ON_CHARGE_RELEASE,
     WHILE_HELD, WHILE_WORN, WHILE_SNEAKING, RESONANCE;
 
     companion object {
@@ -28,6 +28,7 @@ enum class AbilityTrigger {
             "on_hurt", "hurt" -> ON_HURT
             "on_block_break", "block_break" -> ON_BLOCK_BREAK
             "on_boss_kill", "boss_kill" -> ON_BOSS_KILL
+            "on_boss_phase", "boss_phase_change" -> ON_BOSS_PHASE
             "on_consume", "consume", "on_eat" -> ON_CONSUME
             "on_pickup", "pickup" -> ON_PICKUP
             "on_drop", "drop" -> ON_DROP

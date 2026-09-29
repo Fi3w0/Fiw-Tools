@@ -75,6 +75,52 @@ object AbilityDispatcher {
         return victimId.startsWith("fiw_bosses:") || victimId in DEFAULT_BOSSES
     }
 
+    /** Set while on_boss_phase abilities run, so one that shifts the phase can't recurse. */
+    private var inBossPhaseDispatch = false
+
+    /**
+     * A Fiw Bosses boss changed phase ([phase] is 1-based). Fires `on_boss_phase` on the held and
+     * worn items of every player near the boss, with the boss as the target. Abilities may filter
+     * with `range` (default 48), `phase` (only when entering that phase) and `bosses` (config ids).
+     */
+    fun onBossPhase(boss: LivingEntity, bossId: String, phase: Int, previousPhase: Int) {
+        if (inBossPhaseDispatch) return
+        val world = boss.level() as? ServerLevel ?: return
+        val filter = { ab: ItemDefinition.AbilityDef, distSq: Double ->
+            val range = ab.params.get("range")?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asDouble ?: 48.0
+            val wanted = ab.params.get("phase")?.takeIf { !it.isJsonNull && it.isJsonPrimitive }?.asInt
+            val listed = ab.params.get("bosses")?.takeIf { it.isJsonArray }?.asJsonArray
+            distSq <= range * range &&
+                (wanted == null || wanted == phase) &&
+                (listed == null || listed.any { it.isJsonPrimitive && it.asString.equals(bossId, ignoreCase = true) })
+        }
+        inBossPhaseDispatch = true
+        try {
+            for (player in world.players()) {
+                if (player.isSpectator) continue
+                val distSq = player.distanceToSqr(boss)
+                if (distSq > MAX_BOSS_PHASE_RANGE * MAX_BOSS_PHASE_RANGE) continue
+                val seen = ArrayList<ItemStack>()
+                for (slot in BOSS_PHASE_SLOTS) {
+                    val stack = player.getItemBySlot(slot)
+                    if (stack.isEmpty || seen.any { it === stack }) continue
+                    seen.add(stack)
+                    fire(AbilityTrigger.ON_BOSS_PHASE, player, stack, world, boss, boss.position(),
+                        abilityFilter = { ab -> filter(ab, distSq) })
+                }
+            }
+        } finally {
+            inBossPhaseDispatch = false
+        }
+    }
+
+    private const val MAX_BOSS_PHASE_RANGE = 256.0
+    private val BOSS_PHASE_SLOTS = listOf(
+        net.minecraft.world.entity.EquipmentSlot.MAINHAND, net.minecraft.world.entity.EquipmentSlot.OFFHAND,
+        net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+        net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET
+    )
+
     fun onConsume(player: ServerPlayer, stack: ItemStack) {
         fire(AbilityTrigger.ON_CONSUME, player, stack, player.serverLevel(), null, null)
     }
