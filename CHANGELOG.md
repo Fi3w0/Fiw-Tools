@@ -25,7 +25,8 @@ version header.
   boss when it changes phase, with the boss as the target. Filter with `range`, `phase` (only when
   entering that phase) and `bosses` (boss config ids). Needs FIW Bosses 1.2.0+.
 - **`boss_phase` ability** — admin tool that moves a FIW Bosses boss to the `next`, `prev`, or a
-  `set` phase without touching its HP. Operator-only by default (`requireOp`). Example:
+  `set` phase without touching its HP. Operator-only by default (`requireOp`). A refused use says
+  why (single-phase boss, already first/last phase, fight not started), at most once per second. Example:
   `examples/fiw_bosses_integration/items/phase_warden_rod.json`; `raiders_sigil.json` shows
   `on_boss_phase`.
 
