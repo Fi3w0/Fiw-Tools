@@ -1,0 +1,17 @@
+{
+  "id": "raiders_sigil",
+  "base": "minecraft:totem_of_undying",
+  "displayName": "&6&lRaider's Sigil",
+  "lore": [
+    "&7Answers the boss when it grows desperate.",
+    "",
+    "&8Boss enters any new phase: &7Regeneration II",
+    "&8Boss enters phase 3:       &7Strength + Resistance"
+  ],
+  "rarity": "rare",
+  "abilities": [
+    { "type": "apply_effect", "trigger": "on_boss_phase", "params": { "effect": "regeneration", "amplifier": 1, "duration": 160, "range": 48 } },
+    { "type": "apply_effect", "trigger": "on_boss_phase", "params": { "effect": "strength", "amplifier": 1, "duration": 400, "phase": 3 } },
+    { "type": "apply_effect", "trigger": "on_boss_phase", "params": { "effect": "resistance", "amplifier": 0, "duration": 400, "phase": 3 } }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "phase_warden_rod",
+  "base": "minecraft:blaze_rod",
+  "displayName": "&c&lPhase Warden's Rod &7(Admin)",
+  "lore": [
+    "&7Admin tool for Fiw Bosses fights.",
+    "&7Changes a boss's phase without touching its HP.",
+    "",
+    "&8Right-click:       &7boss goes to the next phase",
+    "&8Sneak right-click: &7boss goes back one phase",
+    "&8Operators only (requireOp)."
+  ],
+  "rarity": "epic",
+  "abilities": [
+    { "type": "boss_phase", "trigger": "on_right_click", "cooldownTicks": 20, "params": { "action": "next", "range": 48 } },
+    { "type": "boss_phase", "trigger": "on_shift_right_click", "cooldownTicks": 20, "params": { "action": "prev", "range": 48 } }
+  ]
+}
