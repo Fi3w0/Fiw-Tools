@@ -18,10 +18,6 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    shadedKotlin
-}
-
 sourceSets {
     main {
         java {
@@ -73,7 +69,16 @@ neoForge {
 dependencies {
     implementation project(':core')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.3.21"
-    shadedKotlin "org.jetbrains.kotlin:kotlin-stdlib:2.3.21"
+    // Ship kotlin-stdlib as a nested Jar-in-Jar (META-INF/jarjar) instead of merging its
+    // classes into our jar. A merged copy makes the fiw_tools JPMS module export kotlin.*
+    // packages and crashes module resolution next to Kotlin for Forge / KotlinLangForge.
+    // As JiJ, NeoForge dedupes it and loads the newest stdlib any mod asks for.
+    jarJar("org.jetbrains.kotlin:kotlin-stdlib") {
+        version {
+            strictly '[2.3.21,)'
+            prefer '2.3.21'
+        }
+    }
 }
 
 processResources {
@@ -86,9 +91,6 @@ processResources {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { project(':core').sourceSets.main.output }
-    from {
-        configurations.shadedKotlin.collect { zipTree(it) }
-    }
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${project.base.archivesName.get()}" }
     }
