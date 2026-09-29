@@ -4,6 +4,31 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.3.1] - NeoForge Kotlin crash fix and boss phase tools
+
+> **NeoForge users running Kotlin for Forge or KotlinLangForge: update immediately.** 1.3.0 crashes
+> those packs at startup.
+
+### Fixed
+
+- **NeoForge startup crash next to Kotlin for Forge / KotlinLangForge** (#1). The NeoForge jars
+  merged the Kotlin standard library's classes into the mod jar, so the `fiw_tools` module exported
+  `kotlin.*` packages and module resolution failed (`ResolutionException: Modules fiw_tools and
+  kotlin.stdlib export package ...`). Kotlin now ships as a nested Jar-in-Jar library: NeoForge
+  deduplicates it against any other mod's copy and loads the newest. Fiw Custom Items still needs
+  no extra Kotlin mod on NeoForge. Affected NeoForge 1.21.1, 1.21.8 and 1.21.11; Fabric was not
+  affected.
+
+### Added
+
+- **`on_boss_phase` trigger** — fires held and worn item abilities for players near a FIW Bosses
+  boss when it changes phase, with the boss as the target. Filter with `range`, `phase` (only when
+  entering that phase) and `bosses` (boss config ids). Needs FIW Bosses 1.2.0+.
+- **`boss_phase` ability** — admin tool that moves a FIW Bosses boss to the `next`, `prev`, or a
+  `set` phase without touching its HP. Operator-only by default (`requireOp`). Example:
+  `examples/fiw_bosses_integration/items/phase_warden_rod.json`; `raiders_sigil.json` shows
+  `on_boss_phase`.
+
 ## [1.3.0] - Minecraft 1.21.8 support and three new abilities
 
 ### Added

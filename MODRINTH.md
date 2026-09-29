@@ -103,7 +103,7 @@ Tweak the file, reload, try again.
 
 **Enchanting control** - per-station rules for table, anvil, grindstone, and smithing. `allowEnchant` blocks adding enchantments while keeping rename and repair, and configured attributes are re-stamped after anvil/smithing so they can't be overwritten.
 
-**Ten lifecycle triggers** - react to eating, pickup, drop, death, respawn, dimension travel, equip/unequip, and boss kills (FIW Bosses aware).
+**Ten lifecycle triggers** - react to eating, pickup, drop, death, respawn, dimension travel, equip/unequip, and boss kills (FIW Bosses aware). **`on_boss_phase`** reacts when a nearby FIW Bosses boss enters a new phase.
 
 **Conditions** - gate any ability: low health, night, storm, dimension, sneaking, enemies nearby, in combat, and more.
 
@@ -128,6 +128,7 @@ Tweak the file, reload, try again.
 | `aegis_shield` | On-demand barrier that absorbs a pool of damage |
 | `stun_strike` | True hard crowd-control lock |
 | `apply_effect` | Apply any potion effect to self or target |
+| `boss_phase` | Admin tool: shift a FIW Bosses boss's phase without touching HP |
 | `repair` | Repair-kit item that mends a damaged item in your other hand |
 | `projectile_burst` | Custom particle projectile with optional AoE |
 | `frost_nova` | Freezes nearby enemies |

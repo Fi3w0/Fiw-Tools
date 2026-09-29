@@ -425,6 +425,7 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `on_hurt` | Player takes damage while holding the item |
 | `on_block_break` | Player breaks a block while holding the item |
 | `on_boss_kill` | Player kills a boss with the item in main hand. Default bosses: ender dragon, wither, warden, elder guardian, and every FIW Bosses entity; override per ability with `"params": { "bosses": ["minecraft:wither"] }` |
+| `on_boss_phase` | A FIW Bosses boss near the player changes phase — fires on held **and** worn items, target = the boss. Filters: `range` (blocks, default 48), `phase` (only when entering that phase, 1 = first), `bosses` (boss config ids, e.g. `["raid_titan"]`). Needs FIW Bosses 1.2.0+ |
 | `on_consume` | Player finishes eating/drinking the item |
 | `on_pickup` | Player picks the item up off the ground |
 | `on_drop` | Player deliberately drops the item (death drops don't count) |
@@ -1251,6 +1252,32 @@ same friendly set as `passive_buff` (`speed`, `strength`, `poison`, `wither`, `l
 { "type": "apply_effect", "trigger": "on_right_click", "cooldownTicks": 400,
   "params": { "effect": "strength", "target": "self", "duration": 200, "amplifier": 1 } }
 ```
+
+---
+
+### `boss_phase`
+
+Admin tool for FIW Bosses (1.2.0+): moves a boss to another phase **without touching its HP** —
+ease a fight players are stuck on, or push a stalled one forward. Targets the hit/looked-at boss
+when the trigger provides one (`on_attack`), otherwise the nearest boss within `range`. The
+normal phase transition plays. Does nothing (and arms no cooldown) without FIW Bosses, with no
+boss in range, before the fight has started, or when the phase doesn't exist.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `action` | `next` | `next`, `prev`, or `set` |
+| `phase` | — | Target phase for `set` (1 = first phase) |
+| `range` | 32 | Search radius when the trigger has no target |
+| `requireOp` | true | Only operators (permission level 2+) can use it. Leave on unless the item is locked down another way |
+
+```json
+{ "type": "boss_phase", "trigger": "on_right_click", "cooldownTicks": 20, "params": { "action": "next" } },
+{ "type": "boss_phase", "trigger": "on_shift_right_click", "cooldownTicks": 20, "params": { "action": "prev" } }
+```
+
+Full admin item: `examples/fiw_bosses_integration/items/phase_warden_rod.json`. Pair with the
+`on_boss_phase` trigger to react to phase changes, e.g. `raiders_sigil.json` buffs its holder
+whenever the boss enters a new phase.
 
 ---
 

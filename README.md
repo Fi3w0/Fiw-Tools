@@ -178,7 +178,7 @@ Per-station `enchanting` rules gate the table, anvil, grindstone, and smithing t
 
 ### Ten lifecycle triggers
 
-`on_consume`, `on_pickup`, `on_drop`, `on_death`, `on_respawn`, `on_enter_dimension`, `on_leave_dimension`, `on_equip`, `on_unequip`, `on_boss_kill` (vanilla + FIW Bosses aware).
+`on_consume`, `on_pickup`, `on_drop`, `on_death`, `on_respawn`, `on_enter_dimension`, `on_leave_dimension`, `on_equip`, `on_unequip`, `on_boss_kill` (vanilla + FIW Bosses aware), plus `on_boss_phase` — fires when a nearby FIW Bosses boss changes phase.
 
 ### Conditions on everything
 
@@ -204,6 +204,8 @@ The `run_command` ability silently executes any server command(s) on any trigger
 
 FIW Bosses can reference Fiw Custom Items entries by `toolId` in equipment and loot entries. If Fiw Custom Items is missing, those entries are skipped without crashing the boss mod.
 
+With FIW Bosses 1.2.0+, items can react to boss fights with the `on_boss_phase` trigger, and the op-only `boss_phase` ability lets admins move a live boss to the next/previous/any phase without touching its HP (see `examples/fiw_bosses_integration/items/phase_warden_rod.json`). FIW Bosses' new per-player raid loot can hand out a `unique` Fiw item to exactly one raider.
+
 ---
 
 ## Abilities
@@ -223,6 +225,7 @@ Abilities are small, tunable modules. Add them to an item, set a trigger, tune t
 | `aegis_shield` | On-demand barrier that swallows a pool of incoming damage |
 | `stun_strike` | True hard crowd-control — a full movement/attack lock |
 | `apply_effect` | Apply any vanilla potion effect to self or target, any trigger |
+| `boss_phase` | Admin tool: move a FIW Bosses boss to the next/previous/any phase without touching HP |
 | `repair` | Repair-kit item that mends a damaged item in your other hand |
 | `projectile_burst` | Fires a custom particle projectile with damage and AoE |
 | `frost_nova` | Freezes and slows enemies around the player |
