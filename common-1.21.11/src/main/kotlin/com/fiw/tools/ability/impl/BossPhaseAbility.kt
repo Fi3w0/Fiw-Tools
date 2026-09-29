@@ -42,11 +42,18 @@ object BossPhaseAbility : Ability {
             "set" -> p.optIOrNull("phase") ?: return tell(player, "§c'set' needs a 'phase' param.")
             else -> return tell(player, "§cUnknown action; use next, prev or set.")
         }
+        val count = FiwBossesBridge.getPhaseCount(boss)
+        when {
+            count <= 1 -> return tell(player, "§7This boss has only one phase.")
+            wanted < 1 -> return tell(player, "§7Already at the first phase.")
+            wanted > count -> return tell(player, "§7Already at the last phase ($current/$count).")
+            wanted == current -> return tell(player, "§7Boss is already in phase $wanted.")
+        }
         if (!FiwBossesBridge.setPhase(boss, wanted)) {
-            return tell(player, "§7Can't move to phase $wanted (fight not started, or no such phase).")
+            return tell(player, "§7The fight hasn't started yet (or the boss is dying).")
         }
         player.sendSystemMessage(Component.literal(
-            "§6Boss phase §f$current §6→ §f$wanted§7/${FiwBossesBridge.getPhaseCount(boss)}"))
+            "§6Boss phase §f$current §6→ §f$wanted§7/$count"))
         return true
     }
 
@@ -57,9 +64,18 @@ object BossPhaseAbility : Ability {
     private fun isOperator(player: ServerPlayer): Boolean =
         player.createCommandSourceStack().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
 
+    // Last refusal-message tick per player. A failed use arms no cooldown and one right-click
+    // can fire several times, so refusals are throttled to one per second.
+    private val lastRefusal = HashMap<java.util.UUID, Long>()
+
     /** Feedback that the ability did nothing; returns false so no cooldown is armed. */
     private fun tell(player: ServerPlayer, msg: String): Boolean {
-        player.sendSystemMessage(Component.literal(msg))
+        val now = player.level().gameTime
+        val last = lastRefusal[player.uuid]
+        if (last == null || now - last >= 20 || now < last) {
+            lastRefusal[player.uuid] = now
+            player.sendSystemMessage(Component.literal(msg))
+        }
         return false
     }
 
