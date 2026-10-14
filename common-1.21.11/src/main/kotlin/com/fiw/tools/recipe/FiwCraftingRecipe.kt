@@ -150,6 +150,10 @@ class FiwCraftingRecipe(
          * `codec()` (JSON) is never invoked: these recipes are runtime-injected, never loaded
          * from or written to a datapack file.
          */
+        @JvmField
+        val ID: Identifier = Identifier.fromNamespaceAndPath("fiw_tools", "custom_recipe")
+
+        @JvmField
         val SERIALIZER: RecipeSerializer<FiwCraftingRecipe> = object : RecipeSerializer<FiwCraftingRecipe> {
             override fun codec(): MapCodec<FiwCraftingRecipe> =
                 MapCodec.unit { throw UnsupportedOperationException("Fiw recipes are runtime-injected and never loaded from JSON") }
@@ -160,9 +164,12 @@ class FiwCraftingRecipe(
             )
         }
 
+        /**
+         * Fabric only: registers straight into the vanilla registry at mod init. NeoForge freezes
+         * vanilla registries outside RegisterEvent, so its entrypoint registers [SERIALIZER] there.
+         */
         fun register() {
-            net.minecraft.core.Registry.register(BuiltInRegistries.RECIPE_SERIALIZER,
-                Identifier.fromNamespaceAndPath("fiw_tools", "custom_recipe"), SERIALIZER)
+            net.minecraft.core.Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ID, SERIALIZER)
         }
     }
 }

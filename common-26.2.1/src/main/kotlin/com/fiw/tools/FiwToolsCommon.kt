@@ -37,7 +37,6 @@ object FiwToolsCommon {
         FiwToolsPlatform.init(configDir)
         logger.info("Fiw Tools starting up.")
         AbilityRegistry.init()
-        com.fiw.tools.recipe.FiwCraftingRecipe.register()
     }
 
     fun serverStarting(server: MinecraftServer) {

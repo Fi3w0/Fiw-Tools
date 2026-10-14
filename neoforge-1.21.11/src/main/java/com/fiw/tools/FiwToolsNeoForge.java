@@ -26,11 +26,17 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
+import net.minecraft.core.registries.Registries;
+import com.fiw.tools.recipe.FiwCraftingRecipe;
 
 @Mod("fiw_tools")
 public final class FiwToolsNeoForge {
     public FiwToolsNeoForge(IEventBus modBus, ModContainer container) {
         FiwToolsCommon.INSTANCE.init(FMLPaths.CONFIGDIR.get());
+        // Vanilla registries are frozen outside RegisterEvent on NeoForge.
+        modBus.addListener(RegisterEvent.class, event -> event.register(Registries.RECIPE_SERIALIZER,
+                FiwCraftingRecipe.ID, () -> FiwCraftingRecipe.SERIALIZER));
         NeoForge.EVENT_BUS.register(this);
     }
 

@@ -26,6 +26,7 @@ import net.minecraft.world.entity.LivingEntity
 object FiwTools : ModInitializer {
     override fun onInitialize() {
         FiwToolsCommon.init(FabricLoader.getInstance().configDir)
+        com.fiw.tools.recipe.FiwCraftingRecipe.register()
 
         UseItemCallback.EVENT.register { player, world, hand ->
             if (world.isClientSide || player !is ServerPlayer) return@register InteractionResult.PASS
