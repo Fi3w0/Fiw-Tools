@@ -200,6 +200,15 @@ The `run_command` ability silently executes any server command(s) on any trigger
 
 `/fiwtools reload` re-reads item configs live. Existing player stacks are rebuilt from the new definition while preserving durability, player-added enchants (including anvil-upgraded config enchants), player renames, uncurse flags, imbuement history, souls, killstreaks, stances, charges, awakening progress, binding owners, and any attribute modifiers, armor trim or dye added by players, commands or other mods. The same state carries through artifact awakenings and crafting upgrade recipes.
 
+### Auto ability lore
+`"autoLore": true` writes the tooltip for you: one line per ability, like *Right-click: Lightning Rain (6s cooldown)*, after your own lore. Rename or hide abilities per line; a server-wide default lives in `config/fiw_tools/settings.json`.
+
+### Export items
+`/fiwtools export <newId>` saves the item in your hand as a new item config — name, lore, enchantments, attributes and more — and lists anything it couldn't map. Exporting a Fiw item makes a full copy you can tweak.
+
+### Boss slayer
+`bonusVsBosses` / `bonusVsMinions` multiply the damage an item (or one of its abilities) deals to bosses and boss minions, and the `whenTargetIsBoss` / `whenTargetIsMinion` conditions gate abilities on what you're hitting. Works with FIW Bosses and the vanilla bosses.
+
 ### FIW Bosses integration
 
 FIW Bosses can reference Fiw Custom Items entries by `toolId` in equipment and loot entries. If Fiw Custom Items is missing, those entries are skipped without crashing the boss mod.
@@ -276,6 +285,7 @@ Full ability parameters and examples live in **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG
 /fiwtools recipes
 /fiwtools info <itemId>
 /fiwtools reload
+/fiwtools export <newId>
 
 /fiwtools curse add <itemId>
 /fiwtools curse remove <itemId>

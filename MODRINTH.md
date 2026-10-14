@@ -109,6 +109,12 @@ Tweak the file, reload, try again.
 
 **Dynamic lore** - lore that updates live: owner, charges, souls, awakening progress, durability.
 
+**Auto ability lore** - `"autoLore": true` writes ability lines like *Right-click: Lightning Rain (6s cooldown)* into the tooltip for you.
+
+**Export items** - `/fiwtools export <newId>` turns the item in your hand into a ready-to-edit JSON config.
+
+**Boss slayer** - `bonusVsBosses` / `bonusVsMinions` damage multipliers and `whenTargetIsBoss` conditions for gear built to take down FIW Bosses and vanilla bosses.
+
 **Vanilla visuals** - potion colors, leather dye, and item models straight from JSON.
 
 **Hot reload** - update configs live while preserving player changes: durability, renames, extra enchants (including anvil-upgraded config enchants), uncurse flags, imbuement logs, souls, killstreaks, stances, charges, awakening progress, binding owners, and any attribute modifiers, armor trim or dye added by players, commands or other mods. The same state carries through artifact awakenings and crafting upgrade recipes, so an upgraded item is never a stripped-down copy.
@@ -182,6 +188,7 @@ The repo module is named `fabric-26.2.1` as requested, but Fabric's official met
 ```text
 /fiwtools give <players> <itemId> [count]   /fiwtools list
 /fiwtools info <itemId>                     /fiwtools reload
+/fiwtools export <newId>
 /fiwtools recipes
 /fiwtools curse add|remove|list ...
 /fiwtools uncurse_held

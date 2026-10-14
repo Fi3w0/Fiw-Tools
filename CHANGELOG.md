@@ -4,6 +4,30 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.3.2] - Auto lore, item export, boss slayer
+
+> **NeoForge 1.21.8 and 1.21.11 servers: update.** Every version since 1.1.1 failed to start there
+> ("Registry is already frozen").
+
+### Added
+- **Auto ability lore** — `"autoLore": true` on an item adds one tooltip line per ability after
+  its own lore, e.g. *Right-click: Lightning Rain (6s cooldown)*. `loreName` / `hideInLore` in an
+  ability's params rename or hide a line. Server-wide default in the new
+  `config/fiw_tools/settings.json` (`"autoLore": false`).
+- **`/fiwtools export <newId>`** — saves the held item as `config/fiw_tools/items/<newId>.json`
+  (base, name, lore, rarity, enchantments, attributes, durability, glint, dye, model, repair
+  cost) without overwriting anything, and lists components it couldn't export. Exporting a Fiw
+  item copies its whole config with the stack's current name, enchantments and attributes.
+- **Boss slayer** — `bonusVsBosses` / `bonusVsMinions` damage multipliers on items, or in an
+  ability's params for that ability's damage. Covers melee, arrows and abilities. New ability
+  conditions `whenTargetIsBoss` and `whenTargetIsMinion`. Bosses are FIW Bosses bosses plus the
+  ender dragon, wither, warden and elder guardian. Example: `examples/items/giant_slayer.json`.
+
+### Fixed
+- NeoForge 1.21.8 / 1.21.11 crashed at startup because the custom recipe serializer was
+  registered outside NeoForge's registry event. It is now registered in `RegisterEvent`.
+- `on_boss_kill` fired when killing FIW Bosses minions; it now only counts bosses.
+
 ## [1.3.1] - NeoForge Kotlin crash fix and boss phase tools
 
 > **NeoForge users running Kotlin for Forge or KotlinLangForge: update immediately.** 1.3.0 crashes

@@ -23,6 +23,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `/fiwtools list` | level 2 | List all loaded item ids |
 | `/fiwtools info <itemId>` | level 2 | Print a summary of the item's definition |
 | `/fiwtools reload` | level 2 | Reload all item configs without restart |
+| `/fiwtools export <newId>` | level 2 | Save the item in your main hand as `items/<newId>.json` (see [Exporting Items](#exporting-items)) |
 
 ---
 
@@ -118,6 +119,9 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `enchantments` | map | {} | Map of enchantment id → level. Levels can exceed vanilla cap |
 | `attributes` | array | [] | Attribute modifier list (see below) |
 | `keepOnDeath` | bool | false | Item survives death without `keepInventory` (see below) |
+| `autoLore` | bool | settings.json | Add generated ability lines to the tooltip (see [Auto Ability Lore](#auto-ability-lore)) |
+| `bonusVsBosses` | float | 1.0 | Damage multiplier for hits this item deals to bosses (see [Boss Slayer](#boss-slayer)) |
+| `bonusVsMinions` | float | 1.0 | Damage multiplier for hits this item deals to FIW Bosses minions |
 | `hideFlags` | string array | [] | Hide specific tooltip sections |
 | `food` | object | null | Make any item edible |
 | `tool` | object | null | Make any item a custom tool |
@@ -171,6 +175,34 @@ Use `&` prefix in `displayName`, `lore`, and any future text fields.
 ```
 
 Empty strings produce blank lines in the tooltip.
+
+### Auto Ability Lore
+
+`"autoLore": true` adds one line per ability after your own `lore`, before imbue and dynamic
+lore:
+
+```text
+Right-click: Lightning Rain (6s cooldown)
+On hit: Ignite (4.5s cooldown, 25% chance)
+While held: Haste
+```
+
+The name comes from the ability type (`lightning_rain` → "Lightning Rain"); set
+`"loreName": "Thunder Call"` in an ability's `params` to rename it, or `"hideInLore": true` to
+leave it out. Passive cooldowns (tick intervals) aren't shown. The server-wide default lives in
+`config/fiw_tools/settings.json` (`"autoLore": false`); an item's own `autoLore` wins. Changes
+apply on `/fiwtools reload`.
+
+### Exporting Items
+
+`/fiwtools export <newId>` turns the item in your main hand into a new config file,
+`config/fiw_tools/items/<newId>.json`. It never overwrites an existing file. It captures the
+base item, name, lore, rarity, enchantments (including anvil upgrades), attribute modifiers,
+durability, unbreakable, glint, dye color, item model and repair cost; anything else is listed
+in chat as "Not exported". Exporting an existing Fiw item makes a new copy that keeps all of
+the original's settings (abilities, curses, systems) with the stack's current name,
+enchantments and attributes. Colors are written as `&` codes; hex colors become the nearest
+one. Run `/fiwtools reload` to load the new item.
 
 ---
 
@@ -424,7 +456,7 @@ Abilities are server-side effects triggered by player actions. They never damage
 | `on_kill` | Player kills an entity with the item in main hand |
 | `on_hurt` | Player takes damage while holding the item |
 | `on_block_break` | Player breaks a block while holding the item |
-| `on_boss_kill` | Player kills a boss with the item in main hand. Default bosses: ender dragon, wither, warden, elder guardian, and every FIW Bosses entity; override per ability with `"params": { "bosses": ["minecraft:wither"] }` |
+| `on_boss_kill` | Player kills a boss with the item in main hand. Default bosses: ender dragon, wither, warden, elder guardian, and every FIW Bosses boss (not its minions); override per ability with `"params": { "bosses": ["minecraft:wither"] }` |
 | `on_boss_phase` | A FIW Bosses boss near the player changes phase — fires on held **and** worn items, target = the boss. Filters: `range` (blocks, default 48), `phase` (only when entering that phase, 1 = first), `bosses` (boss config ids, e.g. `["raid_titan"]`). Needs FIW Bosses 1.2.0+ |
 | `on_consume` | Player finishes eating/drinking the item |
 | `on_pickup` | Player picks the item up off the ground |
@@ -3505,6 +3537,31 @@ active and passive abilities alike, and stacks with everything else (cost, coold
 
 ---
 
+## Boss Slayer
+
+`bonusVsBosses` and `bonusVsMinions` multiply the damage an item deals to bosses (FIW Bosses
+bosses plus the vanilla ender dragon, wither, warden and elder guardian) and to FIW Bosses
+minions. They cover melee hits, arrows fired from the item, and its abilities. An ability can
+set its own `bonusVsBosses` / `bonusVsMinions` in `params`, which wins for that ability's damage.
+
+```json
+{
+  "id": "giant_slayer",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&6&lGiant Slayer",
+  "bonusVsBosses": 1.5,
+  "bonusVsMinions": 1.2,
+  "abilities": [
+    { "type": "lightning_strike", "trigger": "on_attack", "chance": 0.3, "cooldownTicks": 100,
+      "params": { "damage": 12, "bonusVsBosses": 2.0, "whenTargetIsBoss": true } }
+  ]
+}
+```
+
+Example file: `examples/items/giant_slayer.json`.
+
+---
+
 ## Ability Conditions
 
 Every ability — active or passive, any trigger — accepts optional condition keys in its `params`. All declared conditions must hold (ANDed); a missing key never gates.
@@ -3523,6 +3580,8 @@ Every ability — active or passive, any trigger — accepts optional condition 
 | `whenRaining` / `whenThundering` | bool | the weather matches |
 | `whenSneaking` | bool | the player is sneaking |
 | `whenOnFire` | bool | the player is burning |
+| `whenTargetIsBoss` | bool | the ability's target is (`true`) / isn't (`false`) a boss — FIW Bosses bosses plus the ender dragon, wither, warden and elder guardian. Only triggers with a target can pass `true` (e.g. `on_attack`, `on_kill`, `on_boss_kill`); passives and right-click never do |
+| `whenTargetIsMinion` | bool | the target is / isn't a FIW Bosses minion |
 
 ```json
 { "type": "second_wind", "trigger": "on_hurt",

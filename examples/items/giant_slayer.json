@@ -1,0 +1,16 @@
+{
+  "id": "giant_slayer",
+  "base": "minecraft:netherite_sword",
+  "displayName": "&6&lGiant Slayer",
+  "lore": ["&7Forged to bring down titans."],
+  "autoLore": true,
+  "rarity": "epic",
+  "bonusVsBosses": 1.5,
+  "bonusVsMinions": 1.2,
+  "enchantments": { "minecraft:sharpness": 6 },
+  "abilities": [
+    { "type": "lightning_strike", "trigger": "on_attack", "chance": 0.3, "cooldownTicks": 100,
+      "params": { "damage": 12, "bonusVsBosses": 2.0, "whenTargetIsBoss": true, "loreName": "Titan's Bane" } },
+    { "type": "ignite", "trigger": "on_attack", "chance": 0.25, "cooldownTicks": 60, "params": { "seconds": 4 } }
+  ]
+}
