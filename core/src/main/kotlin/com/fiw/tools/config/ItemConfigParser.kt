@@ -341,6 +341,13 @@ object ItemConfigParser {
                 if (def.mode !in setOf("vein", "area", "tunnel"))
                     throw IllegalArgumentException("mining mode must be vein, area, or tunnel")
                 def
+            },
+            autoLore = root.optBoolOrNull("autoLore"),
+            bonusVsBosses = root.optFloat("bonusVsBosses", 1f).also {
+                if (it < 0f) throw IllegalArgumentException("bonusVsBosses must be >= 0")
+            },
+            bonusVsMinions = root.optFloat("bonusVsMinions", 1f).also {
+                if (it < 0f) throw IllegalArgumentException("bonusVsMinions must be >= 0")
             }
         )
     }

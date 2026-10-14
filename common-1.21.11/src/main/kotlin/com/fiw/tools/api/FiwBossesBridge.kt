@@ -37,6 +37,25 @@ internal object FiwBossesBridge {
 
     val isPresent: Boolean get() = api != null
 
+    /** FIW Bosses 1.3.0+; older versions have no isMinion, so minions are told apart by entity type there. */
+    private val isMinionMethod: Method? by lazy {
+        try {
+            Class.forName("com.fiw.fiw_bosses.api.FiwBossesAPI").getMethod("isMinion", Entity::class.java)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun isMinion(entity: Entity): Boolean {
+        val m = isMinionMethod ?: return false
+        return try {
+            m.invoke(null, entity) as Boolean
+        } catch (e: Exception) {
+            logger.warn("Fiw Bosses isMinion call failed: {}", e.message)
+            false
+        }
+    }
+
     fun isBoss(entity: Entity): Boolean = call { it.isBoss.invoke(null, entity) as Boolean } ?: false
 
     fun getPhase(entity: Entity): Int = call { it.getPhase.invoke(null, entity) as Int } ?: 0

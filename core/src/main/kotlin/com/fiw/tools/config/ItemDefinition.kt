@@ -112,7 +112,16 @@ data class ItemDefinition(
      * connected `vein` (ores / logs), an `area` hammer plane, or a forward `tunnel`. `null` = plain
      * single-block mining.
      */
-    val mining: MiningDef? = null
+    val mining: MiningDef? = null,
+    /**
+     * Auto ability lore: generated tooltip lines like "Right-click: Lightning Rain (6s cooldown)",
+     * placed after [lore]. `null` = the `autoLore` default in config/fiw_tools/settings.json.
+     */
+    val autoLore: Boolean? = null,
+    /** Damage multiplier for hits this item deals to bosses (FIW Bosses bosses + vanilla bosses). */
+    val bonusVsBosses: Float = 1f,
+    /** Damage multiplier for hits this item deals to FIW Bosses minions. */
+    val bonusVsMinions: Float = 1f
 ) {
     data class MiningDef(
         /** `vein` = flood-fill connected matching blocks; `area` = a plane facing you; `tunnel` = area extended forward. */

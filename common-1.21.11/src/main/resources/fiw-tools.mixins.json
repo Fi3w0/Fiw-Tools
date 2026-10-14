@@ -8,6 +8,7 @@
 		"BlockItemPlaceMixin",
 		"ChargeReleaseMixin",
 		"LivingEntityBlockingMixin",
+		"LivingEntityBossBonusMixin",
 		"PlayerCombatHooksMixin",
 		"BlockItemPlacePreventMixin",
 		"GrindstoneProtectMixin",

@@ -46,6 +46,9 @@ object FiwToolsCommand {
                         .suggests(ITEM_ID_SUGGESTIONS)
                         .executes { ctx -> info(ctx.source, StringArgumentType.getString(ctx, "itemId")) }))
                 .then(Commands.literal("reload").executes { reload(it.source) })
+                .then(Commands.literal("export")
+                    .then(Commands.argument("newId", StringArgumentType.word())
+                        .executes { ctx -> export(ctx.source, StringArgumentType.getString(ctx, "newId")) }))
                 .then(Commands.literal("curse")
                     .then(Commands.literal("add")
                         .then(Commands.argument("itemId", StringArgumentType.word())
@@ -289,6 +292,21 @@ object FiwToolsCommand {
             return 0
         }
         source.sendSuccess({ Component.literal("$id → ${def.describeShort()}") }, false)
+        return 1
+    }
+
+    private fun export(source: CommandSourceStack, id: String): Int {
+        val player = source.player ?: run { source.sendFailure(Component.literal("Run this as a player.")); return 0 }
+        val stack = player.mainHandItem
+        if (stack.isEmpty) { source.sendFailure(Component.literal("Hold the item to export in your main hand.")); return 0 }
+        val result = try {
+            ItemExporter.export(stack, id)
+        } catch (e: Exception) {
+            ItemExporter.Result(null, "Export failed: ${e.message}", emptyList())
+        }
+        if (result.error != null) { source.sendFailure(Component.literal(result.error)); return 0 }
+        source.sendSuccess({ Component.literal("Exported to items/${result.file!!.fileName}. Run /fiwtools reload to load it.") }, true)
+        result.notes.forEach { note -> source.sendSuccess({ Component.literal("  $note") }, false) }
         return 1
     }
 
