@@ -44,9 +44,14 @@ object DynamicLoreHandler {
         }
     }
 
+    /** The item's own `lore`, then the auto ability lines when autoLore is on (item or settings default). */
+    fun staticLines(def: ItemDefinition): List<String> =
+        if (def.autoLore ?: com.fiw.tools.config.ToolsSettings.autoLore) def.lore + com.fiw.tools.lore.AutoLore.lines(def)
+        else def.lore
+
     private fun refresh(stack: ItemStack, def: ItemDefinition) {
         val lines = buildList {
-            def.lore.forEach { add(TextParser.parse(it)) }
+            staticLines(def).forEach { add(TextParser.parse(it)) }
             // Keep imbue-appended lore between the static and dynamic lines — without this the sweep
             // would erase every `appendLore` line the imbue log added within one second.
             addAll(com.fiw.tools.imbue.ImbueMods.loreLines(stack))

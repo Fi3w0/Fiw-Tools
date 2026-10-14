@@ -13,6 +13,8 @@ object ItemRegistry {
     private val logger = LoggerFactory.getLogger("fiw-tools/registry")
     private val gson: Gson = GsonBuilder().create()
     private val current = AtomicReference<Map<String, ItemDefinition>>(emptyMap())
+    // Each item's JSON as written, for /fiwtools export copies.
+    private val sources = AtomicReference<Map<String, String>>(emptyMap())
 
     val configRoot: Path
         get() = FiwToolsPlatform.configRoot()
@@ -20,11 +22,13 @@ object ItemRegistry {
     data class ReloadReport(val loaded: Int, val failed: List<Pair<String, String>>)
 
     fun loadAll(): ReloadReport {
+        ToolsSettings.load()
         val root = configRoot
         if (!Files.exists(root)) {
             Files.createDirectories(root)
         }
         val map = LinkedHashMap<String, ItemDefinition>()
+        val texts = HashMap<String, String>()
         val failures = mutableListOf<Pair<String, String>>()
 
         Files.walk(root).use { stream ->
@@ -36,6 +40,7 @@ object ItemRegistry {
                         failures.add(path.fileName.toString() to "duplicate id '${def.id}'")
                     } else {
                         map[def.id] = def
+                        texts[def.id] = text
                     }
                 } catch (e: Exception) {
                     failures.add(path.fileName.toString() to (e.message ?: e.javaClass.simpleName))
@@ -45,12 +50,16 @@ object ItemRegistry {
         }
 
         current.set(map)
+        sources.set(texts)
         ItemBuilder.invalidateRevisions()
         logger.info("Loaded ${map.size} item(s); ${failures.size} failed.")
         return ReloadReport(map.size, failures)
     }
 
     fun byId(id: String): ItemDefinition? = current.get()[id]
+
+    /** The JSON text an item was loaded from, or null. */
+    fun sourceOf(id: String): String? = sources.get()[id]
 
     fun all(): Collection<ItemDefinition> = current.get().values
 
