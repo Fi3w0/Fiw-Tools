@@ -12,7 +12,7 @@ import net.minecraft.world.phys.AABB
  * never gates. Lets the same passive be "only when low", "only in combat", "only underwater", etc.
  */
 object PassiveConditions {
-    fun met(player: ServerPlayer, world: ServerLevel, params: JsonObject): Boolean {
+    fun met(player: ServerPlayer, world: ServerLevel, params: JsonObject, target: net.minecraft.world.entity.Entity? = null): Boolean {
         val maxHp = player.maxHealth
         val frac = if (maxHp > 0f) player.health / maxHp else 0f
 
@@ -34,6 +34,15 @@ object PassiveConditions {
         params.optBOrNull("whenSneaking")?.let { if (it && !player.isShiftKeyDown) return false }
         params.optBOrNull("whenOnFire")?.let { if (it && !player.isOnFire) return false }
         params.optBOrNull("whenInWater")?.let { if (it && !player.isInWater) return false }
+        // Target gates: abilities without a target (passives) never pass a true check.
+        params.optBOrNull("whenTargetIsBoss")?.let { want ->
+            val isBoss = target != null && BossTargets.isBoss(target)
+            if (isBoss != want) return false
+        }
+        params.optBOrNull("whenTargetIsMinion")?.let { want ->
+            val isMinion = target != null && BossTargets.isMinion(target)
+            if (isMinion != want) return false
+        }
         return true
     }
 

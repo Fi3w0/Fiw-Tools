@@ -42,9 +42,10 @@ object AbilityDispatcher {
         if (attacker is ServerPlayer) {
             val weapon = killingWeapon(attacker, source)
             fire(AbilityTrigger.ON_KILL, attacker, weapon, attacker.level(), entity, entity.position())
-            val victimId = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entity.type).toString()
+            val victimId = BossTargets.typeId(entity)
+            val isBoss = BossTargets.isBoss(entity)
             fire(AbilityTrigger.ON_BOSS_KILL, attacker, weapon, attacker.level(), entity, entity.position(),
-                abilityFilter = { ab -> bossMatches(ab, victimId) })
+                abilityFilter = { ab -> bossMatches(ab, victimId, isBoss) })
             com.fiw.tools.awaken.AwakeningHandler.onKill(attacker, weapon, entity)
             com.fiw.tools.streak.KillstreakHandler.onKill(attacker, weapon)
             com.fiw.tools.recharge.RechargeOnKillHandler.onKill(attacker, entity)
@@ -55,7 +56,7 @@ object AbilityDispatcher {
      * The stack that actually scored a kill: a projectile kill resolves to the weapon that fired
      * the arrow (swapping items mid-flight can't credit the wrong one), else the main hand.
      */
-    private fun killingWeapon(attacker: ServerPlayer, source: DamageSource): ItemStack {
+    internal fun killingWeapon(attacker: ServerPlayer, source: DamageSource): ItemStack {
         val direct = source.directEntity
         if (direct is net.minecraft.world.entity.projectile.AbstractArrow) {
             direct.weaponItem?.takeIf { !it.isEmpty }?.let { return liveStackFor(attacker, it) }
@@ -63,16 +64,15 @@ object AbilityDispatcher {
         return attacker.mainHandItem
     }
 
-    /** Vanilla bosses recognised by `on_boss_kill` when the ability lists no explicit `bosses`. */
-    private val DEFAULT_BOSSES = setOf(
-        "minecraft:ender_dragon", "minecraft:wither", "minecraft:warden", "minecraft:elder_guardian"
-    )
 
-    /** An explicit `bosses` param wins; otherwise FIW Bosses entities and the vanilla boss set count. */
-    private fun bossMatches(ab: ItemDefinition.AbilityDef, victimId: String): Boolean {
+    /**
+     * An explicit `bosses` param wins; otherwise FIW Bosses bosses and the vanilla boss set count.
+     * FIW Bosses minions never count as bosses.
+     */
+    private fun bossMatches(ab: ItemDefinition.AbilityDef, victimId: String, isBoss: Boolean): Boolean {
         val listed = ab.params.getAsJsonArray("bosses")
         if (listed != null) return listed.any { it.isJsonPrimitive && it.asString.equals(victimId, ignoreCase = true) }
-        return victimId.startsWith("fiw_bosses:") || victimId in DEFAULT_BOSSES
+        return isBoss
     }
 
     /** Set while on_boss_phase abilities run, so one that shifts the phase can't recurse. */
@@ -336,7 +336,7 @@ object AbilityDispatcher {
             if (abilityFilter != null && !abilityFilter(abilityDef)) return@forEachIndexed
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             if (!AbilityCooldownTracker.isReady(player, key)) return@forEachIndexed
-            if (!PassiveConditions.met(player, world, abilityDef.params)) return@forEachIndexed
+            if (!PassiveConditions.met(player, world, abilityDef.params, target)) return@forEachIndexed
             val cost = abilityDef.cost
             if (cost != null && !AbilityCosts.canPay(player, stack, def, cost)) {
                 if (trigger == AbilityTrigger.ON_RIGHT_CLICK || trigger == AbilityTrigger.ON_SHIFT_RIGHT_CLICK ||
@@ -368,7 +368,9 @@ object AbilityDispatcher {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, abilityDef.cooldownGroup)
             val params = AbilityScaling.resolve(player, stack, def, abilityDef)
             try {
-                if (ability.execute(AbilityContext(player, stack, world, target, targetPos, params, damageSource, damageAmount))) {
+                if (BossSlayer.during(abilityDef) {
+                        ability.execute(AbilityContext(player, stack, world, target, targetPos, params, damageSource, damageAmount))
+                    }) {
                     AbilityCooldownTracker.arm(player, key, abilityDef.cooldownTicks)
                     if (cost != null) AbilityCosts.pay(player, stack, cost)
                     any = true

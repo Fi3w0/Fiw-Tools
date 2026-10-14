@@ -186,8 +186,9 @@ object ItemBuilder {
 
     private fun applyIdentity(stack: ItemStack, def: ItemDefinition) {
         def.displayName?.let { stack.set(DataComponents.CUSTOM_NAME, TextParser.parse(it)) }
-        if (def.lore.isNotEmpty()) {
-            stack.set(DataComponents.LORE, ItemLore(def.lore.map { TextParser.parse(it) }))
+        val lore = com.fiw.tools.lore.DynamicLoreHandler.staticLines(def)
+        if (lore.isNotEmpty()) {
+            stack.set(DataComponents.LORE, ItemLore(lore.map { TextParser.parse(it) }))
         }
         def.rarity?.let { raw ->
             val rarity = runCatching { Rarity.valueOf(raw.uppercase()) }.getOrNull()
