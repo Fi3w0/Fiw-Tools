@@ -1,0 +1,31 @@
+{
+  "id": "qa_audit",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Command audit",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 20,
+      "params": {
+        "commands": [
+          "scoreboard players add {player} fiw_qa 1",
+          "qa_intentionally_missing {player}",
+          "tellraw {player} {\"text\": \"QA audit continued after invalid command\", \"color\": \"aqua\"}"
+        ]
+      }
+    },
+    {
+      "type": "command",
+      "trigger": "on_shift_right_click",
+      "cooldownTicks": 20,
+      "params": {
+        "commands": [
+          "scoreboard players add {player} fiw_qa 1",
+          "tellraw {player} {\"text\": \"QA shift alias fired\", \"color\": \"aqua\"}"
+        ]
+      }
+    }
+  ]
+}

@@ -9,6 +9,7 @@ version header.
 > **⚠ Upgrade note:** ability cooldowns now survive relogging and server restarts; offline time does not reduce them.
 
 ### Changed
+- Include a focused regression pack for cooldown persistence/recharge, command auditing, reload state and crafting, with a two-instance test checklist.
 - Optional `logCommands` audit mode (`off`, `console`, `file`) records command attempts with player, item, ability index and final command. File: `config/fiw_tools/logs/commands.jsonl`.
 
 ### Fixed

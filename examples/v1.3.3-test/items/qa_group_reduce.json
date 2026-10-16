@@ -1,0 +1,32 @@
+{
+  "id": "qa_group_reduce",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Group reduction / offhand",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 1200,
+      "params": {
+        "commands": [
+          "scoreboard players add {player} fiw_qa 1",
+          "tellraw {player} {\"text\": \"QA group reduce fired\", \"color\": \"aqua\"}"
+        ]
+      },
+      "cooldownGroup": "qa_shared"
+    }
+  ],
+  "rechargeOnKill": {
+    "hand": "off",
+    "target": "mobs",
+    "cooldownTicks": 200,
+    "cooldownPercent": 0.5,
+    "cooldownAbilities": [
+      "run_command"
+    ],
+    "cooldownTriggers": [
+      "on_right_click"
+    ]
+  }
+}

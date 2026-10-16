@@ -1,0 +1,20 @@
+{
+  "id": "qa_group_a",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Group A",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 1200,
+      "params": {
+        "commands": [
+          "scoreboard players add {player} fiw_qa 1",
+          "tellraw {player} {\"text\": \"QA group A fired\", \"color\": \"aqua\"}"
+        ]
+      },
+      "cooldownGroup": "QA_SHARED"
+    }
+  ]
+}

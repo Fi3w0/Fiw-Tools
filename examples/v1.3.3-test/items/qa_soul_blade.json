@@ -1,0 +1,17 @@
+{
+  "id": "qa_soul_blade",
+  "base": "minecraft:iron_sword",
+  "displayName": "&bQA Soul reload check",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "soul_collector",
+      "trigger": "on_kill",
+      "cooldownTicks": 0
+    }
+  ],
+  "soulCapacity": 5,
+  "dynamicLore": [
+    "&dSouls: {souls}/{soul_capacity}"
+  ]
+}

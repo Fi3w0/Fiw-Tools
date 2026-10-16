@@ -1,0 +1,5 @@
+{
+  "id": "qa_bad_item",
+  "base": "minecraft:stick",
+  "stackSize": 0
+}

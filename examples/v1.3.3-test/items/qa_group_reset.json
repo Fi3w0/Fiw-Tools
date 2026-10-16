@@ -1,0 +1,31 @@
+{
+  "id": "qa_group_reset",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Group reset / offhand",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "on_right_click",
+      "cooldownTicks": 1200,
+      "params": {
+        "commands": [
+          "scoreboard players add {player} fiw_qa 1",
+          "tellraw {player} {\"text\": \"QA group reset fired\", \"color\": \"aqua\"}"
+        ]
+      },
+      "cooldownGroup": "qa_shared"
+    }
+  ],
+  "rechargeOnKill": {
+    "hand": "off",
+    "target": "mobs",
+    "resetCooldowns": true,
+    "cooldownAbilities": [
+      "run_command"
+    ],
+    "cooldownTriggers": [
+      "on_right_click"
+    ]
+  }
+}

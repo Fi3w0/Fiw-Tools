@@ -1,0 +1,5 @@
+fiwtools reload
+fiwtools list
+fiwtools recipes
+scoreboard objectives add fiw_qa dummy
+save-all flush

@@ -314,6 +314,8 @@ config/fiw_tools/data/cooldowns/  persisted player cooldowns
 
 ---
 
+The current two-instance regression pack and command checklist are in [examples/v1.3.3-test](examples/v1.3.3-test/README.md).
+
 ## Building
 
 Run Gradle with **JDK 25** available. The 1.21.1, 1.21.8 and 1.21.11 modules compile against a Java 21 toolchain, and the Fabric 26 module compiles against Java 25.

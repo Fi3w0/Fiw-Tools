@@ -1,0 +1,11 @@
+{
+  "id": "qa_slot_recipe",
+  "type": "shapeless",
+  "ingredients": [
+    "minecraft:paper"
+  ],
+  "result": {
+    "item": "fiw:qa_slot_cd",
+    "count": 1
+  }
+}

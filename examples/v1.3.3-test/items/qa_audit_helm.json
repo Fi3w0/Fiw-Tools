@@ -1,0 +1,19 @@
+{
+  "id": "qa_audit_helm",
+  "base": "minecraft:iron_helmet",
+  "displayName": "&bQA Passive audit helmet",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "run_command",
+      "trigger": "while_worn",
+      "cooldownTicks": 1200,
+      "params": {
+        "commands": [
+          "scoreboard players add {player} fiw_qa 1",
+          "tellraw {player} {\"text\": \"QA passive audit fired\", \"color\": \"aqua\"}"
+        ]
+      }
+    }
+  ]
+}
