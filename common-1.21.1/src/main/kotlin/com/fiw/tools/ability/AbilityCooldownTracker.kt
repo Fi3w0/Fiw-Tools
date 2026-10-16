@@ -1,12 +1,55 @@
 package com.fiw.tools.ability
 
+import com.fiw.tools.FiwToolsPlatform
 import net.minecraft.server.level.ServerPlayer
+import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.ceil
 
 object AbilityCooldownTracker {
     private val cooldowns: MutableMap<UUID, MutableMap<String, Long>> = ConcurrentHashMap()
+
+    private val logger = LoggerFactory.getLogger("fiw-tools/cooldowns")
+    private val snapshots = mutableMapOf<UUID, Map<String, Long>>()
+    private val players = mutableMapOf<UUID, ServerPlayer>()
+    private var writer = Executors.newSingleThreadExecutor()
+    private fun store() = CooldownStore(FiwToolsPlatform.configRoot().parent.resolve("data/cooldowns"))
+
+    fun restore(player: ServerPlayer) {
+        if (writer.isShutdown) writer = Executors.newSingleThreadExecutor()
+        players[player.uuid] = player
+        try {
+            val restored = CooldownStore.restore(snapshots[player.uuid] ?: store().load(player.uuid), player.level().gameTime)
+            cooldowns[player.uuid] = ConcurrentHashMap(restored)
+        } catch (e: Exception) {
+            logger.error("Could not restore cooldowns for ${player.uuid}", e)
+        }
+    }
+
+    fun saveAndClear(player: ServerPlayer) {
+        val remaining = CooldownStore.remaining(cooldowns[player.uuid].orEmpty(), player.level().gameTime)
+        snapshots[player.uuid] = remaining
+        val store = store()
+        writer.submit {
+            try {
+                store.save(player.uuid, remaining)
+            } catch (e: Exception) {
+                logger.error("Could not save cooldowns for ${player.uuid}", e)
+            }
+        }
+        players.remove(player.uuid)
+        clear(player)
+    }
+
+    fun stop() {
+        players.values.toList().forEach { saveAndClear(it) }
+        writer.shutdown()
+        writer.awaitTermination(30, java.util.concurrent.TimeUnit.SECONDS)
+        cooldowns.clear()
+        snapshots.clear()
+    }
 
     fun clear(player: ServerPlayer) {
         cooldowns.remove(player.uuid)

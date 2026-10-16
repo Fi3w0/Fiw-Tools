@@ -81,18 +81,20 @@ object FiwToolsCommon {
     }
 
     fun playerJoin(player: ServerPlayer) {
+        AbilityCooldownTracker.restore(player)
         ItemSyncHandler.onJoin(player)
         com.fiw.tools.recipe.RecipeInjector.unlock(player)
     }
 
     fun playerDisconnect(player: ServerPlayer) {
-        AbilityCooldownTracker.clear(player)
+        AbilityCooldownTracker.saveAndClear(player)
         AbilityState.clear(player)
         com.fiw.tools.ability.ChannelHandler.cancel(player.uuid)
         CraftingHandler.clear(player)
     }
 
     fun serverStopped() {
+        AbilityCooldownTracker.stop()
         ProjectileBurstAbility.clear()
         ArcSlashAbility.clear()
         SlashBarrage.clear()

@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [Unreleased]
+
+> **⚠ Upgrade note:** ability cooldowns now survive relogging and server restarts; offline time does not reduce them.
+
+### Fixed
+- Save remaining ability cooldowns per player, including shared groups and recharge-on-kill resets/reductions.
+
 ## [1.3.2] - Auto lore, item export, boss slayer
 
 > **NeoForge 1.21.8 and 1.21.11 servers: update.** Every version since 1.1.1 failed to start there
