@@ -160,6 +160,8 @@ The `binding` field ties an item to the first player who uses or picks it up. No
 
 Give items a regenerating `charges` pool and make any ability spend charges, durability, health, hunger, XP levels, or inventory items per use. All-or-nothing, refused when unaffordable, refunded on a miss.
 
+Ability cooldowns, including shared groups, survive relogging and server restarts as remaining ticks; offline time does not consume them. Optional `logCommands` auditing (`off` by default, `console` or `file`) in `config/fiw_tools/settings.json` records the player, item, ability index and final command. File logs go to `config/fiw_tools/logs/commands.jsonl`.
+
 ### Cooldown groups
 
 `cooldownGroup` shares one cooldown across abilities and across items — the anti-broken-combo dial.
@@ -289,13 +291,13 @@ Full ability parameters and examples live in **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG
 
 /fiwtools curse add <itemId>
 /fiwtools curse remove <itemId>
-/fiwtools curse list
+/fiwtools curse list <itemId>
 /fiwtools curse whitelist add <itemId> <player>
 /fiwtools curse whitelist remove <itemId> <player>
 /fiwtools uncurse_held
 
-/fiwtools imbue best
-/fiwtools imbue roll
+/fiwtools imbue best <catalystId>
+/fiwtools imbue roll <catalystId>
 /fiwtools imbue reset
 /fiwtools imbue clear
 /fiwtools imbue log
@@ -306,6 +308,8 @@ Full ability parameters and examples live in **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG
 ```text
 config/fiw_tools/items/     active item definitions
 config/fiw_tools/recipes/   custom crafting recipes
+config/fiw_tools/settings.json  defaults and command auditing
+config/fiw_tools/data/cooldowns/  persisted player cooldowns
 ```
 
 ---

@@ -5,6 +5,10 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | Path | Purpose |
 |------|---------|
 | `config/fiw_tools/items/` | Active item definitions |
+| `config/fiw_tools/recipes/` | Custom crafting recipes |
+| `config/fiw_tools/settings.json` | Server defaults and command audit mode |
+| `config/fiw_tools/data/cooldowns/` | Saved remaining cooldowns per player UUID |
+| `config/fiw_tools/logs/commands.jsonl` | Command audit log when `logCommands` is `file` |
 | `examples/items/` | Pre-built items ready to copy |
 
 > **Server-side only.** Fiw Custom Items has no client-side code, so it installs on the server only (Fabric or NeoForge) and players never need the mod to join. On Fabric, even fully vanilla clients can connect.
@@ -21,6 +25,18 @@ Items are defined as `.json` files — no coding, no client install, no server r
 |---------|-----------|-------------|
 | `/fiwtools give <players> <itemId> [count]` | level 2 | Build the item from JSON and give it |
 | `/fiwtools list` | level 2 | List all loaded item ids |
+| `/fiwtools recipes` | level 2 | List loaded custom recipes |
+| `/fiwtools curse add <itemId>` | level 2 | Mark an item cursed |
+| `/fiwtools curse remove <itemId>` | level 2 | Remove its curse |
+| `/fiwtools curse list <itemId>` | level 2 | Show an item’s curse and whitelist |
+| `/fiwtools curse whitelist add <itemId> <player>` | level 2 | Allow a player to hold a cursed item safely |
+| `/fiwtools curse whitelist remove <itemId> <player>` | level 2 | Remove that allowance |
+| `/fiwtools uncurse_held` | level 2 | Uncurse the held stack |
+| `/fiwtools imbue best <catalystId>` | level 2 | Apply the highest-weight catalyst outcome |
+| `/fiwtools imbue roll <catalystId>` | level 2 | Roll a catalyst outcome |
+| `/fiwtools imbue reset` | level 2 | Reset the target's imbuement count |
+| `/fiwtools imbue clear` | level 2 | Remove the target's imbuements |
+| `/fiwtools imbue log` | level 2 | Show the held item's imbuement history |
 | `/fiwtools info <itemId>` | level 2 | Print a summary of the item's definition |
 | `/fiwtools reload` | level 2 | Reload all item configs without restart |
 | `/fiwtools export <newId>` | level 2 | Save the item in your main hand as `items/<newId>.json` (see [Exporting Items](#exporting-items)) |
@@ -32,9 +48,12 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - [Root Fields](#root-fields)
 - [Color Codes](#color-codes)
 - [Display Name and Lore](#display-name-and-lore)
+  - [Auto Ability Lore](#auto-ability-lore)
+  - [Exporting Items](#exporting-items)
 - [Rarity, Stack Size, Repair Cost](#rarity-stack-size-repair-cost)
 - [Durability](#durability)
 - [Enchantments and Glint](#enchantments-and-glint)
+- [Enchanting Control](#enchanting-control)
 - [Attribute Modifiers](#attribute-modifiers)
 - [Hide Tooltip Flags](#hide-tooltip-flags)
 - [Keep on Death](#keep-on-death)
@@ -43,37 +62,165 @@ Items are defined as `.json` files — no coding, no client install, no server r
 - [Custom Data](#custom-data)
 - [Abilities](#abilities)
   - [Targeting (`affects`)](#targeting-affects)
-  - Original set: [riptide_dash](#riptide_dash) · [arc_slash](#arc_slash) · [arc_slash_barrage](#arc_slash_barrage) · [arc_slash_storm](#arc_slash_storm) · [beam](#beam) · [slash_wave](#slash_wave) · [arrow_rain](#arrow_rain) · [sonic_boom](#sonic_boom) · [lightning_strike](#lightning_strike) · [shockwave](#shockwave) · [heal_on_hit](#heal_on_hit) · [blink](#blink) · [projectile_burst](#projectile_burst) · [frost_nova](#frost_nova)
-  - PvP: [grappling_pull](#grappling_pull) · [disarm](#disarm) · [parry_counter](#parry_counter) · [execute](#execute) · [leech](#leech) · [silence_sigil](#silence_sigil) · [tether](#tether)
-  - PvE: [cleave](#cleave) · [whirlwind](#whirlwind) · [slaying_edge](#slaying_edge) · [soul_harvest](#soul_harvest) · [chain_lightning](#chain_lightning) · [gravity_well](#gravity_well) · [ground_slam](#ground_slam)
-  - Active debuffs: [ignite](#ignite) · [wither_touch](#wither_touch) · [bleed](#bleed)
-  - Utility: [phase_dash](#phase_dash) · [grapple](#grapple) · [feather_fall](#feather_fall) · [second_wind](#second_wind) · [ender_recall](#ender_recall) · [levitate_self](#levitate_self)
-  - Support / social: [rally_banner](#rally_banner) · [taunt](#taunt) · [healing_totem](#healing_totem) · [summon](#summon) · [beacon_ping](#beacon_ping) · [firework_burst](#firework_burst) · [glow_mark](#glow_mark) · [prank_swap](#prank_swap)
-  - [Passives (`while_held` / `while_sneaking`)](#passives-while_held)
-    - Held self-buffs: [passive_buff](#passive_buff) · [featherweight](#featherweight) · [aqua_kit](#aqua_kit) · [thermal_ward](#thermal_ward) · [saturation_aura](#saturation_aura) · [magnet](#magnet) · [berserker](#berserker) · [combat_focus](#combat_focus) · [lifeline](#lifeline)
-    - Holder debuffs (balance): [holder_debuff](#holder_debuff)
-    - Allied auras: [rally_aura](#rally_aura) · [beacon_aura](#beacon_aura) · [mending_aura](#mending_aura)
-    - Reactive defense: [static_field](#static_field) · [repulse_ward](#repulse_ward) · [chill_aura](#chill_aura) · [blinding_flash](#blinding_flash) · [spore_cloud](#spore_cloud) · [thorn_pulse](#thorn_pulse) · [coward_mark](#coward_mark) · [hornet_swarm](#hornet_swarm) · [curse_pulse](#curse_pulse) · [decay_aura](#decay_aura) · [ember_aura](#ember_aura)
-    - Conditional survival: [last_stand](#last_stand) · [adrenaline](#adrenaline) · [shield_battery](#shield_battery)
-- **Ice:** [ice_lance](#ice_lance) · [blizzard](#blizzard) · [glacial_shell](#glacial_shell)
-- **Water:** [tidal_surge](#tidal_surge)
-- **Fire:** [flame_dash](#flame_dash) · [meteor_strike](#meteor_strike)
-- **Blood:** [blood_pact](#blood_pact) · [hemorrhage](#hemorrhage) · [sanguine_strike](#sanguine_strike)
-- **[Resonance / Set Bonus](#resonance--set-bonus-system):** `resonanceId` + `resonanceRequires` fields — abilities with `trigger: resonance`
-- **[Elemental Status](#elemental-status-system):** [freeze](#freeze) · [soak](#soak) · [shock](#shock) · [thaw_burst](#thaw_burst) · [storm_chain](#storm_chain)
-- **[Soul System](#soul-system):** [soul_collector](#soul_collector) · [soul_surge](#soul_surge)
-- **[Custom Crafting Recipes](#custom-crafting-recipes):** shaped + shapeless JSON recipes in `config/fiw_tools/recipes/`
-- **[Infinite Use Items](#infinite-use-items):** `infinite` field — `keep` / `damage` / `replace` modes
-- **[Recharge on Kill](#recharge-on-kill):** `rechargeOnKill` field — kill-based cooldown and durability rewards
-- **[Artifact Awakening](#artifact-awakening):** `awakening` field — kill / damage / dimension triggers
-- **[Bound Artifacts](#bound-artifacts):** `binding` field — first_use / first_pickup + thief curse
-- **[Item Commands](#item-commands-run_command):** [run_command](#item-commands-run_command) ability + `on_shift_right_click` trigger
-- **[Charges and Use Costs](#charges-and-use-costs):** `charges` pool + per-ability `cost` block
-- **[Cooldown Groups](#cooldown-groups):** shared cooldowns across abilities and items
-- **[Ability Conditions](#ability-conditions):** `whenBelowHealth`, `whenDimension`, `whenNight`, … on any trigger
-- **[Dynamic Lore](#dynamic-lore):** live lore placeholders (`{owner}`, `{charges}`, `{souls}`, …)
-- **[Enchanting Control](#enchanting-control):** `enchanting` field — per-item table/anvil/grindstone/smithing permissions + name lock
-- [Bind with Fiw Bosses](#bind-with-fiw-bosses)
+  - [`riptide_dash`](#riptide_dash)
+  - [`arc_slash`](#arc_slash)
+  - [`arc_slash_barrage`](#arc_slash_barrage)
+  - [`arc_slash_storm`](#arc_slash_storm)
+  - [`teleport_behind`](#teleport_behind)
+  - [`beam`](#beam)
+  - [`slash_wave`](#slash_wave)
+  - [`arrow_rain`](#arrow_rain)
+  - [`sonic_boom`](#sonic_boom)
+  - [`lightning_strike`](#lightning_strike)
+  - [`lightning_rain`](#lightning_rain)
+  - [`lightning_ray`](#lightning_ray)
+  - [`homing_bolt`](#homing_bolt)
+  - [`shockwave`](#shockwave)
+  - [`heal_on_hit`](#heal_on_hit)
+  - [`blink`](#blink)
+  - [`projectile_burst`](#projectile_burst)
+  - [`frost_nova`](#frost_nova)
+- [PvP Abilities](#pvp-abilities)
+  - [`grappling_pull`](#grappling_pull)
+  - [`disarm`](#disarm)
+  - [`parry_counter`](#parry_counter)
+  - [`execute`](#execute)
+  - [`leech`](#leech)
+  - [`silence_sigil`](#silence_sigil)
+  - [`tether`](#tether)
+- [PvE Abilities](#pve-abilities)
+  - [`cleave`](#cleave)
+  - [`whirlwind`](#whirlwind)
+  - [`slaying_edge`](#slaying_edge)
+  - [`soul_harvest`](#soul_harvest)
+  - [`chain_lightning`](#chain_lightning)
+  - [`gravity_well`](#gravity_well)
+  - [`ground_slam`](#ground_slam)
+- [Active Debuffs](#active-debuffs)
+  - [`ignite`](#ignite)
+  - [`wither_touch`](#wither_touch)
+  - [`bleed`](#bleed)
+  - [`stun_strike`](#stun_strike)
+  - [`apply_effect`](#apply_effect)
+  - [`boss_phase`](#boss_phase)
+- [Utility Abilities](#utility-abilities)
+  - [`phase_dash`](#phase_dash)
+  - [`grapple`](#grapple)
+  - [`summon`](#summon)
+  - [`feather_fall`](#feather_fall)
+  - [`second_wind`](#second_wind)
+  - [`aegis_shield`](#aegis_shield)
+  - [`blood_debt`](#blood_debt)
+  - [`void_rift`](#void_rift)
+  - [`phase_shade`](#phase_shade)
+  - [`gravity_singularity`](#gravity_singularity)
+  - [Channelled abilities (`exsanguinate`, `blood_circle`, `marionette`)](#channelled-abilities-exsanguinate-blood_circle-marionette)
+  - [`riposte`](#riposte)
+  - [`sanguine_tether`](#sanguine_tether)
+  - [`ley_line`](#ley_line)
+  - [`altar_sacrifice`](#altar_sacrifice)
+  - [`runic_sequence`](#runic_sequence)
+  - [`heartbeat_cast`](#heartbeat_cast)
+  - [`ender_recall`](#ender_recall)
+  - [`levitate_self`](#levitate_self)
+  - [`repair`](#repair)
+- [Support / Social Abilities](#support--social-abilities)
+  - [`rally_banner`](#rally_banner)
+  - [`taunt`](#taunt)
+  - [`healing_totem`](#healing_totem)
+  - [`beacon_ping`](#beacon_ping)
+  - [`firework_burst`](#firework_burst)
+  - [`glow_mark`](#glow_mark)
+  - [`prank_swap`](#prank_swap)
+- [Passives (`while_held`)](#passives-while_held)
+  - [`passive_buff`](#passive_buff)
+  - [`featherweight`](#featherweight)
+  - [`aqua_kit`](#aqua_kit)
+  - [`thermal_ward`](#thermal_ward)
+  - [`saturation_aura`](#saturation_aura)
+  - [`magnet`](#magnet)
+  - [`berserker`](#berserker)
+  - [`combat_focus`](#combat_focus)
+  - [`lifeline`](#lifeline)
+  - [`holder_debuff`](#holder_debuff)
+  - [`rally_aura`](#rally_aura)
+  - [`beacon_aura`](#beacon_aura)
+  - [`mending_aura`](#mending_aura)
+  - [`static_field`](#static_field)
+  - [`repulse_ward`](#repulse_ward)
+  - [`chill_aura`](#chill_aura)
+  - [`blinding_flash`](#blinding_flash)
+  - [`spore_cloud`](#spore_cloud)
+  - [`thorn_pulse`](#thorn_pulse)
+  - [`coward_mark`](#coward_mark)
+  - [`hornet_swarm`](#hornet_swarm)
+  - [`curse_pulse`](#curse_pulse)
+  - [`decay_aura`](#decay_aura)
+  - [`ember_aura`](#ember_aura)
+  - [`ice_lance`](#ice_lance)
+  - [`blizzard`](#blizzard)
+  - [`glacial_shell`](#glacial_shell)
+  - [`tidal_surge`](#tidal_surge)
+  - [`geyser_burst`](#geyser_burst)
+  - [`flame_dash`](#flame_dash)
+  - [`meteor_strike`](#meteor_strike)
+  - [`ember_burst`](#ember_burst)
+  - [`blood_pact`](#blood_pact)
+  - [`hemorrhage`](#hemorrhage)
+  - [`sanguine_strike`](#sanguine_strike)
+- [Resonance / Set Bonus System](#resonance--set-bonus-system)
+- [Elemental Status System](#elemental-status-system)
+  - [`freeze`](#freeze)
+  - [`soak`](#soak)
+  - [`shock`](#shock)
+  - [`thaw_burst`](#thaw_burst)
+  - [`storm_chain`](#storm_chain)
+- [Soul System](#soul-system)
+  - [`soul_collector`](#soul_collector)
+  - [`soul_surge`](#soul_surge)
+  - [`soul_lash`](#soul_lash)
+  - [`last_stand`](#last_stand)
+  - [`adrenaline`](#adrenaline)
+  - [`shield_battery`](#shield_battery)
+- [Worn passives (`while_worn`)](#worn-passives-while_worn)
+  - [Examples](#examples)
+- [Curse System](#curse-system)
+  - [Definition fields](#definition-fields)
+  - [How a curse behaves in-game](#how-a-curse-behaves-in-game)
+  - [Uncurse ability (`uncurse`)](#uncurse-ability-uncurse)
+  - [Commands (op-level)](#commands-op-level)
+- [Imbuing System](#imbuing-system)
+  - [Catalyst definition](#catalyst-definition)
+  - [Top-level `params`](#top-level-params)
+  - [`targets` filter](#targets-filter)
+  - [Outcome shape](#outcome-shape)
+  - [`mods` block](#mods-block)
+  - [Target-side `imbueLimit`](#target-side-imbuelimit)
+  - [Reserved custom_data keys](#reserved-custom_data-keys)
+  - [Commands (op-level)](#commands-op-level-1)
+- [Custom Crafting Recipes](#custom-crafting-recipes)
+  - [Keeping Enchantments When Crafting](#keeping-enchantments-when-crafting)
+- [Infinite Use Items](#infinite-use-items)
+- [Multi-block Mining](#multi-block-mining)
+- [Recharge on Kill](#recharge-on-kill)
+- [Artifact Awakening](#artifact-awakening)
+- [Bound Artifacts](#bound-artifacts)
+- [Item Commands (`run_command`)](#item-commands-run_command)
+- [Charges and Use Costs](#charges-and-use-costs)
+- [Hold-to-Charge Items](#hold-to-charge-items)
+- [Stances](#stances)
+- [Killstreak Momentum](#killstreak-momentum)
+- [Cooldown Groups](#cooldown-groups)
+- [Proc Groups](#proc-groups)
+- [Ability Scaling](#ability-scaling)
+- [Boss Slayer](#boss-slayer)
+- [Ability Conditions](#ability-conditions)
+- [Dynamic Lore](#dynamic-lore)
+- [Bind with FIW Bosses](#bind-with-fiw-bosses)
+- [Public API for Other Mods](#public-api-for-other-mods)
+  - [Behavior](#behavior)
+  - [Failure rules](#failure-rules)
+  - [Reflection-safe lookup](#reflection-safe-lookup)
 - [Behavior Notes](#behavior-notes)
 
 ---
@@ -354,7 +501,7 @@ Recognized flags: `enchantments`, `stored_enchantments`, `attributes`, `unbreaka
 "keepOnDeath": true
 ```
 
-When the player dies, items with this flag are **not dropped** and are restored to their original slots on respawn. Works independently of `/gamerule keepInventory`. Implemented via a small mixin into `PlayerInventory.dropAll`.
+When the player dies, items with this flag are **not dropped** and are restored to their original slots on respawn. Works independently of `/gamerule keepInventory`.
 
 > Cooldowns are not preserved through death/disconnect — the item is fresh on respawn.
 
@@ -645,7 +792,7 @@ the cooldown isn't spent.
 
 ### `beam`
 
-Sustained energy beam — the Fiw Bosses beam attack in item form. A windup gathers spiraling
+Sustained energy beam — the FIW Bosses beam attack in item form. A windup gathers spiraling
 energy at your eyes, then a solid particle beam fires along your crosshair for `duration` ticks,
 damaging everything caught in its cylinder every tick (vanilla hurt-invulnerability paces the
 hits). By default the beam follows your aim so you can sweep it like a laser; it stops at the
@@ -1061,7 +1208,7 @@ Best trigger: `on_attack`. Marks the target on hit; striking the **same** marked
 
 ## PvE Abilities
 
-AoE clear, group damage and crowd control. These default to `affects: hostiles` — widen with the `affects` param.
+AoE clear, group damage and crowd control. These default to `affects: mobs` (non-player living entities) — change the scope with the `affects` param. Only `decay_aura` and `ember_aura` default to `hostiles`.
 
 ### `cleave`
 
@@ -2591,7 +2738,7 @@ Electrify target (SHOCKED): instant damage on application + periodic damage unti
 
 ## Soul System
 
-Items with `"soulCapacity": N` in their definition can store souls. Souls are collected via `soul_collector` (on kill) and spent via `soul_surge` (on right-click). The soul count is stored in item custom_data (`fiw_souls`) — persists across disconnects, resets on `/fiwtools reload`.
+Items with `"soulCapacity": N` in their definition can store souls. Souls are collected via `soul_collector` (on kill) and spent via `soul_surge` (on right-click). The soul count is stored in item custom_data (`fiw_souls`) — persists across disconnects and `/fiwtools reload` (clamped to the current `soulCapacity`).
 
 ### `soul_collector`
 
@@ -2699,7 +2846,7 @@ Maintains a small Absorption shield while held. Refreshes back to the cap on its
 
 ## Worn passives (`while_worn`)
 
-The same passive sweep that drives `while_held`, applied to armor. Every 10 ticks the server walks each player's four armor slots (head, chest, legs, feet) and runs every ability with `"trigger": "while_worn"` (aliases: `worn`, `armor`) on the worn stack — same cooldown / chance / condition machinery, same param shape. **All 24 existing passives work unchanged** as `while_worn` — `featherweight` boots, `combat_focus` helmet, `rally_aura` chestplate, `passive_buff` on any piece, etc.
+The same passive sweep that drives `while_held`, applied to armor. Every 10 ticks the server walks each player's four armor slots (head, chest, legs, feet) and runs every ability with `"trigger": "while_worn"` (aliases: `worn`, `armor`) on the worn stack — same cooldown / chance / condition machinery, same param shape. **Existing passives work unchanged** as `while_worn` — `featherweight` boots, `combat_focus` helmet, `rally_aura` chestplate, `passive_buff` on any piece, etc.
 
 **The only new param is `slot`** — filters which armor slots the passive responds to. Defaults to `any` so a passive declared on an item works in any slot the item is wearable in.
 
@@ -3128,7 +3275,7 @@ or the full form:
 
 **Notes:**
 - Built on vanilla's `use_remainder` component plus a re-stamp sweep — survives reloads, restarts, and stacking.
-- On Minecraft 1.21.1, vanilla has no generic `use_remainder` component yet. That port supports infinite food through the older food conversion field and infinite arrows through the projectile hook; generic non-food consumed items require 1.21.11 or 26.1.2.
+- On Minecraft 1.21.1, vanilla has no generic `use_remainder` component yet. That port supports infinite food through the older food conversion field and infinite arrows through the projectile hook; generic non-food consumed items require 1.21.8, 1.21.11 or 26.1.2.
 - Fired arrows are restored instantly and the flying arrow can't be picked up (no duping). Multishot crossbows and the Infinity enchant are handled.
 - `damage` mode needs a `maxDamage` value to count against; without one the item never breaks.
 
@@ -3301,7 +3448,7 @@ Ownership is stored on the stack and survives reloads, rebuilds, restarts, and b
 
 ## Item Commands (`run_command`)
 
-The `run_command` ability (alias `command`) executes server commands when triggered — infinite ability possibilities without waiting for a dedicated ability type. Execution is **completely silent**: nothing in chat, nothing in the console, no admin broadcast.
+The `run_command` ability (alias `command`) executes server commands when triggered — infinite ability possibilities without waiting for a dedicated ability type. Command feedback is suppressed: no chat or admin broadcast. Optional auditing records every attempted final command, including commands that fail.
 
 ```json
 "abilities": [
@@ -3339,6 +3486,14 @@ The `run_command` ability (alias `command`) executes server commands when trigge
 | `{x}` `{y}` `{z}` | Their block position |
 | `{target}` | The right-clicked/attacked entity's name (empty if none) |
 | `{target_uuid}` | The right-clicked/attacked entity's UUID (empty if none). A UUID is a valid entity selector, so use this — not `{target}` — to run a command **on** the entity you hit, e.g. `effect give {target_uuid} minecraft:glowing 5 0`. `{target}` is only a display name and won't address a mob. |
+
+Audit settings in `config/fiw_tools/settings.json` (reloaded by `/fiwtools reload`):
+
+```json
+{ "autoLore": false, "logCommands": "off" }
+```
+
+`logCommands` accepts `off` (default), `console`, or `file`. Console mode writes to the server log; file mode appends JSON lines to `config/fiw_tools/logs/commands.jsonl`. Each record contains UTC time, player name and UUID, item id, zero-based ability index, and the final substituted command before dispatch. This logs attempts, including invalid commands; command feedback remains suppressed. File writes run off the server thread.
 
 All placeholders are sanitized (stripped to `[A-Za-z0-9_-]`) before substitution, so an entity renamed to a selector like `@a` can't inject commands.
 
@@ -3618,11 +3773,11 @@ The lore component is only rewritten when the text actually changes, so idle ite
 
 ---
 
-## Bind with Fiw Bosses
+## Bind with FIW Bosses
 
-Fiw Custom Items and Fiw Bosses are **fully independent mods** — each one works without the other.
+Fiw Custom Items and FIW Bosses are **fully independent mods** — each one works without the other.
 
-When **both** are installed, Fiw Bosses can reference a Fiw Custom Items entry by id from its loot or equipment slots:
+When **both** are installed, FIW Bosses can reference a Fiw Custom Items entry by id from its loot or equipment slots:
 
 ```json
 // boss loot entry
@@ -3632,9 +3787,9 @@ When **both** are installed, Fiw Bosses can reference a Fiw Custom Items entry b
 "mainHand": { "toolId": "soul_blade" }
 ```
 
-Internally, Fiw Bosses calls the stable public API documented below. If Fiw Custom Items is missing, the lookup is silently skipped (the loot entry drops nothing, the equipment slot stays empty) — boss configs never crash because of a missing install.
+Internally, FIW Bosses calls the stable public API documented below. If Fiw Custom Items is missing, the lookup is silently skipped (the loot entry drops nothing, the equipment slot stays empty) — boss configs never crash because of a missing install.
 
-The reverse direction does **not** apply: Fiw Custom Items never reads Fiw Bosses. The two mods can be released, updated, and run independently.
+Integration works in both directions: items can react to FIW Bosses phase changes with `on_boss_phase`, control phases with the op-only `boss_phase` ability, and use `whenTargetIsBoss` / `whenTargetIsMinion` conditions and `bonusVsBosses` / `bonusVsMinions` damage multipliers. Without FIW Bosses, phase hooks have no effect and boss detection falls back to vanilla bosses (ender dragon, wither, warden and elder guardian). The two mods can be released, updated, and run independently.
 
 ---
 
@@ -3687,11 +3842,11 @@ ItemStack stack = (ItemStack) getItemStack.invoke(null, "void_reaver", server, 1
 
 **Hot reload**
 - `/fiwtools reload` re-reads every JSON in `config/fiw_tools/items/` and atomically swaps the registry.
-- Items already in player inventories are **not** retroactively updated — they keep the components they had when given. Re-give to refresh.
+- Online player inventories are rebuilt on reload, on join and during the periodic inventory sweep, preserving player state such as souls and imbuements. Chests, shulkers, ender chests and dropped items are not synced; move those items into a player inventory to refresh them.
 
 **Cooldowns**
 - Tracked per-player per-ability slot (item id + ability index). Two copies of the same item in main and offhand share a single cooldown for that ability.
-- Cooldowns are in-memory only — they reset on player disconnect or server restart.
+- Remaining cooldown ticks are saved per player UUID on logout and server stop, including `cooldownGroup` keys. They resume on login; offline time does not count down. Recharge-on-kill resets and reductions are included in the next saved snapshot. Back up `config/fiw_tools/data/cooldowns/` with your server.
 
 **Compatibility**
 - Modded items can be used as `base` if the modded item is registered server-side.

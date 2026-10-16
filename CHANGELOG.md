@@ -13,6 +13,7 @@ version header.
 
 ### Fixed
 - Save remaining ability cooldowns per player, including shared groups and recharge-on-kill resets/reductions.
+- Correct item guide navigation, command arguments, reload/soul behavior, targeting defaults, version notes and two-way FIW Bosses integration.
 
 ## [1.3.2] - Auto lore, item export, boss slayer
 
