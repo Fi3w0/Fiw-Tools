@@ -6,15 +6,22 @@ version header.
 
 ## [1.3.3] - Persistent cooldowns and command auditing
 
-> **⚠ Upgrade note:** ability cooldowns now survive relogging and server restarts; offline time does not reduce them.
+Maintenance and bug-fix update. If something breaks or behaves differently than before, please report it on the [issue tracker](https://github.com/Fi3w0/Fiw-Tools/issues).
+
+> **⚠ Upgrade note:** ability cooldowns now survive relogging and server restarts; offline time does not reduce them. Back up `config/fiw_tools/data/cooldowns/` with your server.
+
+### Added
+- `logCommands` in `config/fiw_tools/settings.json` (`off` by default, `console` or `file`) records every item command attempt with the time, player name and UUID, item id, ability index and the final command, including commands that fail. File mode appends JSON lines to `config/fiw_tools/logs/commands.jsonl` off the server thread. An unknown mode logs a warning and falls back to `off`.
 
 ### Changed
-- Include a focused regression pack for cooldown persistence/recharge, command auditing, reload state and crafting, with a two-instance test checklist.
-- Optional `logCommands` audit mode (`off`, `console`, `file`) records command attempts with player, item, ability index and final command. File: `config/fiw_tools/logs/commands.jsonl`.
+- Remaining ability cooldowns are saved per player on logout and server stop, including `cooldownGroup` keys, and resume on login. Recharge-on-kill resets and reductions are kept in the saved state.
 
 ### Fixed
-- Save remaining ability cooldowns per player, including shared groups and recharge-on-kill resets/reductions.
-- Correct item guide navigation, command arguments, reload/soul behavior, targeting defaults, version notes and two-way FIW Bosses integration.
+- Relogging, reconnecting or restarting the server no longer clears ability cooldowns, so they can't be skipped that way.
+
+### Documentation
+- Item guide: corrected navigation, command arguments, reload and soul behavior, targeting defaults and version notes, and documented the two-way FIW Bosses integration, `logCommands` and saved cooldowns.
+- README: corrected `/fiwtools curse list <itemId>` and `/fiwtools imbue best|roll <catalystId>`, and listed `settings.json` and `data/cooldowns/` under config folders.
 
 ## [1.3.2] - Auto lore, item export, boss slayer
 

@@ -18,8 +18,6 @@ No Java. No restarts. Fabric and NeoForge builds are both supported.
 
 ## The pitch
 
-Ability cooldowns, including shared groups, survive relogging and server restarts as remaining ticks; offline time does not consume them. Optional `logCommands` auditing (`off` by default, `console` or `file`) in `config/fiw_tools/settings.json` records the player, item, ability index and final command. File logs go to `config/fiw_tools/logs/commands.jsonl`.
-
 Fiw Custom Items gives server owners custom items from JSON: drop a file into `config/fiw_tools/items/`, run `/fiwtools reload`, and a custom item is live.
 
 It is not a fixed item pack. It lets you build your own progression: custom display, lore, attributes, enchantments above vanilla caps, durability, food, tool rules, active abilities, passive armor effects, curses, imbuements, and persistent upgrades.
