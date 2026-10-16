@@ -1,8 +1,8 @@
 # 1.3.3 regression pack
 
-Use the two existing Prism instances **FIW Test Fabric 1.21.8** and **FIW Test NeoForge 1.21.11** (Java 21). Both currently have older mod jars: replace Fiw Custom Items with the matching **1.3.3** production jar after a successful build. Fabric also needs Fabric API and Fabric Language Kotlin. Test each instance in a new disposable world. Keep the old jars/configs outside `mods/`/active config while testing.
+Use the two existing Prism instances **FIW Test Fabric 1.21.8** and **FIW Test NeoForge 1.21.11** (Java 21). Both now have the matching **1.3.3** production jar and this regression pack installed. Previous jars/settings are backed up in `Jar/prism-backup-2026-10-16/` (ignored by Git). Fabric also needs Fabric API and Fabric Language Kotlin. Test each instance in a new disposable world. Keep the old jars/configs outside `mods/`/active config while testing.
 
-Status on 2026-10-16: configs checked with the production parsers. All seven dedicated-server launch attempts were blocked before configuration by the session's local-socket restriction. None of the gameplay checks below is claimed as passed.
+Status on 2026-10-16 after access was enabled: full Gradle build and all 39 core tests passed. All seven dedicated servers passed the console/config checks below. Connected-player cooldown, recharge, audit execution, crafting and client checks remain unchecked; use the two Prism instances for those.
 
 ## Build before installing
 
@@ -71,18 +71,20 @@ Switch modes by copying the relevant `settings/*.json` over the active `settings
 
 Report the instance, first failing step, expected/actual scoreboard or file contents, and the new log lines. Keep the world/config/data/log files until the test is resolved. No push or release until testing passes.
 
-## Dedicated-server attempt record
+## Dedicated-server results (2026-10-16)
 
-Each command was run from this repo on JDK 25 with a writable temporary Gradle cache. Every attempt failed before configuration with `FileLockContentionHandler` → `java.net.SocketException: Operation not permitted`. No server reached `Done`; console/gameplay/restart checks remain unexecuted. Exact logs live in `/private/tmp/fiw-runtime-20261016/`.
+Full `./gradlew build --stacktrace` on JDK 25 passed for all seven targets. Every server reached `Done`, loaded seven items/one recipe, accepted `reload`/`list`/`recipes`, switched all four audit settings, warned and fell back to `off` for the invalid mode, rejected the bad item while keeping valid items loaded, recovered after its removal, saved and stopped cleanly.
 
-| Target | Command | Result |
+| Target | Build | Server/config checks |
 |---|---|---|
-| `fabric-26.2.1` | `./gradlew :fabric-26.2.1:runServer --console=plain --stacktrace` | Blocked before configuration |
-| `fabric-1.21.11` | `./gradlew :fabric-1.21.11:runServer --console=plain --stacktrace` | Blocked before configuration |
-| `neoforge-1.21.11` | `./gradlew :neoforge-1.21.11:runServer --console=plain --stacktrace` | Blocked before configuration |
-| `fabric-1.21.8` | `./gradlew :fabric-1.21.8:runServer --console=plain --stacktrace` | Blocked before configuration |
-| `neoforge-1.21.8` | `./gradlew :neoforge-1.21.8:runServer --console=plain --stacktrace` | Blocked before configuration |
-| `fabric-1.21.1` | `./gradlew :fabric-1.21.1:runServer --console=plain --stacktrace` | Blocked before configuration |
-| `neoforge-1.21.1` | `./gradlew :neoforge-1.21.1:runServer --console=plain --stacktrace` | Blocked before configuration |
+| Fabric 26.1.2 (`fabric-26.2.1`) | Pass | Pass |
+| Fabric 1.21.11 | Pass | Pass |
+| NeoForge 1.21.11 | Pass | Pass, packaged jar |
+| Fabric 1.21.8 | Pass | Pass |
+| NeoForge 1.21.8 | Pass | Pass, packaged jar |
+| Fabric 1.21.1 | Pass | Pass |
+| NeoForge 1.21.1 | Pass | Pass, packaged jar |
 
-After a successful launch, enter the lines from `console-smoke.txt` one at a time and inspect each response; stop with `stop`. For full tests use the connected-player checklist above.
+Servers used disposable `qa_world` directories bound to loopback. An external temporary Gradle init script isolates loader run directories and forwards console input. NeoForge uses the built mod jar in `mods/`, with expanded development mod sources disabled: the older dev runs otherwise fail with `NoClassDefFoundError: kotlin/jvm/internal/Intrinsics`. The packaged jars correctly discover their nested Kotlin runtime. This checks the actual jar through the dev launch infrastructure; a standalone distribution and connected-player gameplay are separate checks.
+
+Logs and machine-readable results: `/private/tmp/fiw-live-20261016/tools-results.json` and matching `tools-*.log`. The earlier sandbox-blocked attempts are superseded by these results. Run the connected-player checklist above in a new disposable Prism world; no push/release until the player checks pass.
