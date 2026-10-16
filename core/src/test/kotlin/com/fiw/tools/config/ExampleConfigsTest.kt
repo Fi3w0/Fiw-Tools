@@ -15,7 +15,7 @@ class ExampleConfigsTest {
         val root = (if (working.fileName.toString() == "core") working.parent else working).resolve("examples")
         val files = Files.walk(root).use { stream ->
             stream.filter { Files.isRegularFile(it) && it.toString().endsWith(".json") }
-                .filter { it.parent.fileName.toString() in setOf("items", "recipes", "v1.0.3-test") }
+                .filter { it.parent.fileName.toString() in setOf("items", "recipes") }
                 .sorted().toList()
         }
         assertTrue(files.isNotEmpty(), "No example configs found at $root")

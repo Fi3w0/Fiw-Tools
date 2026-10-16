@@ -1,8 +1,6 @@
-# 1.3.3 regression pack
+# QA pack
 
-Use the two existing Prism instances **FIW Test Fabric 1.21.8** and **FIW Test NeoForge 1.21.11** (Java 21). Both now have the matching **1.3.3** production jar and this regression pack installed. Previous jars/settings are backed up in `Jar/prism-backup-2026-10-16/` (ignored by Git). Fabric also needs Fabric API and Fabric Language Kotlin. Test each instance in a new disposable world. Keep the old jars/configs outside `mods/`/active config while testing.
-
-Status on 2026-10-16 after access was enabled: full Gradle build and all 39 core tests passed. All seven dedicated servers passed the console/config checks below. Connected-player cooldown, recharge, audit execution, crafting and client checks remain unchecked; use the two Prism instances for those.
+One test pack for the current version, updated in place each release. Use the Prism instances **FIW Test Fabric 1.21.8** and **FIW Test NeoForge 1.21.11** (Java 21) with a new disposable world. Fabric also needs Fabric API and Fabric Language Kotlin.
 
 ## Build before installing
 
@@ -12,7 +10,7 @@ From this repo, run Gradle on JDK 25 (the per-target toolchains select Java 21/2
 JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home ./gradlew build --stacktrace
 ```
 
-The two player-test jars should be `fabric-1.21.8/build/libs/fiw-tools-fabric-1.21.8-1.3.3.jar` and `neoforge-1.21.11/build/libs/fiw-tools-neoforge-1.21.11-1.3.3.jar`. Do not rename an old jar to these names. NeoForge ships its own nested Kotlin runtime; no Kotlin-for-Forge dependency is required. Some older NeoForge dev `runServer` configurations have a known Kotlin classpath problem, so validate production jars separately if a dev launch fails.
+The two player-test jars should be `fabric-1.21.8/build/libs/fiw-tools-fabric-1.21.8-<version>.jar` and `neoforge-1.21.11/build/libs/fiw-tools-neoforge-1.21.11-<version>.jar`. Do not rename an old jar to these names. NeoForge ships its own nested Kotlin runtime; no Kotlin-for-Forge dependency is required. Some older NeoForge dev `runServer` configurations have a known Kotlin classpath problem, so validate production jars separately if a dev launch fails.
 
 ## Install and setup
 
@@ -70,21 +68,3 @@ Switch modes by copying the relevant `settings/*.json` over the active `settings
 - [ ] Copy `negative/qa_bad_item.json.invalid` into active `items/` as `qa_bad_item.json`, then reload. Expect a reported `stackSize` validation failure for that file; valid QA items must still load. Remove only this temporary active copy, reload, and check the failure is gone.
 
 Report the instance, first failing step, expected/actual scoreboard or file contents, and the new log lines. Keep the world/config/data/log files until the test is resolved. No push or release until testing passes.
-
-## Dedicated-server results (2026-10-16)
-
-Full `./gradlew build --stacktrace` on JDK 25 passed for all seven targets. Every server reached `Done`, loaded seven items/one recipe, accepted `reload`/`list`/`recipes`, switched all four audit settings, warned and fell back to `off` for the invalid mode, rejected the bad item while keeping valid items loaded, recovered after its removal, saved and stopped cleanly.
-
-| Target | Build | Server/config checks |
-|---|---|---|
-| Fabric 26.1.2 (`fabric-26.2.1`) | Pass | Pass |
-| Fabric 1.21.11 | Pass | Pass |
-| NeoForge 1.21.11 | Pass | Pass, packaged jar |
-| Fabric 1.21.8 | Pass | Pass |
-| NeoForge 1.21.8 | Pass | Pass, packaged jar |
-| Fabric 1.21.1 | Pass | Pass |
-| NeoForge 1.21.1 | Pass | Pass, packaged jar |
-
-Servers used disposable `qa_world` directories bound to loopback. An external temporary Gradle init script isolates loader run directories and forwards console input. NeoForge uses the built mod jar in `mods/`, with expanded development mod sources disabled: the older dev runs otherwise fail with `NoClassDefFoundError: kotlin/jvm/internal/Intrinsics`. The packaged jars correctly discover their nested Kotlin runtime. This checks the actual jar through the dev launch infrastructure; a standalone distribution and connected-player gameplay are separate checks.
-
-Logs and machine-readable results: `/private/tmp/fiw-live-20261016/tools-results.json` and matching `tools-*.log`. The earlier sandbox-blocked attempts are superseded by these results. Run the connected-player checklist above in a new disposable Prism world; no push/release until the player checks pass.
