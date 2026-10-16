@@ -4,7 +4,7 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
-## [Unreleased]
+## [1.3.3] - Persistent cooldowns and command auditing
 
 > **⚠ Upgrade note:** ability cooldowns now survive relogging and server restarts; offline time does not reduce them.
 
