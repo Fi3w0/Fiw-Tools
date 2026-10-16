@@ -95,6 +95,7 @@ object FiwToolsCommon {
 
     fun serverStopped() {
         AbilityCooldownTracker.stop()
+        com.fiw.tools.ability.CommandAudit.stop()
         ProjectileBurstAbility.clear()
         ArcSlashAbility.clear()
         SlashBarrage.clear()

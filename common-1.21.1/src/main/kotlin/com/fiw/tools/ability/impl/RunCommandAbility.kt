@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 /**
  * `run_command` — executes one or more server commands when triggered, opening the door to any
  * ability the command system can express. Runs at full permission with all output suppressed:
- * nothing in chat, nothing in the console, no admin broadcast.
+ * nothing in chat and no admin broadcast. Optional settings-based auditing records attempts.
  *
  * Params:
  * - `command`: a single command string, or `commands`: an array of them (leading `/` optional)
@@ -59,6 +59,7 @@ object RunCommandAbility : Ability {
                 // selector), so commands can affect a mob you hit — {target} is only its display name.
                 .replace("{target_uuid}", sanitize(ctx.target?.uuid?.toString() ?: ""))
                 .replace("{target}", sanitize(ctx.target?.name?.string ?: ""))
+            com.fiw.tools.ability.CommandAudit.record(ctx, cmd)
             try {
                 dispatcher.performPrefixedCommand(source, cmd)
             } catch (e: Exception) {

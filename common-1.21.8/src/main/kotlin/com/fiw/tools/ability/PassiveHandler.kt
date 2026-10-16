@@ -160,7 +160,11 @@ object PassiveHandler {
             val key = AbilityCooldownTracker.keyFor(def.id, idx, ab.cooldownGroup)
             val params = AbilityScaling.resolve(player, stack, def, ab)
             try {
-                if (BossSlayer.during(ab) { ability.execute(AbilityContext(player, stack, world, null, null, params)) }) {
+                if (BossSlayer.during(ab) {
+                        CommandAudit.during(def.id, idx) {
+                            ability.execute(AbilityContext(player, stack, world, null, null, params))
+                        }
+                    }) {
                     AbilityCooldownTracker.arm(player, key, ab.cooldownTicks)
                     if (cost != null) AbilityCosts.pay(player, stack, cost)
                 }

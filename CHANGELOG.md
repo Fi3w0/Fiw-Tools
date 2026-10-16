@@ -8,6 +8,9 @@ version header.
 
 > **⚠ Upgrade note:** ability cooldowns now survive relogging and server restarts; offline time does not reduce them.
 
+### Changed
+- Optional `logCommands` audit mode (`off`, `console`, `file`) records command attempts with player, item, ability index and final command. File: `config/fiw_tools/logs/commands.jsonl`.
+
 ### Fixed
 - Save remaining ability cooldowns per player, including shared groups and recharge-on-kill resets/reductions.
 

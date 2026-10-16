@@ -369,7 +369,9 @@ object AbilityDispatcher {
             val params = AbilityScaling.resolve(player, stack, def, abilityDef)
             try {
                 if (BossSlayer.during(abilityDef) {
-                        ability.execute(AbilityContext(player, stack, world, target, targetPos, params, damageSource, damageAmount))
+                        CommandAudit.during(def.id, idx) {
+                            ability.execute(AbilityContext(player, stack, world, target, targetPos, params, damageSource, damageAmount))
+                        }
                     }) {
                     AbilityCooldownTracker.arm(player, key, abilityDef.cooldownTicks)
                     if (cost != null) AbilityCosts.pay(player, stack, cost)
