@@ -1,0 +1,35 @@
+{
+  "id": "mirage_cloak",
+  "base": "minecraft:echo_shard",
+  "displayName": "&d&lMirage Shard",
+  "lore": [
+    "&7Leave them something to hit.",
+    "",
+    "&fRight-click &8- &7vanish and leave a decoy behind.",
+    "&8  When it falls, it drags everyone in and bursts."
+  ],
+  "rarity": "epic",
+  "abilities": [
+    {
+      "type": "decoy",
+      "trigger": "on_right_click",
+      "cooldownTicks": 600,
+      "params": {
+        "duration": 160,
+        "health": 24,
+        "taunt": 14,
+        "onSpawn": [
+          { "do": "effect", "to": "owner", "effect": "speed", "duration": 120, "amplifier": 1 },
+          { "do": "effect", "to": "owner", "effect": "invisibility", "duration": 120 }
+        ],
+        "onDeath": [
+          { "do": "pull", "radius": 7, "strength": 1.1 },
+          { "do": "explode", "radius": 5, "damage": 10, "knockback": 1.4, "delay": 8 }
+        ],
+        "onExpire": [
+          { "do": "particles", "particle": "minecraft:witch", "count": 30 }
+        ]
+      }
+    }
+  ]
+}

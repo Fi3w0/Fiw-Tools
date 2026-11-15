@@ -230,6 +230,7 @@ Abilities are small, tunable modules. Add them to an item, set a trigger, tune t
 | `teleport_behind` | Blink behind your target with optional finisher damage |
 | `homing_bolt` | Projectile that curves toward the nearest enemy mid-flight |
 | `aegis_shield` | On-demand barrier that swallows a pool of incoming damage |
+| `decoy` | Leaves a stand-in in your gear; build escapes, traps and bait from its spawn, hit, death, expiry and timer hooks |
 | `stun_strike` | True hard crowd-control — a full movement/attack lock |
 | `apply_effect` | Apply any vanilla potion effect to self or target, any trigger |
 | `boss_phase` | Admin tool: move a FIW Bosses boss to the next/previous/any phase without touching HP |

@@ -67,6 +67,8 @@ Tweak the file, reload, try again.
 
 **Active abilities** - right-click casts, attack procs, kill effects, hurt reactions, and block-break effects.
 
+**Decoys** - leave a stand-in wearing your gear. Decide what happens when it appears, is hit, dies, expires or every few seconds: vanish with speed and invisibility, drag attackers in and explode, punish every hit, or run any command.
+
 **Elemental status** - apply FROZEN, SOAKED, or SHOCKED to enemies. Stack statuses for interactions: freeze then thaw_burst for a fire explosion, soak then storm_chain to arc lightning between targets.
 
 **Set bonuses** - tag items with a `resonanceId`. Equip enough pieces and extra passive abilities unlock automatically. A per-ability `minPieces` enables tiers — a 2-piece and a stronger 4-piece bonus on one set.
@@ -132,6 +134,7 @@ Tweak the file, reload, try again.
 | `teleport_behind` | Blink behind your target, optional finisher damage |
 | `homing_bolt` | Projectile that curves toward the nearest enemy |
 | `aegis_shield` | On-demand barrier that absorbs a pool of damage |
+| `decoy` | Leaves a stand-in in your gear that soaks hits; chain explosions, pulls, effects and commands onto its hooks |
 | `stun_strike` | True hard crowd-control lock |
 | `apply_effect` | Apply any potion effect to self or target |
 | `boss_phase` | Admin tool: shift a FIW Bosses boss's phase without touching HP |

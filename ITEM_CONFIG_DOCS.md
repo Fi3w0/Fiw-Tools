@@ -107,6 +107,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
   - [`phase_dash`](#phase_dash)
   - [`grapple`](#grapple)
   - [`summon`](#summon)
+  - [`decoy`](#decoy)
   - [`feather_fall`](#feather_fall)
   - [`second_wind`](#second_wind)
   - [`aegis_shield`](#aegis_shield)
@@ -1522,6 +1523,91 @@ world load). Works best with tamable or neutral mobs — a summoned zombie is st
 ```json
 { "type": "summon", "trigger": "on_right_click", "cooldownTicks": 600,
   "params": { "entity": "minecraft:wolf", "count": 3, "duration": 900 } }
+```
+
+---
+
+### `decoy`
+
+Best trigger: `on_right_click`. Leaves a stand-in where you stand: a mob wearing copies of your
+armor and held items, with your name over its head. Works on unmodded clients. On its own the
+decoy only soaks hits and pulls monsters off you; everything else is built from **hooks**, each a
+list of **actions**, so one ability covers escape tools, traps, bait and turrets.
+
+The decoy never dies the vanilla way: hits drain its own `health` pool, so it drops no loot or
+experience and the gear copies it wears can never be picked up. Decoys are removed when their
+time runs out, when the server stops, and on world load after a crash.
+
+| Param | Default | Description |
+|-------|---------|-------------|
+| `entity` | `minecraft:husk` | Mob used as the body. Pick one that does not transform (a piglin zombifies) |
+| `duration` | 200 | Lifetime in ticks (20 to 600) |
+| `health` | 20 | Damage it soaks before it "dies" |
+| `copyEquipment` | true | Wear copies of your armor, main hand and off hand |
+| `name` | `{player}` | Name tag. `""` hides it |
+| `taunt` | 12 | Radius in which monsters chasing a player switch to the decoy. `0` turns it off |
+| `attacks` | false | `true` keeps the mob's AI: it fights `attackTargets` within `attackRange` and never its owner |
+| `attackTargets` | `hostiles` | `hostiles`, `mobs`, `players` or `all` |
+| `attackRange` | 16 | Search range for a fighting decoy |
+| `maxActive` | 1 | Decoys one player can have at once (1 to 4). A new one replaces the oldest |
+| `silent` | true | Mute the mob's own sounds |
+| `glowing` | false | Outline it through walls |
+| `particle` | `minecraft:cloud` | Burst when it appears |
+| `peacefulMessage` | `This decoy cannot exist on Peaceful difficulty.` | Shown when a hostile body is used on Peaceful. `""` hides it |
+
+> **Peaceful difficulty:** the game removes hostile mobs there, so a hostile `entity` (the default husk included) is refused: no decoy, no hooks, no cooldown. Use a non-hostile `entity` on Peaceful servers.
+
+**Hooks** (all optional): `onSpawn`, `onHit` (at most once per tick), `onDeath` (health pool
+emptied), `onExpire` (time ran out), and `every`: `{ "ticks": 40, "actions": [ ... ] }`.
+
+**Actions.** Each is `{ "do": "<action>", ... }`. Area actions take `radius` (default 5) and
+`affects` (`all` by default: everyone but you; also `hostiles`, `mobs`, `players`). Any action
+takes `delay` in ticks and still runs at the spot where the hook fired, even after the decoy is gone.
+
+| `do` | Fields | What it does |
+|------|--------|--------------|
+| `explode` | `damage` 6, `knockback` 1.0 | Damage and knock back. Never breaks blocks |
+| `pull` / `push` | `strength` 1.0 | Throw targets toward or away from the decoy |
+| `damage` | `amount` 4 | Plain area damage, credited to you |
+| `effect` | `effect`, `duration` 100 (ticks), `amplifier` 0, `to` | Potion effect on targets nearby, or on you with `"to": "owner"` |
+| `command` | `command` or `commands` | Server commands run at the decoy's position (`~ ~ ~` works). Placeholders `{player}` `{uuid}` `{x}` `{y}` `{z}`. Audited by `logCommands` |
+| `particles` | `particle`, `count` 20, `spread` 0.5, `speed` 0.02 | Cosmetic burst |
+| `sound` | `sound`, `volume` 1.0, `pitch` 1.0 | Play a sound |
+
+Decoy actions stop while the owner is offline or in another dimension. Other abilities on the same
+item and trigger still fire normally, so `decoy` also combines with `apply_effect`, `blink` and the rest.
+
+Vanish and leave a bomb behind:
+
+```json
+{ "type": "decoy", "trigger": "on_right_click", "cooldownTicks": 600,
+  "params": {
+    "duration": 160, "health": 24,
+    "onSpawn": [
+      { "do": "effect", "to": "owner", "effect": "speed", "duration": 120, "amplifier": 1 },
+      { "do": "effect", "to": "owner", "effect": "invisibility", "duration": 120 }
+    ],
+    "onDeath": [
+      { "do": "pull", "radius": 7, "strength": 1.1 },
+      { "do": "explode", "radius": 5, "damage": 10, "delay": 8 }
+    ]
+  } }
+```
+
+A thorny bait that punishes whoever hits it:
+
+```json
+{ "type": "decoy", "trigger": "on_right_click", "cooldownTicks": 400,
+  "params": { "health": 40, "taunt": 16,
+    "onHit": [ { "do": "damage", "radius": 3, "amount": 3 }, { "do": "effect", "effect": "slowness", "duration": 60, "radius": 3 } ] } }
+```
+
+A short-lived guard that fights for you and slows the area every two seconds:
+
+```json
+{ "type": "decoy", "trigger": "on_right_click", "cooldownTicks": 900,
+  "params": { "entity": "minecraft:iron_golem", "attacks": true, "copyEquipment": false, "name": "", "duration": 400, "health": 60,
+    "every": { "ticks": 40, "actions": [ { "do": "effect", "effect": "slowness", "duration": 50, "radius": 6, "affects": "hostiles" } ] } } }
 ```
 
 ---
