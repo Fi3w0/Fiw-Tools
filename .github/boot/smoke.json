@@ -1,0 +1,10 @@
+{
+  "commands": [
+    "fiwtools reload",
+    "fiwtools list",
+    "fiwtools recipes"
+  ],
+  "expected": [
+    "Reloaded:"
+  ]
+}
