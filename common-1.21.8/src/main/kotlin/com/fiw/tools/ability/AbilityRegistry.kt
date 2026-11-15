@@ -162,6 +162,7 @@ object AbilityRegistry {
         register("taunt") { TauntAbility }
         register("healing_totem") { HealingTotemAbility }
         register("summon") { SummonAbility }
+        register("decoy") { com.fiw.tools.ability.impl.DecoyAbility }
         register("beacon_ping") { BeaconPingAbility }
         register("firework_burst") { FireworkBurstAbility }
         register("glow_mark") { GlowMarkAbility }

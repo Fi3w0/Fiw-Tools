@@ -61,7 +61,9 @@ object FiwTools : ModInitializer {
             if (entity is ServerPlayer) AbilityDispatcher.onDeath(entity)
         }
         ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, amount ->
-            if (entity is ServerPlayer && com.fiw.tools.ability.AbilityState.tryRiposte(entity, source, amount)) {
+            if (com.fiw.tools.ability.impl.DecoyAbility.absorb(entity, source, amount)) {
+                false  // a decoy soaked the hit; it never takes vanilla damage
+            } else if (entity is ServerPlayer && com.fiw.tools.ability.AbilityState.tryRiposte(entity, source, amount)) {
                 false  // a well-timed parry negated the hit
             } else if (entity is ServerPlayer && com.fiw.tools.ability.AbilityState.aegisAbsorbs(entity, source, amount)) {
                 false  // an active aegis barrier swallowed the whole hit
@@ -87,6 +89,7 @@ object FiwTools : ModInitializer {
         ServerEntityEvents.ENTITY_LOAD.register { entity, _ ->
             InfiniteItems.onEntityLoad(entity)
             com.fiw.tools.ability.impl.SummonAbility.onEntityLoad(entity)
+            com.fiw.tools.ability.impl.DecoyAbility.onEntityLoad(entity)
             com.fiw.tools.projectile.ProjectileHooks.onEntityLoad(entity)
         }
         ServerPlayerEvents.AFTER_RESPAWN.register { _, newPlayer, _ -> AbilityDispatcher.onRespawn(newPlayer) }

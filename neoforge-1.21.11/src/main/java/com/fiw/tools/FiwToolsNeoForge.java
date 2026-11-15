@@ -161,6 +161,10 @@ public final class FiwToolsNeoForge {
 
     @SubscribeEvent
     public void onIncomingDamage(LivingIncomingDamageEvent event) {
+        if (com.fiw.tools.ability.impl.DecoyAbility.INSTANCE.absorb(event.getEntity(), event.getSource(), event.getAmount())) {
+            event.setCanceled(true);  // a decoy soaked the hit; it never takes vanilla damage
+            return;
+        }
         if (event.getEntity() instanceof ServerPlayer player
                 && com.fiw.tools.ability.AbilityState.INSTANCE.tryRiposte(player, event.getSource(), event.getAmount())) {
             event.setCanceled(true);  // a well-timed parry negated the hit
@@ -184,8 +188,9 @@ public final class FiwToolsNeoForge {
     public void onEntityJoin(EntityJoinLevelEvent event) {
         com.fiw.tools.infinite.InfiniteItems.INSTANCE.onEntityLoad(event.getEntity());
         com.fiw.tools.ability.impl.SummonAbility.INSTANCE.onEntityLoad(event.getEntity());
+        com.fiw.tools.ability.impl.DecoyAbility.INSTANCE.onEntityLoad(event.getEntity());
         com.fiw.tools.projectile.ProjectileHooks.INSTANCE.onEntityLoad(event.getEntity());
-        // A hook above may discard a stray (a summon left over from a crash or restart).
+        // A hook above may discard a stray (summon or decoy left over from a crash or restart).
         // An entity removed while it joins would otherwise stay behind as a frozen ghost.
         if (event.getEntity().isRemoved()) {
             event.setCanceled(true);
