@@ -32,10 +32,10 @@ loom {
 sourceSets {
 	main {
 		java {
-			srcDir rootProject.file('common-26.2.1/src/main/java')
+			srcDir rootProject.file('common-26.1.2/src/main/java')
 		}
 		resources {
-			srcDir rootProject.file('common-26.2.1/src/main/resources')
+			srcDir rootProject.file('common-26.1.2/src/main/resources')
 		}
 	}
 }
@@ -43,7 +43,7 @@ sourceSets {
 kotlin {
 	sourceSets {
 		main {
-			kotlin.srcDir(rootProject.file('common-26.2.1/src/main/kotlin'))
+			kotlin.srcDir(rootProject.file('common-26.1.2/src/main/kotlin'))
 		}
 	}
 }
