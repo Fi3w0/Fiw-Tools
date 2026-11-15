@@ -179,8 +179,6 @@ Fabric builds need [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric
 
 NeoForge builds include the Kotlin runtime inside the Fiw Custom Items jar. Install it on the NeoForge server only; clients do not need the mod, and no separate KotlinForForge mod is required.
 
-The repo module is named `fabric-26.2.1` as requested, but Fabric's official metadata currently rejects the `26.2.1` game coordinate. The buildable target is `26.1.2` until Fabric publishes a valid `26.2.1` coordinate.
-
 ---
 
 ## Commands

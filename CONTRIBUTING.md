@@ -39,7 +39,7 @@ For a single target:
 Run the current matrix before pushing:
 
 ```bash
-./gradlew :fabric-1.21.1:build :neoforge-1.21.1:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-26.2.1:build
+./gradlew :fabric-26.1.2:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-1.21.8:build :neoforge-1.21.8:build :fabric-1.21.1:build :neoforge-1.21.1:build
 ```
 
 For in-game testing, build the relevant jar and copy it to a matching Minecraft instance's `mods/` folder.

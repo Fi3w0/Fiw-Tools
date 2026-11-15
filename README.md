@@ -87,9 +87,7 @@ Full JSON reference -> **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG_DOCS.md)**
 | NeoForge | 1.21.8    | `neoforge-1.21.8`  | 21   |
 | Fabric   | 1.21.11   | `fabric-1.21.11`   | 21   |
 | NeoForge | 1.21.11   | `neoforge-1.21.11` | 21   |
-| Fabric   | 26.1.2    | `fabric-26.2.1`    | 25   |
-
-The `fabric-26.2.1` module keeps the requested folder/module name. Fabric's official metadata endpoint currently rejects `26.2.1`, so the buildable Minecraft target remains `26.1.2` until that coordinate exists.
+| Fabric   | 26.1.2    | `fabric-26.1.2`    | 25   |
 
 | Loader | Extra requirements |
 | ------ | ------------------ |
@@ -332,7 +330,7 @@ cd Fiw-Tools
   :fabric-1.21.8:build \
   :neoforge-1.21.8:build \
   :neoforge-1.21.11:build \
-  :fabric-26.2.1:build
+  :fabric-26.1.2:build
 ```
 
 Output jars land in each module's `build/libs/`.
@@ -352,8 +350,8 @@ neoforge-1.21.8/     NeoForge entrypoint, events, metadata, build
 common-1.21.11/      shared MC 1.21.11 implementation
 fabric-1.21.11/      Fabric entrypoint, events, metadata, build
 neoforge-1.21.11/    NeoForge entrypoint, events, metadata, build
-common-26.2.1/       shared Fabric 26 implementation
-fabric-26.2.1/       Fabric entrypoint, events, metadata, build
+common-26.1.2/       shared MC 26.1.2 implementation
+fabric-26.1.2/       Fabric entrypoint, events, metadata, build
 examples/             example item JSON + FIW Bosses integration configs
 ```
 

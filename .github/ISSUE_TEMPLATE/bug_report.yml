@@ -15,9 +15,11 @@ body:
       options:
         - Fabric 1.21.1
         - NeoForge 1.21.1
+        - Fabric 1.21.8
+        - NeoForge 1.21.8
         - Fabric 1.21.11
         - NeoForge 1.21.11
-        - Fabric 26.1.2 (module fabric-26.2.1)
+        - Fabric 26.1.2
     validations:
       required: true
 
