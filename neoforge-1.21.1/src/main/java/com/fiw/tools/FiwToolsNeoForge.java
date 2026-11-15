@@ -173,6 +173,11 @@ public final class FiwToolsNeoForge {
         com.fiw.tools.infinite.InfiniteItems.INSTANCE.onEntityLoad(event.getEntity());
         com.fiw.tools.ability.impl.SummonAbility.INSTANCE.onEntityLoad(event.getEntity());
         com.fiw.tools.projectile.ProjectileHooks.INSTANCE.onEntityLoad(event.getEntity());
+        // A hook above may discard a stray (a summon left over from a crash or restart).
+        // An entity removed while it joins would otherwise stay behind as a frozen ghost.
+        if (event.getEntity().isRemoved()) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
