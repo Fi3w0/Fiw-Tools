@@ -4,6 +4,24 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
+## [1.4.0] - Decoys
+
+### Added
+- **`decoy` ability.** Leaves a stand-in where you stand: a mob wearing copies of your armor and held items, with your name above it. No client mod needed. It soaks hits from its own `health` pool and pulls monsters off you (`taunt`).
+- Build your own decoy from **hooks** (`onSpawn`, `onHit`, `onDeath`, `onExpire`, and `every` N ticks), each running a list of **actions**: `explode`, `pull`, `push`, `damage`, `effect` (on nearby targets or on you with `"to": "owner"`), `command`, `particles`, `sound`. Any action can take a `delay`.
+- Example: `examples/items/mirage_cloak.json` makes you fast and invisible, and the decoy drags everyone in and bursts when it falls. The item guide has two more recipes (a thorny bait and a short-lived guard).
+- `"attacks": true` lets the decoy fight `attackTargets` for you; it never attacks its owner.
+
+### Fixed
+- **NeoForge:** a summoned ally left over from a server restart or crash is now removed when the world loads. Before, it could stay behind as a frozen mob that never moved or despawned. Fabric was not affected.
+
+### Notes
+- A decoy drops nothing: no loot, no experience, and the gear copies it wears cannot be obtained. It is removed when its time runs out, when the server stops, and on world load after a crash.
+- On **Peaceful** difficulty the game removes hostile mobs, so a hostile decoy body (the default husk included) is refused with a message and no cooldown. Set a non-hostile `entity` on Peaceful servers.
+- Decoy actions run in the owner's name and pause while the owner is offline or in another dimension. Area actions never hit the owner.
+- `command` actions run with full permission like `run_command`, with the same placeholder cleaning, and are recorded by `logCommands`.
+- 1.21.1 still has no generic infinite consumables (food only); that needs 1.21.8 or newer.
+
 ## [1.3.3] - Persistent cooldowns and command auditing
 
 Maintenance and bug-fix update. If something breaks or behaves differently than before, please report it on the [issue tracker](https://github.com/Fi3w0/Fiw-Tools/issues).
