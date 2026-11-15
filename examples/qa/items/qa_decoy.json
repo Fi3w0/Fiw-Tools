@@ -1,0 +1,33 @@
+{
+  "id": "qa_decoy",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Decoy",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "decoy",
+      "trigger": "on_right_click",
+      "cooldownTicks": 20,
+      "params": {
+        "duration": 100,
+        "health": 10,
+        "taunt": 0,
+        "onSpawn": [
+          { "do": "effect", "to": "owner", "effect": "speed", "duration": 200, "amplifier": 1 },
+          { "do": "command", "command": "tellraw {player} {\"text\": \"QA decoy spawned\", \"color\": \"aqua\"}" }
+        ],
+        "onHit": [
+          { "do": "command", "command": "tellraw {player} {\"text\": \"QA decoy hit\", \"color\": \"aqua\"}" }
+        ],
+        "onDeath": [
+          { "do": "pull", "radius": 6, "strength": 0.8 },
+          { "do": "explode", "radius": 4, "damage": 4, "delay": 5 },
+          { "do": "command", "command": "tellraw {player} {\"text\": \"QA decoy died\", \"color\": \"aqua\"}" }
+        ],
+        "onExpire": [
+          { "do": "command", "command": "tellraw {player} {\"text\": \"QA decoy expired\", \"color\": \"aqua\"}" }
+        ]
+      }
+    }
+  ]
+}

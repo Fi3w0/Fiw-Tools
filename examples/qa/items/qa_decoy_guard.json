@@ -1,0 +1,27 @@
+{
+  "id": "qa_decoy_guard",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Guard decoy",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "decoy",
+      "trigger": "on_right_click",
+      "cooldownTicks": 20,
+      "params": {
+        "duration": 400,
+        "health": 200,
+        "taunt": 0,
+        "attacks": true,
+        "attackTargets": "hostiles",
+        "copyEquipment": false,
+        "onSpawn": [
+          {
+            "do": "command",
+            "command": "tellraw {player} {\"text\": \"QA guard spawned\", \"color\": \"aqua\"}"
+          }
+        ]
+      }
+    }
+  ]
+}

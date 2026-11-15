@@ -11,7 +11,7 @@ const name = 'FiwQA'
 const qa = path.join(__dirname, '..', '..', 'examples', 'qa')
 const emit = value => process.stdout.write(JSON.stringify(value) + '\n')
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-const deadline = setTimeout(() => { emit({ error: 'Player verification timed out' }); process.exit(1) }, 150000)
+const deadline = setTimeout(() => { emit({ error: 'Player verification timed out' }); process.exit(1) }, 240000)
 const bot = mineflayer.createBot({ host: '127.0.0.1', port: Number(port), username: name, auth: 'offline', version })
 const messages = []
 bot.on('messagestr', message => messages.push(message.replace(/§./g, '')))
@@ -62,12 +62,22 @@ async function build(dimension, [x1, z1, x2, z2], fills) {
   }
 }
 
-// The four right-click wands of the QA pack, by the display name their config gives them.
+// The right-click wands of the QA pack, by the display name their config gives them.
 const wands = {
   slot: { id: 'qa_slot_cd', title: 'QA Slot cooldown', fired: 'QA slot fired' },
   groupA: { id: 'qa_group_a', title: 'QA Group A', fired: 'QA group A fired' },
   groupReset: { id: 'qa_group_reset', title: 'QA Group reset', fired: 'QA group reset fired' },
-  audit: { id: 'qa_audit', title: 'QA Command audit', fired: 'QA audit continued after invalid command' }
+  audit: { id: 'qa_audit', title: 'QA Command audit', fired: 'QA audit continued after invalid command' },
+  decoy: { id: 'qa_decoy', title: 'QA Decoy', fired: 'QA decoy spawned' },
+  bait: { id: 'qa_decoy_bait', title: 'QA Bait decoy', fired: 'QA bait spawned' },
+  guard: { id: 'qa_decoy_guard', title: 'QA Guard decoy', fired: 'QA guard spawned' }
+}
+const near = (entity, range) => entity.position.distanceTo(bot.entity.position) < range
+const decoys = (range = 4) => Object.values(bot.entities).filter(e => e.name === 'husk' && near(e, range))
+const monsters = () => Object.values(bot.entities).filter(e => e.name === 'endermite' && near(e, 16))
+const drops = () => Object.values(bot.entities).filter(e => (e.name === 'item' || e.name === 'experience_orb') && near(e, 8))
+async function said(text, start, timeout = 12000) {
+  await until(() => messages.slice(start).some(m => m.includes(text)), `chat line "${text}"`, timeout)
 }
 const describe = item => JSON.stringify(item, (key, value) => typeof value === 'bigint' ? value.toString() : value)
 const held = wand => bot.inventory.slots.filter(Boolean).find(item => describe(item).includes(wand.title))
@@ -115,7 +125,8 @@ async function main() {
   bot.physicsEnabled = false
   await chunksLoaded()
   await consoleCommand(`op ${name}`)
-  await consoleCommand('difficulty peaceful')
+  // The restart phase keeps the saved difficulty: Peaceful would delete a leftover decoy itself.
+  if (phase === 'first') await consoleCommand('difficulty peaceful')
   await consoleCommand(`gamemode survival ${name}`)
   await build('overworld', [-2, -2, 4, 2], ['fill -2 64 -2 4 64 2 minecraft:stone', 'fill -2 65 -2 4 68 2 minecraft:air'])
   await consoleCommand(`tp ${name} 0.5 65 0.5`)
@@ -124,13 +135,13 @@ async function main() {
   if (phase === 'first') {
     installPack()
     await consoleCommand('fiwtools reload')
-    await chat('/fiwtools list', 'Loaded 7 item(s)')
+    await chat('/fiwtools list', 'Loaded 10 item(s)')
     await chat('/fiwtools recipes', 'qa_slot_recipe')
     await consoleCommand('scoreboard objectives add fiw_qa dummy')
     await consoleCommand(`scoreboard players set ${name} fiw_qa 0`)
     await consoleCommand(`clear ${name}`)
     for (const wand of Object.values(wands)) await consoleCommand(`fiwtools give ${name} ${wand.id}`)
-    await until(() => Object.values(wands).every(held), 'all four QA items arrive with their configured names')
+    await until(() => Object.values(wands).every(held), 'every QA wand arrives with its configured name')
     emit({ assertion: 'config hot-reload loads the QA pack and /fiwtools give delivers named custom items' })
 
     await fires(wands.slot)
@@ -147,8 +158,64 @@ async function main() {
     await blocked(wands.slot, 'a config reload keeps the armed cooldown')
     await score(3)
     emit({ assertion: 'right-click abilities run their commands once; own, duplicate-copy and shared-group cooldowns block; reload keeps cooldowns' })
+
+    let mark = messages.length
+    await use(wands.decoy)
+    await said('cannot exist on Peaceful', mark)
+    assert.equal(decoys().length, 0, 'a hostile decoy is refused on Peaceful instead of vanishing')
+    await consoleCommand('difficulty easy')
+    await consoleCommand('time set day')
+    await consoleCommand(`effect clear ${name}`)
+    await delay(500)
+    await fires(wands.decoy)
+    await until(() => decoys().length === 1, 'a decoy mob stands where the player stood')
+    await until(() => Object.keys(bot.entity.effects ?? {}).length > 0, 'the onSpawn hook gave the owner an effect')
+    mark = messages.length
+    await consoleCommand('damage @e[tag=fiw_decoy,limit=1] 3')
+    await said('QA decoy hit', mark)
+    assert.equal(decoys().length, 1, 'a decoy survives a hit smaller than its health pool')
+    mark = messages.length
+    await consoleCommand('damage @e[tag=fiw_decoy,limit=1] 100')
+    await said('QA decoy died', mark)
+    await until(() => decoys().length === 0, 'a dead decoy is removed')
+    await delay(1000)
+    assert.equal(drops().length, 0, 'a decoy drops no loot, gear copies or experience')
+    mark = messages.length
+    await delay(1200)
+    await fires(wands.decoy)
+    await said('QA decoy expired', mark, 9000)
+    await until(() => decoys().length === 0, 'an expired decoy is removed')
+    await score(3)
+
+    // A real monster that is chasing the player gets pulled onto a bait decoy and hits it.
+    await consoleCommand('summon minecraft:endermite 3.5 65 0.5')
+    await until(() => monsters().length === 1, 'the test monster spawned')
+    await delay(1500)
+    mark = messages.length
+    await fires(wands.bait)
+    await said('QA bait hit', mark, 20000)
+    await consoleCommand('kill @e[type=minecraft:endermite]')
+    await consoleCommand('kill @e[tag=fiw_decoy]')
+    await until(() => decoys(16).length === 0 && monsters().length === 0, 'the bait scenario is cleaned up')
+
+    // A fighting decoy kills a monster on its own.
+    await consoleCommand('summon minecraft:endermite 3.5 65 0.5')
+    await until(() => monsters().length === 1, 'the second test monster spawned')
+    await fires(wands.guard)
+    await until(() => monsters().length === 0, 'the fighting decoy killed the monster', 40000)
+    assert(bot.health > 0, 'the owner is alive after standing next to a fighting decoy')
+    await consoleCommand('kill @e[tag=fiw_decoy]')
+    await until(() => decoys(16).length === 0, 'the fighting decoy is removed')
+    emit({ assertion: 'a taunting decoy draws a real monster attack; a fighting decoy kills a monster' })
+
+    await delay(1200)
+    await fires(wands.decoy)
+    await until(() => decoys().length === 1, 'a decoy is left standing for the restart check')
+    emit({ assertion: 'decoy is refused on Peaceful, spawns server-side on Easy, runs onSpawn/onHit/onDeath/onExpire actions, soaks damage and drops nothing' })
   } else if (phase === 'restart') {
     await until(() => Object.values(wands).every(held), 'custom items survive a server restart with their names')
+    await delay(1500)
+    assert.equal(decoys().length, 0, 'no decoy survives a server restart')
     await score(3)
     await blocked(wands.slot, 'the cooldown was saved on stop and restored on join')
     await blocked(wands.groupReset, 'the shared group cooldown was saved on stop and restored on join')

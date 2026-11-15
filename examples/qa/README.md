@@ -14,7 +14,7 @@ The two player-test jars should be `fabric-1.21.8/build/libs/fiw-tools-fabric-1.
 
 ## Install and setup
 
-Copy the seven files from `items/` directly into `config/fiw_tools/items/` and `recipes/qa_recipe.json` into `config/fiw_tools/recipes/`. Copy `settings/off.json` to `config/fiw_tools/settings.json` initially. These are instance-level configs, not world folders. Keep any original settings backed up. Do not copy `negative/` into an active config folder yet.
+Copy the ten files from `items/` directly into `config/fiw_tools/items/` and `recipes/qa_recipe.json` into `config/fiw_tools/recipes/`. Copy `settings/off.json` to `config/fiw_tools/settings.json` initially. These are instance-level configs, not world folders. Keep any original settings backed up. Do not copy `negative/` into an active config folder yet.
 
 Run in player chat as an operator (the mod commands require level 2):
 
@@ -32,6 +32,9 @@ Run in player chat as an operator (the mod commands require level 2):
 /fiwtools give @s qa_audit
 /fiwtools give @s qa_audit_helm
 /fiwtools give @s qa_soul_blade
+/fiwtools give @s qa_decoy
+/fiwtools give @s qa_decoy_bait
+/fiwtools give @s qa_decoy_guard
 /give @s minecraft:iron_sword
 /gamemode survival
 ```
@@ -59,6 +62,17 @@ Switch modes by copying the relevant `settings/*.json` over the active `settings
 - [ ] **File:** repeat. New JSON lines must append to `config/fiw_tools/logs/commands.jsonl`, including the failed attempt. Reconnect and repeat to verify appending. Stop cleanly and check the last commands were flushed.
 - [ ] **Passive:** wear `qa_audit_helm`; wait one sweep. Audit identifies `qa_audit_helm`, index 0. Its 60-second cooldown should prevent constant message spam. Remove it after checking.
 - [ ] **Invalid mode:** copy `settings/invalid-mode.json`, reload, and use the audit wand. Expect an unknown-mode warning and `off` behavior. Restore `off.json` afterwards.
+
+## Decoy
+
+- [ ] **Spawn:** right-click `qa_decoy`. A husk wearing your gear and name appears where you stand, you get Speed II, and chat shows `QA decoy spawned`.
+- [ ] **Hit:** punch it once. Chat shows `QA decoy hit`; it does not flinch or lose vanilla health.
+- [ ] **Death:** keep hitting (10 damage total). Chat shows `QA decoy died`, nearby mobs are pulled in and a blast follows. Nothing drops: no rotten flesh, no gear, no experience.
+- [ ] **Expire:** spawn another and wait five seconds. Chat shows `QA decoy expired` and it vanishes in a puff.
+- [ ] **Bait:** on Easy or harder, let a zombie or endermite chase you, then right-click `qa_decoy_bait`. Within a second or two the monster turns on the decoy; each of its hits prints `QA bait hit`.
+- [ ] **Guard:** spawn a monster nearby and right-click `qa_decoy_guard`. The decoy walks over and kills it, and never damages you even at arm's length.
+- [ ] **Peaceful:** on Peaceful, `qa_decoy` prints `This decoy cannot exist on Peaceful difficulty.` and spawns nothing.
+- [ ] **No leftovers:** spawn one and stop the server at once. After restart no decoy stands there.
 
 ## Config stress and existing state
 

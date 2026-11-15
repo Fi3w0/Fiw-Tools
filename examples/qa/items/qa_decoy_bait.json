@@ -1,0 +1,30 @@
+{
+  "id": "qa_decoy_bait",
+  "base": "minecraft:carrot_on_a_stick",
+  "displayName": "&bQA Bait decoy",
+  "autoLore": true,
+  "abilities": [
+    {
+      "type": "decoy",
+      "trigger": "on_right_click",
+      "cooldownTicks": 20,
+      "params": {
+        "duration": 300,
+        "health": 200,
+        "taunt": 12,
+        "onHit": [
+          {
+            "do": "command",
+            "command": "tellraw {player} {\"text\": \"QA bait hit\", \"color\": \"aqua\"}"
+          }
+        ],
+        "onSpawn": [
+          {
+            "do": "command",
+            "command": "tellraw {player} {\"text\": \"QA bait spawned\", \"color\": \"aqua\"}"
+          }
+        ]
+      }
+    }
+  ]
+}
