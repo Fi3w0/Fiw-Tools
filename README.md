@@ -337,6 +337,15 @@ Output jars land in each module's `build/libs/`.
 
 </details>
 
+### Automated gameplay checks
+
+With Node 22+ installed, run `npm ci --prefix .github/player-tests --ignore-scripts` once, then
+`bash .github/scripts/verify-target.sh <module>` to play a built production jar in a disposable
+local server: it loads the QA pack from `examples/qa`, gives the items, fires their abilities,
+checks own, duplicate and shared-group cooldowns and the command audit log, then repeats after
+a restart. CI runs this for every target before anything is published. Output is under
+`build/smoke/<module>`.
+
 ### Repository layout
 
 ```text

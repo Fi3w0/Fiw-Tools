@@ -42,7 +42,18 @@ Run the current matrix before pushing:
 ./gradlew :fabric-26.1.2:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-1.21.8:build :neoforge-1.21.8:build :fabric-1.21.1:build :neoforge-1.21.1:build
 ```
 
-For in-game testing, build the relevant jar and copy it to a matching Minecraft instance's `mods/` folder.
+Then play the built jars with the scripted client (Node 22+ required). It boots each production
+jar in a disposable server under `build/smoke/`, installs the QA pack from `examples/qa`, uses
+the items like a player would and restarts the server:
+
+```bash
+npm ci --prefix .github/player-tests --ignore-scripts
+bash .github/scripts/verify-target.sh fabric-26.1.2   # repeat for every module
+```
+
+CI runs the same check for every target and only publishes when all of them pass.
+
+For manual in-game testing, build the relevant jar and copy it to a matching Minecraft instance's `mods/` folder.
 
 ## Pull Requests
 
