@@ -163,8 +163,10 @@ class FiwCraftingRecipe(
         )
 
         /**
-         * Fabric only: registers straight into the vanilla registry at mod init. NeoForge freezes
-         * vanilla registries outside RegisterEvent, so its entrypoint registers [SERIALIZER] there.
+         * Fabric only: registers straight into the vanilla registry at mod init. NeoForge does NOT
+         * register it: NeoForge syncs this registry, so the entry would lock out every NeoForge
+         * client that lacks the mod. There the recipes are kept out of NeoForge's recipe sync
+         * instead (RecipeContentPayloadMixin in the NeoForge module).
          */
         fun register() {
             net.minecraft.core.Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, ID, SERIALIZER)
