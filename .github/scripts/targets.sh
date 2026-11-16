@@ -20,8 +20,16 @@ OPTIONAL_LUCKPERMS="false"
 PLAYER_SCRIPT=".github/player-tests/tools.cjs"
 PLAYER_PHASES="first,restart"
 
+# Minecraft versions the headless test client cannot join yet (space separated). Their targets
+# run the boot and console checks only (verify-target.sh). mineflayer 4.39 stops at 26.1.
+NO_CLIENT_MINECRAFT="26.3"
+# Console-only checks for those versions: loads the QA pack and checks every item and recipe builds.
+NO_CLIENT_SCRIPT=".github/player-tests/tools-console.cjs"
+
 # Every released jar, newest Minecraft first: "<module> <modrinth loader> <minecraft version>".
 TARGETS=(
+  "fabric-26.3 fabric 26.3"
+  "neoforge-26.3 neoforge 26.3"
   "fabric-26.1.2 fabric 26.1.2"
   "neoforge-26.1.2 neoforge 26.1.2"
   "fabric-1.21.11 fabric 1.21.11"
