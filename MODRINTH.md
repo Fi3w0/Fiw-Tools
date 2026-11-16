@@ -8,7 +8,7 @@
 No Java. No restarts. Fabric and NeoForge builds are both supported.
 
 [![Modrinth](https://img.shields.io/modrinth/v/fiw-custom-items?label=Modrinth&logo=modrinth&color=00AF5C)](https://modrinth.com/mod/fiw-custom-items)
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.8_·_1.21.11_·_26.1.2-62B47A)](https://minecraft.net)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1_·_1.21.8_·_1.21.11_·_26.1.2_·_26.3-62B47A)](https://minecraft.net)
 [![Fabric](https://img.shields.io/badge/Fabric-✓-DBB591)](https://fabricmc.net)
 [![NeoForge](https://img.shields.io/badge/NeoForge-✓-F16436)](https://neoforged.net)
 
@@ -178,6 +178,8 @@ Full schema and every ability parameter are in the documentation.
 | NeoForge | 1.21.11 | 21 |
 | Fabric | 26.1.2 | 25 |
 | NeoForge | 26.1.2 | 25 |
+| Fabric | 26.3 | 25 |
+| NeoForge | 26.3 | 25 |
 
 Fabric builds need [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin).
 

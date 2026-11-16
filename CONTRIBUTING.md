@@ -8,7 +8,7 @@
 
 ## Build
 
-The mod currently targets Fabric and NeoForge across eight loader modules:
+The mod currently targets Fabric and NeoForge across ten loader modules:
 
 ```bash
 ./gradlew build
@@ -39,7 +39,7 @@ For a single target:
 Run the current matrix before pushing:
 
 ```bash
-./gradlew :fabric-26.1.2:build :neoforge-26.1.2:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-1.21.8:build :neoforge-1.21.8:build :fabric-1.21.1:build :neoforge-1.21.1:build
+./gradlew :fabric-26.3:build :neoforge-26.3:build :fabric-26.1.2:build :neoforge-26.1.2:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-1.21.8:build :neoforge-1.21.8:build :fabric-1.21.1:build :neoforge-1.21.1:build
 ```
 
 Then play the built jars with the scripted client (Node 22+ required). It boots each production
@@ -51,7 +51,9 @@ npm ci --prefix .github/player-tests --ignore-scripts
 bash .github/scripts/verify-target.sh fabric-26.1.2   # repeat for every module
 ```
 
-CI runs the same check for every target and only publishes when all of them pass.
+CI runs the same check for every target and only publishes when all of them pass. Minecraft 26.3
+targets run the boot and console checks only (`NO_CLIENT_MINECRAFT` in `.github/scripts/targets.sh`)
+until the test client can join 26.3.
 
 For manual in-game testing, build the relevant jar and copy it to a matching Minecraft instance's `mods/` folder.
 

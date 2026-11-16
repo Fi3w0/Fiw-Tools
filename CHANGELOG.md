@@ -7,6 +7,7 @@ version header.
 ## [1.3.4] - Decoys
 
 ### Added
+- **Minecraft 26.3** on Fabric and NeoForge (Java 25). With it the mod ships ten jars: Fabric and NeoForge for 1.21.1, 1.21.8, 1.21.11, 26.1.2 and 26.3.
 - **NeoForge 26.1.2** jar, alongside Fabric 26.1.2. Like the other NeoForge jars it includes the Kotlin runtime and goes on the server only.
 - **`decoy` ability.** Leaves a stand-in where you stand: a mob wearing copies of your armor and held items, with your name above it. No client mod needed. It soaks hits from its own `health` pool and pulls monsters off you (`taunt`).
 - Build your own decoy from **hooks** (`onSpawn`, `onHit`, `onDeath`, `onExpire`, and `every` N ticks), each running a list of **actions**: `explode`, `pull`, `push`, `damage`, `effect` (on nearby targets or on you with `"to": "owner"`), `command`, `particles`, `sound`. Any action can take a `delay`.
