@@ -92,7 +92,7 @@ jar {
 
     from { project(':core').sourceSets.main.output }
 
-    from("LICENSE") {
+    from(rootProject.file('LICENSE')) {
         rename { "${it}_$projectName"}
     }
 }

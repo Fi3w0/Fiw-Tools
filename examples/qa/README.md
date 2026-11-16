@@ -1,13 +1,13 @@
 # QA pack
 
-One test pack for the current version, updated in place each release. Use the Prism instances **FIW Test Fabric 1.21.8** and **FIW Test NeoForge 1.21.11** (Java 21) with a new disposable world. Fabric also needs Fabric API and Fabric Language Kotlin.
+One test pack for the current version, updated in place each release. Use a Fabric 1.21.8 and a NeoForge 1.21.11 client instance (Java 21) with a new disposable world. Fabric also needs Fabric API and Fabric Language Kotlin.
 
 ## Build before installing
 
 From this repo, run Gradle on JDK 25 (the per-target toolchains select Java 21/25):
 
 ```sh
-JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-25.jdk/Contents/Home ./gradlew build --stacktrace
+./gradlew build --stacktrace   # with JAVA_HOME pointing at a JDK 25
 ```
 
 The two player-test jars should be `fabric-1.21.8/build/libs/fiw-tools-fabric-1.21.8-<version>.jar` and `neoforge-1.21.11/build/libs/fiw-tools-neoforge-1.21.11-<version>.jar`. Do not rename an old jar to these names. NeoForge ships its own nested Kotlin runtime; no Kotlin-for-Forge dependency is required. Some older NeoForge dev `runServer` configurations have a known Kotlin classpath problem, so validate production jars separately if a dev launch fails.
