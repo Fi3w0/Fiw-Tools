@@ -177,6 +177,7 @@ Full schema and every ability parameter are in the documentation.
 | Fabric | 1.21.11 | 21 |
 | NeoForge | 1.21.11 | 21 |
 | Fabric | 26.1.2 | 25 |
+| NeoForge | 26.1.2 | 25 |
 
 Fabric builds need [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin).
 

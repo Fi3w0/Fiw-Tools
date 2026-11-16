@@ -7,6 +7,7 @@ version header.
 ## [1.3.4] - Decoys
 
 ### Added
+- **NeoForge 26.1.2** jar, alongside Fabric 26.1.2. Like the other NeoForge jars it includes the Kotlin runtime and goes on the server only.
 - **`decoy` ability.** Leaves a stand-in where you stand: a mob wearing copies of your armor and held items, with your name above it. No client mod needed. It soaks hits from its own `health` pool and pulls monsters off you (`taunt`).
 - Build your own decoy from **hooks** (`onSpawn`, `onHit`, `onDeath`, `onExpire`, and `every` N ticks), each running a list of **actions**: `explode`, `pull`, `push`, `damage`, `effect` (on nearby targets or on you with `"to": "owner"`), `command`, `particles`, `sound`. Any action can take a `delay`.
 - Example: `examples/items/mirage_cloak.json` makes you fast and invisible, and the decoy drags everyone in and bursts when it falls. The item guide has two more recipes (a thorny bait and a short-lived guard).

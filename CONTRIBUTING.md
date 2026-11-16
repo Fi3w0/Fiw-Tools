@@ -8,7 +8,7 @@
 
 ## Build
 
-The mod currently targets Fabric and NeoForge across five loader modules:
+The mod currently targets Fabric and NeoForge across eight loader modules:
 
 ```bash
 ./gradlew build
@@ -39,7 +39,7 @@ For a single target:
 Run the current matrix before pushing:
 
 ```bash
-./gradlew :fabric-26.1.2:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-1.21.8:build :neoforge-1.21.8:build :fabric-1.21.1:build :neoforge-1.21.1:build
+./gradlew :fabric-26.1.2:build :neoforge-26.1.2:build :fabric-1.21.11:build :neoforge-1.21.11:build :fabric-1.21.8:build :neoforge-1.21.8:build :fabric-1.21.1:build :neoforge-1.21.1:build
 ```
 
 Then play the built jars with the scripted client (Node 22+ required). It boots each production

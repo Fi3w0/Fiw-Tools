@@ -88,6 +88,7 @@ Full JSON reference -> **[ITEM_CONFIG_DOCS.md](ITEM_CONFIG_DOCS.md)**
 | Fabric   | 1.21.11   | `fabric-1.21.11`   | 21   |
 | NeoForge | 1.21.11   | `neoforge-1.21.11` | 21   |
 | Fabric   | 26.1.2    | `fabric-26.1.2`    | 25   |
+| NeoForge | 26.1.2    | `neoforge-26.1.2`  | 25   |
 
 | Loader | Extra requirements |
 | ------ | ------------------ |
@@ -313,7 +314,7 @@ config/fiw_tools/data/cooldowns/  persisted player cooldowns
 
 ## Building
 
-Run Gradle with **JDK 25** available. The 1.21.1, 1.21.8 and 1.21.11 modules compile against a Java 21 toolchain, and the Fabric 26 module compiles against Java 25.
+Run Gradle with **JDK 25** available. The 1.21.1, 1.21.8 and 1.21.11 modules compile against a Java 21 toolchain, and the 26.1.2 modules compile against Java 25.
 
 ```bash
 git clone https://github.com/Fi3w0/Fiw-Tools
@@ -331,7 +332,8 @@ cd Fiw-Tools
   :fabric-1.21.8:build \
   :neoforge-1.21.8:build \
   :neoforge-1.21.11:build \
-  :fabric-26.1.2:build
+  :fabric-26.1.2:build \
+  :neoforge-26.1.2:build
 ```
 
 Output jars land in each module's `build/libs/`.
@@ -361,6 +363,7 @@ fabric-1.21.11/      Fabric entrypoint, events, metadata, build
 neoforge-1.21.11/    NeoForge entrypoint, events, metadata, build
 common-26.1.2/       shared MC 26.1.2 implementation
 fabric-26.1.2/       Fabric entrypoint, events, metadata, build
+neoforge-26.1.2/     NeoForge entrypoint, events, metadata, build
 examples/             example item JSON + FIW Bosses integration configs
 ```
 
