@@ -3216,6 +3216,10 @@ ingredients and results. No viewer integration or dependency involved; it's plai
 display sync, so it can't break anything when no viewer is installed. (1.21.1 predates the
 recipe-display rework, so there the crafts stay grid-only.)
 
+On **NeoForge**, viewers that get their recipes from NeoForge's own recipe sync (JEI, for
+example) do not list these recipes: sending them would force every NeoForge player to install
+the mod. The vanilla recipe book still shows them.
+
 One file can hold **as many recipes as you like**: a single recipe object, a bare array, or a `{ "recipes": [ ... ] }` wrapper.
 
 ```json

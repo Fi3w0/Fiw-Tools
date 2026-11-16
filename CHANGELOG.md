@@ -15,9 +15,11 @@ version header.
 - `"attacks": true` lets the decoy fight `attackTargets` for you; it never attacks its owner.
 
 ### Fixed
+- **NeoForge 1.21.8 and newer:** players using a NeoForge client without Fiw Custom Items could not join a server that runs it (the client reported unknown registry keys for `fiw_tools:custom_recipe`). The mod is server-side only again: any client can join. Vanilla clients were never affected.
 - **NeoForge:** a summoned ally left over from a server restart or crash is now removed when the world loads. Before, it could stay behind as a frozen mob that never moved or despawned. Fabric was not affected.
 
 ### Notes
+- On NeoForge, recipe viewers that get their recipes from NeoForge's recipe sync (JEI, for example) no longer list Fiw Custom Items recipes. That is the price of the join fix above. The vanilla recipe book and crafting itself are unchanged, and Fabric is unchanged.
 - A decoy drops nothing: no loot, no experience, and the gear copies it wears cannot be obtained. It is removed when its time runs out, when the server stops, and on world load after a crash.
 - On **Peaceful** difficulty the game removes hostile mobs, so a hostile decoy body (the default husk included) is refused with a message and no cooldown. Set a non-hostile `entity` on Peaceful servers.
 - Decoy actions run in the owner's name and pause while the owner is offline or in another dimension. Area actions never hit the owner.
