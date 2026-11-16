@@ -4,7 +4,7 @@ All notable changes to this project are documented here. Each release's section 
 is used as the GitHub Release notes by the release workflow when the tag matches the
 version header.
 
-## [1.4.0] - Decoys
+## [1.3.4] - Decoys
 
 ### Added
 - **`decoy` ability.** Leaves a stand-in where you stand: a mob wearing copies of your armor and held items, with your name above it. No client mod needed. It soaks hits from its own `health` pool and pulls monsters off you (`taunt`).
