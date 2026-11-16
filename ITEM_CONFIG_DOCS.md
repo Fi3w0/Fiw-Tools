@@ -11,7 +11,7 @@ Items are defined as `.json` files — no coding, no client install, no server r
 | `config/fiw_tools/logs/commands.jsonl` | Command audit log when `logCommands` is `file` |
 | `examples/items/` | Pre-built items ready to copy |
 
-> **Server-side only.** Fiw Custom Items has no client-side code, so it installs on the server only (Fabric or NeoForge) and players never need the mod to join. On Fabric, even fully vanilla clients can connect.
+> **Server-side only.** Fiw Custom Items has no client-side code, so it installs on the server only (Fabric or NeoForge) and players never need the mod to join. Fully vanilla clients can connect on both loaders.
 
 > **Hot reload:** `/fiwtools reload` — picks up all item changes instantly.
 

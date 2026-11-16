@@ -32,7 +32,7 @@ For a single target:
 - 4-space indentation, UTF-8, LF line endings.
 - Keep Kotlin common logic loader-neutral.
 - Keep per-loader event adapters thin.
-- No AI co-author trailers on commits. Author must be a human.
+- No co-author trailers on commits.
 
 ## Testing
 

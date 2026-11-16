@@ -24,7 +24,7 @@ Fiw Custom Items turns JSON files into playable server items. Drop an item file 
 
 It is not a fixed item pack: vanilla item bases, custom names and lore, attributes, enchantments above vanilla caps, durability, food, tool rules, curses, imbuements, keep-on-death flags, and active or passive abilities all come from config.
 
-> **Server-side only.** Fiw Custom Items has no client-side code — install it on the server only, on Fabric or NeoForge. Players do not need the mod (or any resource pack) to join. On Fabric, even fully vanilla clients can connect.
+> **Server-side only.** Fiw Custom Items has no client-side code — install it on the server only, on Fabric or NeoForge. Players do not need the mod (or any resource pack) to join. Fully vanilla clients can connect on both loaders.
 
 > **Compatibility note:** the internal mod id, config folder, `/fiwtools` command, and `FiwToolsAPI` names stay as `fiw_tools` / Fiw Tools for existing servers and integrations.
 
@@ -195,7 +195,7 @@ Per-station `enchanting` rules gate the table, anvil, grindstone, and smithing t
 
 ### Item commands
 
-The `run_command` ability silently executes any server command(s) on any trigger — with `{player}`, `{x}/{y}/{z}`, `{target}` placeholders. Combined with the new `on_shift_right_click` trigger, one item can carry two full command kits.
+The `run_command` ability silently executes any server command(s) on any trigger — with `{player}`, `{x}/{y}/{z}`, `{target}` placeholders. Combined with the `on_shift_right_click` trigger, one item can carry two full command kits.
 
 ### Hot reload and sync
 
@@ -343,14 +343,6 @@ cd Fiw-Tools
 Output jars land in each module's `build/libs/`.
 
 </details>
-
-### Automated gameplay checks
-
-With Node 22+ installed, run `npm ci --prefix .github/player-tests --ignore-scripts` once, then
-`bash .github/scripts/verify-target.sh <module>` to play a built production jar in a disposable
-local server: it loads test items, gives them to a scripted player, fires their abilities,
-checks cooldowns, decoys and the command audit log, then repeats after a restart. CI runs this for every target before anything is published. Minecraft 26.3 gets the startup and console checks only until the test client supports it. Output is under
-`build/smoke/<module>`.
 
 ### Repository layout
 

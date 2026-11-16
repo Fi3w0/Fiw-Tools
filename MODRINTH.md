@@ -24,7 +24,7 @@ It is not a fixed item pack. It lets you build your own progression: custom disp
 
 It also pairs with **FIW Bosses**. Bosses can equip or drop Fiw Custom Items entries by id through `toolId`, and the boss mod safely skips those entries if Fiw Custom Items is not installed.
 
-Fiw Custom Items is server-side only — it has no client-side code. Install it on the server (Fabric or NeoForge); players do not need the mod to join. On Fabric, even fully vanilla clients can connect.
+Fiw Custom Items is server-side only — it has no client-side code. Install it on the server (Fabric or NeoForge); players do not need the mod to join. Fully vanilla clients can connect on both loaders.
 
 The internal mod id, config folder, `/fiwtools` command, and `FiwToolsAPI` names stay as `fiw_tools` / Fiw Tools for compatibility with existing servers and integrations.
 

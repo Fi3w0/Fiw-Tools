@@ -30,8 +30,8 @@ body:
     id: mod_version
     attributes:
       label: Fiw Custom Items version
-      description: The mod version (e.g. 1.0.6).
-      placeholder: "1.0.6"
+      description: The mod version (e.g. 1.3.4).
+      placeholder: "1.3.4"
     validations:
       required: true
 
