@@ -93,6 +93,22 @@ def player_session(script, port, mc, phase, work, server):
                 bot.wait()
 
 
+def known_noise():
+    """Log lines that look like errors but are verified harmless. Keep each pattern specific.
+
+    NeoForge 1.21.11 on Linux: its debug log appender fails to render Netty's probe of the
+    macOS/BSD-only kqueue transport and prints that stack trace ("Caused by: ... kqueue",
+    "Only supported on OSX/BSD"). The server is unaffected. Seen on GitHub runners, not on macOS.
+    A repository can add its own patterns, one regex per line, in .github/boot/known-noise.txt.
+    """
+    patterns = [r"io\.netty\.channel\.kqueue", r"Only supported on OSX/BSD"]
+    extra = ROOT / ".github" / "boot" / "known-noise.txt"
+    if extra.exists():
+        patterns += [line.strip() for line in extra.read_text().splitlines()
+                     if line.strip() and not line.lstrip().startswith("#")]
+    return re.compile("|".join(f"(?:{p})" for p in patterns))
+
+
 def run_session(command, work, session, commands, expected, mc, script=None, port=None, after_script=None):
     log = work / f"{session}.log"
     with log.open("w") as output:
@@ -140,7 +156,8 @@ def run_session(command, work, session, commands, expected, mc, script=None, por
         if token not in text:
             raise RuntimeError(f"Missing command response {token!r}; see {log}")
     failures = [line for line in text.splitlines()
-                if re.search(r"(?:/ERROR\]|\[ERROR\]|FATAL|Caused by:|MixinApplyError|InvalidMixinException)", line)]
+                if re.search(r"(?:/ERROR\]|\[ERROR\]|FATAL|Caused by:|MixinApplyError|InvalidMixinException)", line)
+                and not known_noise().search(line)]
     if failures:
         raise RuntimeError(f"Errors in {log}:\n" + "\n".join(failures[:20]))
     if list((work / "crash-reports").glob("*")):
