@@ -1,0 +1,98 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+evaluationDependsOn(':core')
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = "${project.archives_base_name}-neoforge-26.1.2"
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir rootProject.file('common-26.1.2/src/main/java')
+        }
+        resources {
+            srcDir rootProject.file('common-26.1.2/src/main/resources')
+        }
+    }
+}
+
+kotlin {
+    sourceSets {
+        main {
+            kotlin.srcDir(rootProject.file('common-26.1.2/src/main/kotlin'))
+        }
+    }
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_25
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+
+neoForge {
+    version = project.neoforge_version
+
+    runs {
+        client { client() }
+        server { server() }
+    }
+
+    mods {
+        "fiw_tools" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.3.21"
+    // Ship kotlin-stdlib as a nested Jar-in-Jar (META-INF/jarjar) instead of merging its
+    // classes into our jar. A merged copy makes the fiw_tools JPMS module export kotlin.*
+    // packages and crashes module resolution next to Kotlin for Forge / KotlinLangForge.
+    // As JiJ, NeoForge dedupes it and loads the newest stdlib any mod asks for.
+    jarJar("org.jetbrains.kotlin:kotlin-stdlib") {
+        version {
+            strictly '[2.3.21,)'
+            prefer '2.3.21'
+        }
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand 'version': project.version
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { project(':core').sourceSets.main.output }
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}
